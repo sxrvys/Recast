@@ -103,3 +103,10 @@ Main Drunkenness controls timing; Glitch controls structural disruption. Apply d
 Feel / instability now uses direct sliders: Timing sway, Late lean, Uneven repeats and Tail cutting. More feel controls expands the detailed settings. Select which lanes should stay steady, adjust controls, then Generate a new take. Use current as input deliberately establishes a new base; Make space generates a sparser result. These are settings for generating fixed editable notes, not live automation knobs.
 
 Hover buttons or slider labels/tracks for explanations in the bottom-left footer. Leaving a control restores the ordinary status message.
+
+BETA 5: MUSICAL FOUNDATIONS
+The style dropdown now has 13 foundations, each with a short description: Broken funk, Half-time weight, Driving syncopation, Straight backbeat, Four to the floor, Electro breaks, Two-step, Dub space, Slow crush, Motor pulse, Tresillo, Shuffle and Breakbeat. Selecting one does not replace your notes; Generate creates a new foundation. All remain 4/4.
+
+The added grammars coordinate fixed kick cores, optional syncopated kick choices, backbeats, quieter snare ghosts, hat subdivisions/accents and restrained phrase endings. A main motif recurs with an answering bar. Shuffle writes its long/short timing into the notes; it is not only a label or an audio effect. Breakbeat favors syncopated kicks, more ghosts and accented hat detail. Detail scales optional activity. Drunkenness, Glitch, step editing, sample pools and MIDI output work on every foundation. Use protection to retain the foundation while damaging the details.
+
+These are authored musical rules, not a trained AI or a comprehensive representation of each named genre. The original three saved style indices are unchanged.

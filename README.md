@@ -14,9 +14,9 @@ Recast is an experimental Max for Live instrument. It has automated regression t
 
 ### Generate a foundation
 
-- Coordinated kick, snare and hat patterns, with three starting families: **Broken funk, Half-time weight and Driving syncopation**.
+- Coordinated kick, snare and hat patterns, with **13 starting foundations**: Broken funk, Half-time weight, Driving syncopation, Straight backbeat, Four to the floor, Electro breaks, Two-step, Dub space, Slow crush, Motor pulse, Tresillo, Shuffle and Breakbeat.
 - Quick pattern lengths of **1, 2, 4, 8, 12 or 16 bars**.
-- Each Generate click constructs a kick motif, complementary answer, hat subdivision and supporting ghost-note placement within the selected style. The generator combines musical constraints with aggregate position tendencies from reference examples; it does not select named patterns from a bundled book library. See [the rhythm design notes](docs/RHYTHM.md).
+- Each Generate click constructs a kick motif, complementary answer, hat subdivision and supporting ghost-note placement within the selected style. The original three families combine musical constraints with aggregate position tendencies from reference examples; the ten additional foundations use authored rules for kick cores, backbeats, hat articulation, ghost-note space and phrase endings. Shuffle adds long/short timing directly to the generated notes. It does not select named patterns from a bundled book library. See [the rhythm design notes](docs/RHYTHM.md).
 - Regenerate an individual instrument from the Edit menu while keeping the others.
 - Build replies, fills, related variations and developing phrases.
 - Enter a BPM directly or use tap tempo.
@@ -123,7 +123,7 @@ Audio is linked to files; it is not embedded in the JSON. Use collection/relinki
 
 ## Current limits
 
-- Three initial style families; up to 12 instruments and 1,024 hits per pattern.
+- Thirteen starting foundations; up to 12 instruments and 1,024 hits per pattern.
 - Rendered-sound MIDI has a finite note bank: up to 122 distinct sounds, reduced by additional instrument lanes. Older mappings are retained; bank exhaustion is reported.
 - Recovery history is temporary and clears on a new playback or session load. Recorded malfunction controls use quarter-beat segments, up to 64 segments.
 - Level matching estimates RMS/peak energy; it is not perceptual loudness matching.

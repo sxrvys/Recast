@@ -162,3 +162,5 @@ include("recast-damage.js");
 
 include("recast-browser-nav.js");
 include("recast-feel-ui.js");
+
+include("recast-vocabulary.js");

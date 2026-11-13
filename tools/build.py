@@ -4,7 +4,7 @@ import argparse,hashlib,json,struct,zipfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent.parent
 SRC=ROOT/'MaxForLive'
-VERSION='0.1.0-beta.4'
+VERSION='0.1.0-beta.5'
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--zip',action='store_true',help='Also produce dist/Recast-<version>.zip')
 p.add_argument('--output',type=Path,default=ROOT/'dist/Recast')
@@ -13,7 +13,7 @@ a=p.parse_args();out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
 names=['recast-native.js']
 import re
 names+=re.findall(r'include\("([^\"]+)"\)',(SRC/names[0]).read_text())
-assert len(names)==len(set(names))==32
+assert len(names)==len(set(names))==33
 inputs=names+['recast-voice.maxpat','Recast.maxpat']
 digest=hashlib.sha256(b''.join((SRC/n).read_bytes() for n in sorted(inputs))).hexdigest()[:12]
 prefix='recast-'+digest+'-'
