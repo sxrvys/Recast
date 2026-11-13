@@ -1,0 +1,15 @@
+.DS_Store
+node_modules/
+__pycache__/
+*.pyc
+dist/
+Tests/*.json
+*.als
+*.alc
+*.asd
+*.wav
+*.aif
+*.aiff
+*.mp3
+*.mp4
+Rendered/

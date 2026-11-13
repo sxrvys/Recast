@@ -1,0 +1,9 @@
+{
+  "name": "recast-m4l",
+  "version": "0.1.0-beta.1",
+  "private": true,
+  "description": "A generative step sequencer and sample instrument for Max for Live",
+  "license": "MIT",
+  "scripts": {"test": "node tools/test.cjs", "build": "python3 tools/build.py --zip"},
+  "engines": {"node": ">=18"}
+}
