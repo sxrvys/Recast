@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Build a clean, relocatable Recast device and optional distributable ZIP."""
 import argparse,hashlib,json,struct,zipfile
+from make_starter_kit import generate
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent.parent
 SRC=ROOT/'MaxForLive'
-VERSION='0.1.0-beta.5'
+VERSION='0.1.0-beta.6'
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--zip',action='store_true',help='Also produce dist/Recast-<version>.zip')
 p.add_argument('--output',type=Path,default=ROOT/'dist/Recast')
@@ -13,11 +14,12 @@ a=p.parse_args();out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
 names=['recast-native.js']
 import re
 names+=re.findall(r'include\("([^\"]+)"\)',(SRC/names[0]).read_text())
-assert len(names)==len(set(names))==33
+assert len(names)==len(set(names))==34
+starter=generate(out/'Starter Kit')
 inputs=names+['recast-voice.maxpat','Recast.maxpat']
-digest=hashlib.sha256(b''.join((SRC/n).read_bytes() for n in sorted(inputs))).hexdigest()[:12]
+digest=hashlib.sha256(b''.join((SRC/n).read_bytes() for n in sorted(inputs))+b''.join((out/'Starter Kit'/n).read_bytes() for n in starter)).hexdigest()[:12]
 prefix='recast-'+digest+'-'
-manifest=[]
+manifest=['Starter Kit/'+n for n in starter]
 for n in names:
  text=(SRC/n).read_text().replace('autowatch = 1;','autowatch = 0;').replace('recast-',prefix)
  target=n.replace('recast-',prefix);(out/target).write_text(text);manifest.append(target)

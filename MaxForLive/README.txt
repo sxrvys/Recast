@@ -2,7 +2,7 @@ RECAST — SMART SEQUENCER / SAMPLER
 
 START
 Load Recast on one MIDI track in Live. Its compact 200px device strip opens the instrument with Open Recast. The editor does not open automatically.
-Choose a style, choose a pattern length, then Generate. Browse a WAV/AIFF for each active kit role, or drop a file onto its sample name. Play auditions the generated pattern, never a hidden reference recording.
+New instances load a starter kit automatically. Choose a style, choose a pattern length, then Generate and Play. Browse a WAV/AIFF to replace any sound, or drop a file onto its sample name. Play auditions the generated pattern, never a hidden reference recording.
 
 GROOVE
 The three starting styles use coordinated kick, snare and hat phrases with complementary bars. New KICK / SNARE / HAT / PERC / TEXTURE / BASS changes that role independently. Lengths are 1, 2, 4, 8, 12 or 16 bars. Type BPM in the number field or use Tap.
@@ -110,3 +110,8 @@ The style dropdown now has 13 foundations, each with a short description: Broken
 The added grammars coordinate fixed kick cores, optional syncopated kick choices, backbeats, quieter snare ghosts, hat subdivisions/accents and restrained phrase endings. A main motif recurs with an answering bar. Shuffle writes its long/short timing into the notes; it is not only a label or an audio effect. Breakbeat favors syncopated kicks, more ghosts and accented hat detail. Detail scales optional activity. Drunkenness, Glitch, step editing, sample pools and MIDI output work on every foundation. Use protection to retain the foundation while damaging the details.
 
 These are authored musical rules, not a trained AI or a comprehensive representation of each named genre. The original three saved style indices are unchanged.
+
+BETA 6: IMMEDIATE PLAYBACK
+New instances automatically assign a small original synthesized starter kit: Kick, Snare, Hat, Metal, Relay and Bass. Choose Generate, then Play without browsing first. All six are 16-bit / 44.1 kHz mono WAVs, included under the project MIT license. Replace any sound normally. No extra UI or network download is needed.
+Keep Starter Kit beside Recast.amxd. The build generates these assets from tools/make_starter_kit.py. Saved sessions retain their custom assignments and deliberately empty lanes. Starter-file references relink to the installed Starter Kit when the device is moved; custom sample references remain yours.
+Automatic source restoration skips empty or missing paths and uses explicit import, avoiding unexpected file-picker fallbacks. Missing session audio remains available through Files / recovery.

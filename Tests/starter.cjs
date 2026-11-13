@@ -1,0 +1,28 @@
+const fs=require('fs'),vm=require('vm'),path=require('path'),assert=require('assert');
+const root=path.join(__dirname,'../MaxForLive');let outs=[],tasks=[],files={},draws=[];
+const stub={framecount:()=>441,length:()=>10,channelcount:()=>1,peek:(c,s,n)=>n?Array(n).fill(.1):.1,send(){}};
+const ctx={mgraphics:{init(){},redraw(){},set_source_rgba(){},rectangle(...a){draws.push(a)},fill(){},select_font_face(){},set_font_size(){},move_to(){},show_text(){}},Task:function(fn){this.fn=fn;this.schedule=()=>{tasks.push(this)};this.cancel=this.repeat=()=>{}},outlet:(...a)=>outs.push(a),arrayfromargs:x=>Array.from(x),Buffer:function(){return stub},File:function(p){let f=files[p]={bytes:[],text:''};this.isopen=true;this.writebytes=b=>f.bytes.push(...b);this.writestring=s=>f.text+=s;this.close=()=>{};},box:{rect:[0,0,1080,880]},patcher:{getnamed:()=>({message(){}}),parentpatcher:{getnamed:()=>({message(){}}),newdefault:()=>({message(){}}),remove(){}}}};
+vm.createContext(ctx);ctx.include=f=>vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),ctx);ctx.include('recast-native.js');const c=ctx,clone=x=>JSON.parse(JSON.stringify(x));
+
+const initial=clone(c.state);let imports=[];const nativeBuffer=c.buffer;
+c.starterOwner={filepath:'/device/Recast.amxd'};c.initBuffers=()=>true;c.buffer=i=>({...stub,send:(...a)=>imports.push([i,...a])});
+function fresh(){c.state=c.defaults(clone(initial));c.state.paths=Array(7).fill('');c.state.events=[];c.state.archivePaths=[];c.state.extraInstruments=[];c.starterRecallReceived=false;c.starterPending=[];imports=[];}
+fresh();assert(c.initializeStarterKit());assert.equal(imports.length,6);assert(c.state.paths.slice(1).every(p=>p.startsWith('/device/Starter Kit/')));assert.equal(new Set(c.state.paths.slice(1)).size,6);assert.equal(c.state.mode,0);assert(!c.initializeStarterKit());assert.equal(imports.length,6);
+for(let role=1;role<=6;role++){c.state.padGain[role-1]=3;c.loaded(role);assert.equal(c.state.padGain[role-1],1);}const snap=c.musicalSnapshot();assert(snap.starterKitInitialized);assert.equal(snap.starterKitPaths.length,6);
+console.log('PASS: new instances initialize six distinct starter assignments exactly once, retain balanced gain after buffer callbacks and save kit metadata.');
+fresh();c.state.paths[2]='my snare.wav';assert(!c.initializeStarterKit());assert.equal(imports.length,0);assert.equal(c.state.paths[2],'my snare.wav');
+fresh();c.state.events=[{id:1,role:0,beat:0,velocity:100,slice:0,pitch:0,reverse:false}];assert(c.initializeStarterKit(),'Generating before startup must not suppress the starter kit');assert.equal(c.state.events.length,1);
+console.log('PASS: early user sample assignments are respected, while an early Generate click still receives the starter kit.');
+fresh();const saved=clone(c.state);c.restore(JSON.stringify(saved));assert(c.starterRecallReceived);assert(!c.initializeStarterKit());assert.equal(imports.length,0);
+fresh();c.restore({stringify:()=>JSON.stringify(saved)});assert(c.starterRecallReceived);assert(!c.initializeStarterKit());
+fresh();c.restore('{}');assert(!c.starterRecallReceived);assert(c.initializeStarterKit());
+console.log('PASS: empty saved sessions and native dictionary recall stay empty; a blank new-device store receives starter sounds.');
+fresh();const fileCtor=c.File;c.File=function(){this.isopen=false;this.close=()=>{};};assert(!c.initializeStarterKit());assert(c.state.paths.every(p=>!p));assert(!c.state.starterKitInitialized);c.File=fileCtor;
+console.log('PASS: missing bundled assets report an error without partially overwriting the kit.');
+fresh();const old=c.starterFiles.map(n=>'/old/Starter Kit/'+n);let session={starterKitInitialized:true,starterKitPaths:old.slice(),paths:['',old[0],'/custom/snare.wav',...old.slice(2)],archivePaths:[old[0],'/custom/snare.wav'],extraInstruments:[],samplePools:[{entries:[{path:old[3]},{path:'/custom/metal.wav'}]}]};session=c.starterRelocate(session);assert.equal(session.paths[1],'/device/Starter Kit/Kick.wav');assert.equal(session.paths[2],'/custom/snare.wav');assert.equal(session.archivePaths[0],'/device/Starter Kit/Kick.wav');assert.equal(session.samplePools[0].entries[0].path,'/device/Starter Kit/Metal.wav');assert.equal(session.samplePools[0].entries[1].path,'/custom/metal.wav');assert.equal(session.starterKitPaths[5],'/device/Starter Kit/Bass.wav');
+console.log('PASS: moving an installed starter kit relinks only its recorded asset paths, including pools and archived sources, while preserving custom sounds.');
+c.buffer=nativeBuffer;
+
+c.buffer=i=>({...stub,send:(...a)=>imports.push([i,...a])});fresh();let before=imports.length;assert(!c.loadSessionBuffer(1,''));assert(!c.loadSessionBuffer(1,null));assert.equal(imports.length,before);assert(c.loadSessionBuffer(1,'/device/Starter Kit/Kick.wav'));assert.equal(imports[imports.length-1][1],'import');const originalFile=c.File;c.File=function(){this.isopen=false;this.close=()=>{};};assert(!c.loadSessionBuffer(1,'/missing.wav'));assert.equal(imports.length,before+1);c.File=originalFile;console.log('PASS: automatic buffer loads reject blank/missing paths and use explicit non-interactive import.');
+
+c.starterOwner={filepath:'Macintosh HD:/Users/test/Recast/Recast.amxd'};assert.equal(c.starterFolder(),'/Users/test/Recast/Starter Kit');c.starterOwner={filepath:'Sample Disk:/Tools/Recast/Recast.amxd'};assert.equal(c.starterFolder(),'/Volumes/Sample Disk/Tools/Recast/Starter Kit');c.starterOwner={filepath:'C:/Tools/Recast/Recast.amxd'};assert.equal(c.starterFolder(),'C:/Tools/Recast/Starter Kit');console.log('PASS: starter-folder paths normalize native Mac volume syntax without corrupting Windows drive paths.');

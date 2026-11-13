@@ -89,12 +89,14 @@ You do **not** need Python, Node.js, a terminal or external download tools to us
 4. In Live’s browser, find **Recast.amxd** and drag it onto a MIDI track.
 5. Click **Open Recast** in its compact device panel.
 
+Keep the bundled **Starter Kit** folder beside `Recast.amxd`; it supplies the default sounds. These original synthesized one-shots are included under the project’s MIT license. Recalled projects retain their assignments, including deliberately empty lanes.
+
 The `Rendered` folder must be writable: Recast stores generated processing audio there. If Live reports a missing JavaScript or voice file, check that you copied the whole folder rather than only the `.amxd`.
 
 ## Your first groove
 
 1. Choose a style, a pattern length and a BPM, then click **Generate**.
-2. Browse a sound for every active lane. Alternatively, open **Pools**, select a lane and add a few samples there.
+2. New instances already have a small **starter kit** assigned: kick, snare, hat, metallic percussion, relay texture and bass. You can press Play immediately. Browse to replace a sound, or open **Pools** to add alternatives.
 3. Click the prominent **Play / Stop** button directly above the grid. This auditions Recast’s pattern using its internal tempo.
 4. Try **Apply pocket** for timing and accents, then **Apply damage** for disruption. Use a target or selected passage to keep the changes focused.
 5. Protect something you like, edit individual steps, or try **Compare**.
@@ -142,7 +144,7 @@ npm test
 python3 tools/build.py --zip
 ```
 
-There are no npm or Python package dependencies to install. The build creates `dist/Recast/Recast.amxd` with its support files and a distributable ZIP. Generated files use a source-derived prefix so Max can distinguish builds in its script cache. The patcher starts with an empty session; local QA callbacks and personal media are excluded.
+There are no npm or Python package dependencies to install. The build creates `dist/Recast/Recast.amxd` with its support files and a distributable ZIP. Generated files use a source-derived prefix so Max can distinguish builds in its script cache. The patcher starts with an empty pattern and an automatically assigned starter kit. The build synthesizes the original one-shots deterministically using Python’s standard library; no third-party samples, local QA callbacks or personal media are included.
 
 You can also inspect the editable source patcher at `MaxForLive/Recast.maxpat`. See [the architecture notes](docs/ARCHITECTURE.md) for the module layout.
 

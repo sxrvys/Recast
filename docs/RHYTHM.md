@@ -29,3 +29,7 @@ Ten authored grammars supplement the original three profiles; they are not addit
 Each grammar builds a motif and complementary answer. Optional kick notes vary within permitted positions; crowding and snare collisions reduce candidate weights. Ghost notes are quieter than backbeats and less likely beside kick attacks. Hats have their own pulse, optional subdivisions, accents and gates. Phrase-ending pickups and hat gaps are restrained before the separate damage engine is applied. Density changes optional activity; fixed cores remain. Protected hits/lanes and protected silence override generation. Existing style indices 0–2 retain their meaning for saved sessions.
 
 All new foundations remain 4/4. A limited rule-based grammar cannot replace a drummer's judgment or guarantee a compelling take. It generates editable proposals without training, network access or style-specific audio.
+
+## Additional reference review
+
+A user-supplied 20-page excerpt of Mike Adamo's *The Breakbeat Bible* was reviewed as text, with representative notation pages inspected visually. It includes prefatory material and a chapter excerpt on consecutive snare sixteenths, ghost/ghost pairs, accented-to-quiet control strokes, quiet-to-accented pull-outs, and eight-bar phrase development. This is not the complete book and its catalog has not been transcribed into Recast. These paired-accent and phrase concepts are useful candidates for a later refinement; this review does not claim that beta 6 implements them. The PDF is not distributed.
