@@ -43,6 +43,8 @@ Each lane can also hold a **pool of up to 16 samples**:
 
 Weight **0** excludes a sample. A lane can play directly from its pool without a separate base one-shot. Freeze a realization or recover a heard passage when you want to retain the exact choices.
 
+The **built-in sample browser** remembers your library folder, navigates folders, searches filenames recursively in small background batches, shows waveforms and favorites, and previews before assigning. **In groove** temporarily auditions a candidate on the selected lane during Recast playback. Assign commits it; leaving the browser cancels that temporary audition. The library index is session-local, limited to 50,000 audio files and 12 folder levels.
+
 Sample tools include preparation and trim, gain, tape-style pitch, reverse, envelopes, looped sustain, flutter, filtering, candidate folders and estimated level matching for auditioning replacements.
 
 ### Make instruments interact
@@ -59,7 +61,9 @@ Drawn interruption regions can also apply mute/duck, filtering, bit reduction, d
 
 Recast is a step sequencer as well as a generator. Add and remove hits, select groups, paint velocity, drag gates, move or copy steps, and stretch or compress a burst. Repeats cycle through one, two, three or four hits within a step.
 
-Per-hit and group controls cover velocity, pitch, gate, reverse and choke. Copy/paste, bar duplication, small timing nudges, undo/redo and visible protection support deliberate editing after generation.
+Per-hit and group controls cover velocity, pitch, gate, reverse and choke. Gate choices are expressed in sixteenth-note **steps**, including 1, 3 and 16 steps. A gate limits a long sample’s playback; it does not extend a short sample unless sustain is enabled. Choke relationships can cut a gate shorter. Fixed-role MIDI retriggers the lane, so overlapping tails should use rendered audio or rendered-sound MIDI.
+
+**Lane pockets** independently set early/late offset, swing, timing spread and accent. Lock a lane there to preserve it during generation. **Another take** develops your existing base; **Generate** constructs a fresh foundation. **New malfunction** targets a selected passage, or a 4/8/16-step window in the current bar, and retains the surrounding groove. Adjacent notes and protected foundations remain intact. Copy/paste, bar duplication, small timing nudges, undo/redo and visible protection support deliberate editing after generation.
 
 ### Keep what works
 
@@ -89,7 +93,7 @@ The `Rendered` folder must be writable: Recast stores generated processing audio
 
 1. Choose a style, a pattern length and a BPM, then click **Generate**.
 2. Browse a sound for every active lane. Alternatively, open **Pools**, select a lane and add a few samples there.
-3. Click **Play**. This auditions Recast’s pattern using its internal tempo.
+3. Click the prominent **Play / Stop** button directly above the grid. This auditions Recast’s pattern using its internal tempo.
 4. Try **Apply pocket** for timing and accents, then **Apply damage** for disruption. Use a target or selected passage to keep the changes focused.
 5. Protect something you like, edit individual steps, or try **Compare**.
 6. The Tools screen groups deeper controls into **Rhythm**, **Selected hit**, **Sounds**, and **Keep / export**.

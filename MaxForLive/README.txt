@@ -87,3 +87,10 @@ DIRECT GRID EXPRESSION
 Edit menu → Tool: drag gate lengths: drag a filled step horizontally; the selection changes together. Gate tails appear on the grid. Tool: paint velocity: vertical position within a row sets the selected accents; drag through filled cells to paint others. Tool: stretch selected burst: select hits first, then drag horizontally to compress/expand their relative timing and explicit gates. Each gesture is one undo. Protected/occupied/out-of-bounds destinations block stretching. Frozen interruption regions travel with moved, copied and stretched hits.
 
 The main grid adds beat dividers, a moving playhead and a small per-bar density overview. The new functions use dedicated Pools, Movement and Recover screens to keep the editor focused. Dense DSP and newly encountered sample/effect combinations can still require preparation; no hard real-time timing guarantee is made.
+
+BETA 3 WORKFLOW
+Browse now opens the integrated sample browser. Choose your library folder once; then browse folders or search filenames. A single file click previews it. Assign commits to the chosen lane; Add to pool adds a candidate to its sample pool. In groove auditions a candidate temporarily while the pattern plays. Returning to the pattern cancels that audition.
+
+Generate creates a new foundation; Another take develops the existing base. Pocket and Damage reroll a treatment instead of accumulating more subdivisions. Lane pockets sets independent offset, swing, timing spread and accents. Lock the kick there to regenerate around it. New malfunction changes a selected passage or a 4/8/16-step window and leaves the surrounding groove alone.
+
+Select one or several steps and open Gate. One step is a sixteenth note; choices include 1, 3 and 16 steps. Full sample removes the gate. Gates limit playback; short samples need sustain to play longer. Choke rules can shorten a tail. Fixed-role MIDI retriggers one voice per lane; use rendered audio or rendered-sound MIDI for overlapping tails.

@@ -153,3 +153,7 @@ include("recast-edit.js");
 include("recast-performance.js");
 include("recast-performance-ui.js");
 include("recast-grid-expression.js");
+
+include("recast-browser.js");
+
+include("recast-pocket.js");

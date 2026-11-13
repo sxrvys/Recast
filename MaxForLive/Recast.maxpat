@@ -1433,9 +1433,10 @@
             195,
             40
           ],
-          "text": "poly~ recast-voice 32",
+          "text": "poly~ recast-voice 33",
           "numinlets": 1,
-          "numoutlets": 2
+          "numoutlets": 2,
+          "varname": "recastVoices"
         }
       },
       {

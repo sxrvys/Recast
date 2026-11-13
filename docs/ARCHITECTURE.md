@@ -14,7 +14,7 @@
 | Direct grid expression and common appearance | `recast-grid-expression.js`, `recast-visual.js` |
 | Supporting/legacy utilities | `recast-analysis.js`, `recast-tempo.js`, `recast-source.js`, `recast-midi.js`, `recast-simple.js`, `recast-explore.js` |
 
-`recast-voice.maxpat` supplies the polyphonic audio voice. The build emits an AMXD container from the JSON source patcher, copies its include graph and voice, and gives those files a source-derived prefix. Development hot reload is disabled in the generated device.
+`recast-voice.maxpat` supplies 32 sequencer voices and one reserved browser-preview voice. Preview stop/replace targets voice 33 without stopping the groove. The build emits an AMXD container from the JSON source patcher, copies its include graph and voice, and gives those files a source-derived prefix. Development hot reload is disabled in the generated device.
 
 ## State and audio
 
@@ -25,6 +25,8 @@ Live performance realization is separate from the working notes. Pools choose so
 Paths and generated processing audio are part of session recovery. Do not replace explicit per-hit/frozen sources with current lane samples during unrelated edits. Preserve timing, gates, reverse, source metadata and per-hit regions when moving or duplicating notes.
 
 The default processing directory is resolved from the owning device’s [patcher path](https://docs.cycling74.com/apiref/js/patcher/#filepath), walking past embedded patchers with empty paths, then `Rendered/`. Distributions must retain that writable folder alongside the scripts.
+
+The final `recast-browser.js` layer handles folder navigation, incremental filename indexing and transient playback audition. It changes a lane only on explicit assignment. `recast-pocket.js` supplies per-lane feel, step-unit gate menus and scoped malfunction actions.
 
 ## Tests
 
