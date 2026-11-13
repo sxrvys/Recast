@@ -176,3 +176,10 @@ include("recast-rolls.js");
 include("recast-shaping.js");
 
 include("recast-sound-target.js");
+
+include("recast-collage.js");
+include("recast-collage-ui.js");
+
+include("recast-collage-library.js");
+
+include("recast-collage-pitch.js");

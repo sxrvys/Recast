@@ -2,15 +2,34 @@
 
 **A free, open-source smart sequencer and sampler for Ableton Live.**
 
-Recast generates a drum pattern, lets you give it a kit of your own sounds, and gives you ways to pull it apart without losing the groove. A metal door can be the kick. A relay can be the hat. A voice can become a short, choked interruption or a sustained texture.
+Recast turns recordings into layered phrases and generates drum grooves you can reshape by hand. Drop in a song, a field recording or a few foley samples; build a collage from fragments, reroll its rhythm, change the cuts, or shuffle which sounds land where. Keep a promising phrase and pull it apart in the step editor.
 
-Start with a recognizable rhythm, change its pocket, add instability, and keep the accidents worth developing. The result can become editable MIDI in Live or rendered audio for further chopping.
+It also builds recognizable drum foundations, with pocket, drunken timing, ratchets, chokes, gates and interruptions. Your metal door can still be the kick. Your voice recording can become the machinery around it.
 
 **[Download Recast](https://github.com/sxrvys/Recast/releases)** · [User guide](MaxForLive/README.txt) · [Report a problem](https://github.com/sxrvys/Recast/issues)
 
 Recast is an experimental Max for Live instrument. It has automated regression tests and has been exercised inside Live, but it is still being tested in real musical use. Feedback, fixes and contributions are welcome.
 
 ## What it does
+
+### Build a sample collage
+
+The opening workshop now puts **Play, New phrase, source layers and four main controls** together. Its circular view shows event starts as dots and their gates as arcs; rings are layers, not individual voices.
+
+- Load recordings onto up to **24 layers**, with up to **16 source files per layer**. New instances include a small generated starter kit so you can play immediately.
+- Choose a local sample or music folder. **New sounds from library** scans it and draws recordings for unlocked layers. It uses your files; no subscription, online sample service or remote upload is involved.
+- Choose a phrase style, from short rhythmic hits to sparse fragments, microglitch and longer drifting material. Type a BPM or tap it, and choose a phrase length up to 32 bars.
+- **New rhythm** changes placements, **New cuts** changes source regions, and **Shuffle fragments** changes which region plays at each event. Those decisions use independent random streams.
+- Shape density, fragment size, movement and damage. Layer settings expose cut mode, spread/cluster/drum placement, repeating period, probability, gain and choking. Mute, solo or lock layers.
+- Keep four source-aware phrases. Recall while playing queues the change for the next bar. **Commit take** fixes the current probability and voice-limit realization before export.
+- **Render WAV** produces audio; rendered-sound MIDI handoff creates a clip with distinct processed fragments mapped to notes in this Recast instance. Ordinary kit MIDI remains a separate role-based export and cannot encode every fragment decision.
+- Optional pitch estimation can guide simple tonal fragments toward a chosen root and scale. It is an autocorrelation estimate, not reliable polyphonic key recognition. No automatic mixed-recording key matching is promised.
+
+WAV, AIFF, MP3 and FLAC source loading has been checked inside Live. Other formats offered by the browser depend on Max's decoder support. Whole recordings are decoded into memory: start with a modest collection of reasonably short files. Library indexing is capped at 50,000 files. Audio remains linked to its original paths; saving a phrase does not copy your recordings into the project.
+
+The voice setting limits admissions within a phrase; long tails crossing a loop boundary may still reach the underlying 32-voice instrument limit. Offline WAV rendering includes Recast's processing, not effects placed after it in Live. This is an experimental independently written collage engine, with its own behavior and limitations.
+
+Use **Step editor** to return to the detailed smart-sequencer workflow below.
 
 ### Generate a foundation
 

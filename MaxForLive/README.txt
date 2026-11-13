@@ -1,8 +1,18 @@
-RECAST — SMART SEQUENCER / SAMPLER
+RECAST — SAMPLE COLLAGE / SMART SEQUENCER
 
 START
 Load Recast on one MIDI track in Live. Its compact 200px device strip opens the instrument with Open Recast. The editor does not open automatically.
-New instances load a starter kit automatically. Choose a style, choose a pattern length, then Generate and Play. Browse a WAV/AIFF to replace any sound, or drop a file onto its sample name. Play auditions the generated pattern, never a hidden reference recording.
+The workshop opens on the collage page. New instances load a starter kit automatically. Press Play, or New phrase and then Play. Drop recordings onto the layer names, or use Browse. New phrase builds an arrangement from source fragments rather than playing the original recording straight through.
+
+COLLAGE
+Four main controls shape Density, Fragment size, Movement and Damage. Choose a style from the dropdown beside New phrase. New rhythm changes placements; New cuts changes source regions without replacing the rhythm; Shuffle fragments swaps the regions assigned to events. New damage rerolls treatment from a retained base, without recursively multiplying repeats.
+Library folder selects a local sample/music directory. New sounds from library indexes supported files and draws sources for unlocked layers. Stop cancels scanning/preparation. Advanced allows additional library roots. Up to 50,000 files are indexed; full recordings decode into memory, so begin with modest collections of short recordings. Nothing is uploaded or downloaded.
+Each ring is a layer; dots mark event starts and arcs show gates. Up to 24 layers, 16 source files per layer, 256 candidate cuts per layer and 1024 events per phrase are supported. Layer controls include mute, solo and lock. Lock preserves a layer through regeneration. Advanced offers equal divisions, energy-onset cuts, random regions and full-source playback; spread, cluster and drum placement; chance, repeating period, gain and choke.
+Keep stores a complete source-aware phrase in one of four slots. Recall while playing queues it for the next bar. Commit take fixes the current probability/voice-limit realization. Render WAV produces 16-bit audio with Recast processing. Rendered-sound MIDI export assigns different processed fragments to different notes; ordinary role-kit MIDI does not reproduce all source-region decisions.
+Optional source pitch correction estimates simple tonal fragments, with a selectable root/scale and pitch offset. Mixed-source automatic key detection is not provided. Long tails across a loop boundary can reach the instrument's 32-voice limit even with a lower per-phrase voice setting. Files remain linked to their original paths. Keep those paths available.
+
+STEP EDITOR
+Choose Step editor for the detailed drum grid. Its earlier workflow remains available. New instances load a starter kit automatically. Choose a style, choose a pattern length, then Generate and Play. Browse a WAV/AIFF to replace any sound, or drop a file onto its sample name. Play auditions the generated pattern, never a hidden reference recording.
 
 GROOVE
 Choose from thirteen starting vocabularies, including breakbeat, shuffle, two-step, electro, dub and slow crush. Lengths are 1, 2, 4, 8, 12 or 16 bars. Type BPM or use Tap.
