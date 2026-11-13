@@ -119,7 +119,7 @@ function studioColor(c){if(!c)return c;if(c[0]===.055||c[0]===.065)return [.13,.
 rect=function(x,y,w,h,c){studioRect(x,y,w,h,studioColor(c));if(view===0&&x===0&&y===0&&w===1080&&h===880){studioRect(12,56,1056,91,[.16,.17,.18,1]);studioRect(12,153,1056,107,[.16,.17,.18,1]);studioRect(12,302,1056,258,[.15,.16,.17,1]);studioRect(12,571,1056,146,[.16,.17,.18,1]);studioRect(20,14,3,28,[.92,.32,.18,1]);}};
 text=function(s,x,y,size,c){studioText(s,x,y,size,c||[.91,.91,.89,1]);};
 button=function(id,label,x,y,w,active){rect(x,y,w,28,active?[.86,.56,.23,1]:[.27,.28,.29,1]);text(label,x+8,y+19,12,active?[.08,.09,.10,1]:[.94,.94,.91,1]);buttons.push({id:id,x:x,y:y,w:w,h:28});};
-var studioPaint=paint;paint=function(){studioPaint();if(view!==0)return;rawDraw=true;if(playing){var cell=Math.floor(currentBeat()*4)%16;rect(140+cell*56,350,51,3,[1,.7,.3,1]);}rawDraw=false;};
+var studioPaint=paint;paint=function(){studioPaint();if(view!==0)return;rawDraw=true;if(playing&&Math.floor(currentBeat()/4)===state.page){var cell=Math.floor(currentBeat()*4)%16;rect(140+cell*56,350,51,3,[1,.7,.3,1]);}rawDraw=false;};
 
 // Variation-family clips use the same six role notes as the main handoff.
 writeLive=function(label){return writeKitMidi(label);};

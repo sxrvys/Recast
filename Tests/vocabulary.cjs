@@ -18,7 +18,7 @@ for(let family=0;family<c.rhythmVocabulary.length;family++){
    for(let s of backbeats)assert(events.some(e=>e.role===1&&e.foundation&&Math.abs(e.beat-(bar*4+s/4))<1e-8),v.name+' backbeat');
   }
   assert(events.some(e=>e.role===2),v.name+' hats');assert(events.every(e=>e.beat>=0&&e.beat<16&&e.velocity>=1&&e.velocity<=127));
-  positions.add(JSON.stringify(events.map(e=>[e.role,e.beat])));count+=events.length;ghosts+=events.filter(e=>e.role===1&&!e.foundation).length;shifted+=events.filter(e=>Math.abs(e.beat*4-Math.round(e.beat*4))>.001).length;
+  positions.add(JSON.stringify(events.map(e=>[e.role,e.beat])));count+=events.length;ghosts+=events.filter(e=>e.role===1&&!e.foundation).length;shifted+=events.filter(e=>!e.rollId&&Math.abs(e.beat*4-Math.round(e.beat*4))>.001).length;
   c.state.damage=.9;c.state.drunkenness=.9;const anchors=events.filter(e=>e.foundation);c.transformSection('damage');for(let a of anchors)assert(c.state.events.some(e=>e.id===a.id&&e.beat===a.beat&&e.velocity===a.velocity));
   assert(c.state.events.length<=1024);assert(c.state.events.every(e=>e.beat>=0&&e.beat<16));
  }

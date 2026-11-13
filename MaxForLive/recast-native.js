@@ -168,3 +168,11 @@ include("recast-feel-ui.js");
 include("recast-vocabulary.js");
 
 include("recast-starter.js");
+
+include("recast-space.js");
+
+include("recast-rolls.js");
+
+include("recast-shaping.js");
+
+include("recast-sound-target.js");

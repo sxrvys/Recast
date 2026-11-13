@@ -57,19 +57,19 @@ function generateDamageEvents(source){
  var plan=damageMakePlan(source),out=[],additions=0,counts={},baseCounts={},d=state.damage,drunk=state.drunkenness;
  function key(e){return e.role+':'+Math.floor((e.beat+.000001)*4);}
  for(var i=0;i<source.length;i++){var k=key(source[i]);baseCounts[k]=(baseCounts[k]||0)+1;}
- function destination(t,episode){return t>=0&&t<beats()&&inScope(t)&&!locked(t)&&(!episode||t>=episode.start&&t<episode.end);}
+ function destination(t,episode,role){return (typeof spaceContains!=='function'||spaceContains(role,t))&&t>=0&&t<beats()&&inScope(t)&&!locked(t)&&(!episode||t>=episode.start&&t<episode.end);}
  function put(e,added){
   if(added){if(additions>=Math.max(0,1024-source.length))return false;var k=key(e);if((counts[k]||0)+(baseCounts[k]||0)>=4)return false;additions++;}
   var k=key(e);counts[k]=(counts[k]||0)+1;out.push(e);return true;
  }
- function move(e,t,episode){if(destination(t,episode)){e.beat=t;delete e.stepCell;return true;}return false;}
+ function move(e,t,episode){if(destination(t,episode,e.role)){e.beat=t;delete e.stepCell;return true;}return false;}
  function mark(e,kind,origin){e.damageKind=kind;e.damageOriginId=origin.id;e.damageOriginBeat=origin.beat;}
  function repeat(e,episode,amount,minimum){
   if(e.damageRepeat)return;
-  var count=minimum||2+Math.floor(nextRandom()*(1+4*amount));
+  var count=minimum||(nextRandom()<.8?2+Math.floor(nextRandom()*2):4+Math.floor(nextRandom()*2*amount)),even=count===3&&nextRandom()<.65;
   for(var n=1;n<count;n++){
-   var h=copy(e),at=e.beat+episode.span*Math.pow(n/count,episode.curve);
-   if(!destination(at,episode))continue;
+   var h=copy(e),at=e.beat+episode.span*(even?n/count:Math.pow(n/count,episode.curve));
+   if(!destination(at,episode,e.role))continue;
    h.id=++uid;h.beat=at;delete h.stepCell;h.damageRepeat=true;h.damageKind=episode.kind;
    h.velocity=Math.round(clamp(e.velocity*(episode.mode?.55+.4*n/count:1-.7*n/count),12,127));
    h.pitch=clamp((e.pitch||0)+(episode.mode?1:-1)*n*(amount>.7?2:1),-36,36);
@@ -96,7 +96,7 @@ function generateDamageEvents(source){
    // A displaced, quieter answer makes absence audible instead of merely adding another hit.
    if(forced||nextRandom()<.35+.45*d){
     var h=copy(e),at=original.beat+.125+nextRandom()*(.125+.25*d);
-    if(destination(at,episode)){h.id=++uid;h.beat=at;delete h.stepCell;h.damageRepeat=true;h.velocity=Math.round(clamp(e.velocity*.65,12,110));h.durationBeats=.06+(1-state.gateDepth)*.13;h.chokeGroup=e.role+1;put(h,false);}
+    if(destination(at,episode,e.role)){h.id=++uid;h.beat=at;delete h.stepCell;h.damageRepeat=true;h.velocity=Math.round(clamp(e.velocity*.65,12,110));h.durationBeats=.06+(1-state.gateDepth)*.13;h.chokeGroup=e.role+1;put(h,false);}
     continue;
    }
   }else if(episode.kind==='ratchet'){
@@ -121,7 +121,7 @@ function generateDamageEvents(source){
   }else if(episode.kind==='stumble'){
    // Contrast a short stagger with an occasional held response. It is not another ratchet preset.
    e.durationBeats=phase<.55?.06+(1-state.gateDepth)*.14:Math.min(.25+.5*d,Math.max(.03,episode.end-e.beat));
-   if(e.role>=2&&phase>.65&&nextRandom()<d*.35&&!e.damageRepeat){var h=copy(e);h.id=++uid;h.beat+=.125+.125*nextRandom();h.damageRepeat=true;h.velocity=Math.round(e.velocity*.55);if(destination(h.beat,episode))put(h,true);}
+   if(e.role>=2&&phase>.65&&nextRandom()<d*.35&&!e.damageRepeat){var h=copy(e);h.id=++uid;h.beat+=.125+.125*nextRandom();h.damageRepeat=true;h.velocity=Math.round(e.velocity*.55);if(destination(h.beat,episode,h.role))put(h,true);}
   }
   if(nextRandom()<d*weight*state.reverseChance)e.reverse=!e.reverse;
   put(e,false);
@@ -132,7 +132,7 @@ function generateDamageEvents(source){
 function applyEpisodeDamage(){
  if(!state.events.length){say('Generate or program a groove first.');return;}
  if(state.scope===2&&!selection){say('Select a passage first, or choose Pattern scope.');return;}
- stop();saveundo();var context=JSON.stringify([state.bars,workflowTarget,state.scope,selection,state.ranges,state.roleLocks]),take=state.damageTake;
+ stop();saveundo();var context=JSON.stringify([state.bars,workflowTarget,state.scope,selection,state.ranges,state.roleLocks,typeof spaceActive==='function'&&spaceActive()?spaceCells:null]),take=state.damageTake;
  var source=copy(take&&take.context===context&&take.result===JSON.stringify(state.events)?take.base:state.events),result=generateDamageEvents(source);
  state.events=result.events;state.lastDamagePlan=result.plan;
  state.damageTake={base:source,result:JSON.stringify(state.events),context:context};workflowSelection=[];selected=-1;

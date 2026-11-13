@@ -23,9 +23,9 @@ Recast is an experimental Max for Live instrument. It has automated regression t
 
 ### Keep the groove; change its behavior
 
-**Pocket** adjusts timing and accents. **Drunkenness** controls shared timing drags and recoveries; **Glitch** controls structural disruption. **Apply damage** creates episodes of stumbles, missing footsteps, uneven bursts, choked interruptions, displaced fragments and breakdowns, with occasional reversals. You can target an instrument or passage, protect your foundation, and preserve empty space as deliberately as the hits.
+**Pocket** adjusts timing and accents. **Drunkenness** controls shared timing drags and recoveries; **Glitch** controls structural disruption. **Glitch** introduces episodes of stumbles, missing footsteps, uneven bursts, choked interruptions, displaced fragments and breakdowns, with occasional reversals. You can target an instrument or passage, protect your foundation, and preserve empty space as deliberately as the hits.
 
-**Apply pocket** and **Apply damage** reroll their preceding input while you explore consecutive takes. They do not repeatedly process their own output. Editing the notes or switching the target/passage establishes a new input. Undo compares takes; generated damage repeats cannot spawn further rolls. **Develop phrase** retains the opening bar and creates fresh later variations, answers and fills.
+**New variation** rerolls its preceding input with the current Pocket, Drunkenness and Glitch settings while you explore consecutive takes. They do not repeatedly process their own output. Editing the notes or switching the target/passage establishes a new input. Undo compares takes; generated damage repeats cannot spawn further rolls. **Develop phrase** retains the opening bar and creates fresh later variations, answers and fills.
 
 The **Glitch settings** panel starts with four sliders: Drunkenness, Glitch, detail-lane bias and anchor protection. Expand the behavior mix to favor or disable specific disruptions and tighten their gates. The **Feel / instability** panel uses direct sliders for timing sway, late lean, uneven repeats and tail cutting; additional controls expand when needed. Hover a setting for a plain-language explanation in the footer. Changes take effect when you generate a new take. A phrase-wide tension curve lets disruption build and release across the pattern. Hold **Malfunction** during playback to push the details further, then recover at the next beat or bar; its control movement can be recorded for later passes.
 
@@ -98,7 +98,7 @@ The `Rendered` folder must be writable: Recast stores generated processing audio
 1. Choose a style, a pattern length and a BPM, then click **Generate**.
 2. New instances already have a small **starter kit** assigned: kick, snare, hat, metallic percussion, relay texture and bass. You can press Play immediately. Browse to replace a sound, or open **Pools** to add alternatives.
 3. Click the prominent **Play / Stop** button directly above the grid. This auditions Recast’s pattern using its internal tempo.
-4. Try **Apply pocket** for timing and accents, then **Apply damage** for disruption. Use a target or selected passage to keep the changes focused.
+4. Adjust **Pocket**, **Drunkenness** and **Glitch**, then choose **New variation**. Use a target or selected passage to keep the changes focused.
 5. Protect something you like, edit individual steps, or try **Compare**.
 6. The Tools screen groups deeper controls into **Rhythm**, **Selected hit**, **Sounds**, and **Keep / export**.
 7. Use **Freeze performance** for the current realization or **Recover** for completed bars you actually heard.
@@ -161,3 +161,13 @@ For changes, explain the musical or workflow problem being solved, run the tests
 Recast’s source is released under the [MIT License](LICENSE). Use it, change it, share it and build on it. Ableton Live and Max for Live remain separately licensed products; the code license does not grant rights to samples you load.
 
 Created by **Scott Rogers**.
+
+### Browser and selection improvements (beta 7)
+
+- Browse folders and samples in flat lists, preview a waveform, then explicitly use the sound for the entire lane or selected hits. Lane replacement clears frozen old samples, including on rhythmically protected hits; selected-hit overrides are labelled.
+- Select empty grid spaces as well as notes. Generate and vary within the chosen lanes and time area, or select the whole visible bar.
+- New groove and New variation share Pocket, Drunkenness and Glitch settings. Consecutive variations reroll from their input rather than multiplying repeats.
+- Natural ghost doubles and true triplets supplement the foundation vocabulary. Grid marks follow actual note timing; 3T brackets identify triplet groups.
+- Playing / Viewing and optional Follow distinguish the sounding bar from the bar being edited.
+
+Portable regressions and a native Live check cover scoped edits, sample replacement, note timing and nonzero audio output. This remains a beta: musical usefulness and every physical interaction still benefit from hands-on testing.

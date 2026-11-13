@@ -2,8 +2,8 @@
 var simplePaint=paint,simpleClick=onclick,simpleAction=action,simpleDouble=ondblclick;
 var gridTool='toggle',simpleDetails=false,referencePlaying=false;
 var gridLayout={x:140,y:355,w:56,h:32,cols:16,rows:6};
-function displayStep(e){if(e.stepCell!==undefined&&e.beat>=e.stepCell/4&&e.beat<(e.stepCell+1)/4)return e.stepCell;return Math.max(0,Math.min(state.bars*16-1,Math.round(e.beat*4)));}
-function stepHits(role,col){var found=[],cell=state.page*16+col;for(var i=0;i<state.events.length;i++)if(state.events[i].role===role&&state.events[i].beat>=0&&state.events[i].beat<beats()&&displayStep(state.events[i])===cell)found.push(i);return found;}
+function displayStep(e){if(e.stepCell!==undefined&&e.beat>=e.stepCell/4&&e.beat<(e.stepCell+1)/4)return e.stepCell;return Math.max(0,Math.min(state.bars*16-1,Math.floor((e.beat+.00000001)*4)));}
+function stepHits(role,col){var found=[],cell=state.page*16+col;for(var i=0;i<state.events.length;i++)if(state.events[i].role===role&&state.events[i].beat>=0&&state.events[i].beat<beats()&&displayStep(state.events[i])===cell)found.push(i);return found.sort(function(a,b){return state.events[a].beat-state.events[b].beat;});}
 function editStep(role,col){
  var beat=state.page*4+col/4,found=stepHits(role,col);stop();
  if(gridTool==='edit'){selected=found.length?found[0]:-1;simpleDetails=selected>=0;say(found.length?'Hit selected. Use the inspector below; Next hit selects overlapping hits.':'No hit here. Choose Add / remove to create one.');return;}
