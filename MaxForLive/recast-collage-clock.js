@@ -1,0 +1,8 @@
+// Internal metronome: separate synthesized signal, intentionally excluded from exported music.
+var collageMetroLast=-1,collageMetroTick=tick;
+tick=function(){collageMetroTick();if(!playing||!state.collage.metronome)return;var absolute=(Date.now()-playTime)*state.tempo/60000,beat=Math.floor(absolute);if(beat!==collageMetroLast){collageMetroLast=beat;var strong=beat%4===0,level=state.collage.metronomeLevel===undefined?.08:state.collage.metronomeLevel;outlet(0,'metro',level*(strong?1:.65),strong?1500:1000);}};
+var collageMetroStop=stop;stop=function(){collageMetroLast=-1;collageMetroStop();};
+var collageMetroSliders=collageSliders;collageSliders=function(){var rows=collageMetroSliders();if(view===27&&collageSection==='rhythm')rows=rows.concat([{field:'metronomeLevel',label:'Internal click level',x:30,y:520,min:0,max:.25}]);return rows;};
+var collageMetroValue=collageControlValue;collageControlValue=function(s){if(s.field==='metronomeLevel'&&state.collage.metronomeLevel===undefined)return .08;return collageMetroValue(s);};
+var collageMetroPaint=paint;paint=function(){collageMetroPaint();if(view===27&&collageSection==='rhythm'&&!collageMenu){rawDraw=true;button('collageMetronome','Internal click: '+(state.collage.metronome?'On':'Off'),30,650,390,state.collage.metronome);text('The click follows Recast’s tempo and playback. It is not included in WAVs or stems.',30,715,13);rawDraw=false;}};
+var collageMetroAction=action;action=function(id){if(collageExportJob&&id!=='play'&&id!=='collagePlay'){say('Export is running. Stop cancels it.');return;}if(id==='collageMetronome'){saveundo();state.collage.metronome=!state.collage.metronome;collageMetroLast=-1;redraw();return;}collageMetroAction(id);};

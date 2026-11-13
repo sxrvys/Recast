@@ -28,7 +28,7 @@ collageDecorate=function(base){
     for(var i=0;i<out.length;i++){
         var e=out[i];if(!e.collage||!collageEligible(e))continue;
         var f=collageLane(e.role).cuts[e.collagePick],oldPitch=e.pitch||0;
-        if(c.tuneSources&&f&&f.tonal&&f.tonal.confidence>=.78)e.pitch=collageNearestNote(f.tonal.midi+oldPitch,c.root||0,c.intervalMode)-f.tonal.midi;
+        if(c.tuneSources&&!c.keySync&&f&&f.tonal&&f.tonal.confidence>=.78)e.pitch=collageNearestNote(f.tonal.midi+oldPitch,c.root||0,c.intervalMode)-f.tonal.midi;
         e.pitch=clamp((e.pitch||0)+(c.globalPitch||0),-48,48);
         if(e.durationBeats&&!c.useGateRange)e.durationBeats*=Math.pow(2,(oldPitch-e.pitch)/12);
     }

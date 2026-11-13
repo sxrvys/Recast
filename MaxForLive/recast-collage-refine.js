@@ -48,7 +48,7 @@ var collageRefineStop=stop;stop=function(){collageReservations=null;collagePlanC
 var collageRefineTrigger=trigger,collageVoiceEnds={},collageVoiceDispatchCount=0;
 trigger=function(e){
     if(!e.collage){collageRefineTrigger(e);return;}collageVoiceDispatchCount++;
-    var now=Date.now();for(var i=1;i<=32;i++)if(!collageVoiceEnds[i]||collageVoiceEnds[i]<=now){voice=i-1;collageRefineTrigger(e);collageVoiceEnds[voice]=now+sound(e).dur;return;}
+    var now=Date.now();for(var i=1;i<=32;i++)if(!collageVoiceEnds[i]||collageVoiceEnds[i]<=now){voice=i-1;collageRefineTrigger(e);var started=playing&&e.performanceCycle!==undefined?playTime+(e.performanceCycle*beats()+e.beat)*60000/state.tempo:now;collageVoiceEnds[voice]=started+(e.frozen?e.frozen.dur:sound(e).dur);return;}
     // The periodic budget normally prevents this. Preserve existing tails if a live MIDI intervention fills the pool.
 };
 var collageRefineVoiceStop=stop;stop=function(){collageVoiceEnds={};collageRefineVoiceStop();};

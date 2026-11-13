@@ -80,7 +80,8 @@ function collageUseFile(role, path, append) {
 function collageAnalyse(index, path) {
     var b = buffer(index), frames = b.framecount(), ms = b.length();
     if (!(frames > 0 && ms > 0)) throw Error('Missing audio: '+shortName(path));
-    var key = path+'|'+frames+'|'+ms;
+    var sensitivity=state.collage.attackSensitivity===undefined?.65:state.collage.attackSensitivity;
+    var key = path+'|'+frames+'|'+ms+'|'+sensitivity;
     if (collageAnalysisCache[key]) return collageAnalysisCache[key];
     var count = Math.min(6000, Math.max(1, Math.ceil(ms/8))), bins = [], largest = 0;
     for (var i=0; i<count; i++) {
@@ -93,7 +94,7 @@ function collageAnalyse(index, path) {
     for (var i=1;i<bins.length-1;i++) {
         average = average*.87 + bins[i-1]*.13;
         var t=i*ms/count;
-        if (bins[i] > Math.max(largest*.06, average*1.7) && bins[i]>=bins[i-1] && bins[i]>=bins[i+1]
+        if (bins[i] > Math.max(largest*.06, average*(2.8-sensitivity*1.7)) && bins[i]>=bins[i-1] && bins[i]>=bins[i+1]
             && t-attacks[attacks.length-1]>35) attacks.push(t);
     }
     var result={duration:ms, attacks:attacks, envelope:bins, peakRms:largest};
@@ -133,7 +134,7 @@ function collageCutSource(role, path, sourceNumber) {
     } else {
         for(var i=0;i<32;i++) {
             var len=Math.min(a.duration,min+rnd()*Math.max(0,max-min)),start=rnd()*Math.max(0,a.duration-len);
-            if(a.attacks.length>1&&rnd()<.65) start=clamp(a.attacks[Math.floor(rnd()*a.attacks.length)]-3,0,Math.max(0,a.duration-len));
+            if(a.attacks.length>1&&rnd()<(c.attackBias===undefined?.65:c.attackBias)) start=clamp(a.attacks[Math.floor(rnd()*a.attacks.length)]-3,0,Math.max(0,a.duration-len));
             add(start,start+len);
         }
     }
@@ -170,24 +171,24 @@ function collageShuffle(a,rnd) {
 // Choose a fixed set of positions. Repeating cells reuse the same ordering.
 function collagePositions(role, length, count) {
     var lane=collageLane(role),c=state.collage,rnd=collageRandom(collageSeed(c.seeds.rhythm,role,0));
-    var positions=[],scores=[],centers=[rnd()*length,rnd()*length];
+    var positions=[],scores=[],centers=[rnd()*length,rnd()*length],resolution=c.resolution||4,barCells=resolution*4;
     if(lane.structure==='spread') {
         var rotate=Math.floor(rnd()*length);
         for(var i=0;i<count;i++) positions.push((Math.floor(i*length/count)+rotate)%length);
         return positions.sort(function(a,b){return a-b;});
     }
     for(var i=0;i<length;i++) {
-        var strength=i%16===0?1:i%4===0?.75:i%2===0?.3:0;
+        var strength=i%barCells===0?1:i%resolution===0?.75:i%Math.max(1,Math.round(resolution/2))===0?.3:0;
         var score=rnd()*(1-c.pulse*.65)+strength*c.pulse;
         if(lane.structure==='cluster') {
             var d=Math.min(Math.abs(i-centers[0]),Math.abs(i-centers[1]));
             score+=1-Math.min(d,length-d)/Math.max(1,length/3);
         }
         if(lane.structure==='drums') {
-            var step=i%16;
-            if(role===0)score+=step===0||step===8?4:step===10?1:0;
-            else if(role===1)score+=step===4||step===12?4:step===3||step===11?.3:0;
-            else score+=step%2===0?1:.1;
+            var step=i%barCells;
+            if(role===0)score+=step===0||step===resolution*2?4:step===Math.round(resolution*2.5)?1:0;
+            else if(role===1)score+=step===resolution||step===resolution*3?4:step===resolution-1||step===resolution*3-1?.3:0;
+            else score+=step%Math.max(1,Math.round(resolution/2))===0?1:.1;
         }
         scores.push({cell:i,score:score});
     }
@@ -196,17 +197,17 @@ function collagePositions(role, length, count) {
     return positions.sort(function(a,b){return a-b;});
 }
 function collageNewRhythm() {
-    var c=state.collage,active=collageActiveRoles(),out=[];
+    var c=state.collage,active=collageActiveRoles(),out=[],resolution=c.resolution||4;
     var budget=Math.max(1,Math.floor(760/Math.max(1,active.length)));
     for(var j=0;j<active.length;j++) {
-        var role=active[j],lane=collageLane(role),period=Math.min(beats(),lane.repeat*4),cells=Math.max(1,Math.round(period*4));
+        var role=active[j],lane=collageLane(role),period=Math.min(beats(),lane.repeat*4),cells=Math.max(1,Math.round(period*resolution));
         var repeats=Math.ceil(beats()/period),count=Math.min(Math.max(0,Math.round(cells*c.density*lane.density)),Math.max(1,Math.floor(budget/repeats)),cells);
         var positions=collagePositions(role,cells,count),rnd=collageRandom(collageSeed(c.seeds.rhythm,role,1));
         for(var off=0;off<beats();off+=period)for(var i=0;i<positions.length;i++) {
-            var beat=off+positions[i]/4;
+            var beat=(off+positions[i]/resolution+(c.phraseOffset||0))%beats();
             if(beat>=beats()) continue;
             out.push({id:++uid,role:role,beat:beat,slice:0,velocity:Math.round(62+rnd()*45),pitch:0,reverse:false,
-                collage:true,collageOrdinal:out.length,foundation:lane.structure==='drums'&&role<2&&positions[i]%4===0});
+                collage:true,collageOrdinal:out.length,foundation:lane.structure==='drums'&&role<2&&positions[i]%resolution===0});
         }
     }
     return out.sort(function(a,b){return a.beat-b.beat;});
@@ -222,7 +223,7 @@ function collageDecorate(base) {
         if(!collageEligible(e)){out.push(e);continue;}
         if(!lane.cuts.length)continue;
         var ordinal=counts[e.role]||0;counts[e.role]=ordinal+1;
-        var order=collageRandom(collageSeed(c.seeds.order,e.role,ordinal)),motion=collageRandom(collageSeed(c.seeds.motion,e.role,ordinal)),damage=collageRandom(collageSeed(c.seeds.damage,e.role,ordinal));
+        var order=collageRandom(collageSeed(c.seeds.order,e.role,ordinal)),motion=collageRandom(collageSeed(c.seeds.motion,e.role,ordinal)),damage=collageRandom(collageSeed(c.seeds.damage,e.role,ordinal)),pitchRandom=collageRandom(collageSeed(c.seeds.pitch||c.seeds.motion,e.role,ordinal));
         var pick=collageChooseCut(e.role,ordinal),fragment=lane.cuts[pick];
         if(pick<0)continue;
         // Avoid the same fragment three times in a row without hiding all short repetitions.
@@ -234,9 +235,9 @@ function collageDecorate(base) {
         }
         e.collage=true;e.performanceFixed=true;e.collageChance=lane.chance;
         e.chokeGroup=lane.choke?e.role+1:0;
-        var shift=(motion()-.5)*c.movement*.22,dest=e.beat+shift;
+        var shift=(motion()-.5)*(c.timingJitter===undefined?c.movement:c.timingJitter)*.22,dest=e.beat+shift;
         if(dest>=0&&dest<beats()&&!locked(dest)&&inScope(dest)&&spaceContains(e.role,dest))e.beat=dest;
-        var degree=Math.round((motion()-.5)*c.movement*14);
+        var degree=Math.round((pitchRandom()-.5)*(c.pitchMotion===undefined?c.movement:c.pitchMotion)*14);
         e.pitch=(e.pitch||0)+(scale?(degree<0?-1:1)*scale[Math.abs(degree)%7]+Math.floor(Math.abs(degree)/7)*12*(degree<0?-1:1):degree);
         e.reverse=!!e.reverse !== (motion()<c.movement*.3);
         // Space is generated in short regions rather than uniform thinning.
@@ -278,6 +279,7 @@ function collageGenerate(mode, autoPlay) {
     if(mode==='phrase'||mode==='rhythm')collageNextSeed('rhythm');
     if(mode==='phrase'||mode==='order')collageNextSeed('order');
     if(mode==='phrase'||mode==='movement')collageNextSeed('motion');
+    if(mode==='phrase'||mode==='pitch')collageNextSeed('pitch');
     if(mode==='phrase'||mode==='damage')collageNextSeed('damage');
     collagePrepare(function(){
         try {

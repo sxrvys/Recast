@@ -80,7 +80,7 @@ function collageSetControl(s,x) {
     if(s.field==='size')for(var r=0;r<state.collage.lanes.length;r++)if(!collageLane(r).locked)collageLane(r).dirty=true;
     collagePlanCache=null;redraw();
 }
-function collageDrawSliders(){var sliders=collageSliders();for(var i=0;i<sliders.length;i++){var s=sliders[i],v=collageControlValue(s),portion=(v-s.min)/(s.max-s.min);text(s.label,s.x,s.y,13);text(s.max>2?Math.round(v)+' ms':Math.round(v*100)+'%',s.x+328,s.y,11,[.71,.77,.78,1]);rect(s.x,s.y+18,390,5,[.22,.27,.29,1]);rect(s.x,s.y+18,390*portion,5,[.88,.61,.31,1]);rect(s.x+390*portion-3,s.y+13,6,15,[.94,.77,.53,1]);}}
+function collageDrawSliders(){var sliders=collageSliders();for(var i=0;i<sliders.length;i++){var s=sliders[i],v=collageControlValue(s),portion=(v-s.min)/(s.max-s.min);text(s.label,s.x,s.y,13);text(collageFormatControl(s,v),s.x+328,s.y,11,[.71,.77,.78,1]);rect(s.x,s.y+18,390,5,[.22,.27,.29,1]);rect(s.x,s.y+18,390*portion,5,[.88,.61,.31,1]);rect(s.x+390*portion-3,s.y+13,6,15,[.94,.77,.53,1]);}}
 function collageHideFields() {
     var tempo=this.patcher.getnamed('instrumentTempo'),search=this.patcher.getnamed('librarySearch');
     if(search)search.hidden=1;

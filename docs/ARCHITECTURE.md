@@ -3,7 +3,7 @@
 `MaxForLive/Recast.maxpat` is the editable device patcher. `recast-native.js` is the JavaScript entry point; it includes the other modules in order. These scripts share Max’s JSUI global scope, so include order and wrappers around existing functions matter.
 
 | Area | Modules |
-| Sample collage generation, circular workshop, local-library draw and optional tonal estimates | `recast-collage.js`, `recast-collage-ui.js`, `recast-collage-library.js`, `recast-collage-pitch.js`, `recast-collage-refine.js`, `recast-collage-shape.js`, `recast-collage-render.js` |
+| Sample collage generation, circular workshop, local-library draw and optional tonal estimates | `recast-collage.js`, `recast-collage-ui.js`, `recast-collage-library.js`, `recast-collage-pitch.js`, `recast-collage-refine.js`, `recast-collage-shape.js`, `recast-collage-render.js`, `recast-collage-output.js`, `recast-collage-keys.js`, `recast-collage-placement.js`, `recast-collage-clock.js`, `recast-collage-keeps.js`, `recast-bank-stability.js` |
 | --- | --- |
 | State, transport, voice dispatch and file I/O | `recast-native.js`, `recast-workbench.js` |
 | Pattern vocabulary and kit MIDI | `recast-generator.js`, `recast-instrument.js` |
@@ -57,3 +57,13 @@ Generation reuses a saved base for treatment rerolls, respects protected events 
 The collage renderer takes one fixed event list, resolves processing against the whole list, and renders in 4096-frame blocks. A measurement pass finds a common headroom gain for the mix and stems; a writing pass applies it to all files. Output is stereo 16-bit / 44.1 kHz at exact loop length. Cancellation finalizes partial-file headers, closes handles and marks the stem manifest incomplete. No per-stem normalization changes the relative balance.
 
 Collage archive restoration imports referenced paths and defers inactive Keep sources. Snapshot restoration reloads archives, preventing a reused buffer slot from returning the wrong recording. An explicit memory-release action removes unreferenced decoded buffers, without deleting source files or Keep metadata.
+
+## Stereo, output dynamics and source-key estimates
+
+Voices accept an optional stereo-balance value. Parent dispatch pads legacy messages with a zero, so older centred dispatches keep working. MSP balance and offline WAV/pad rendering use the same centre-unity balance law. Frozen rendered-note mappings retain pan.
+
+The embedded original gen~ compressor follows the stereo-linked absolute peak with separate attack/release coefficients, then applies a threshold/ratio gain law and makeup gain. The offline renderer implements the same equations with sample-rate-specific coefficients and preserves envelope state across blocks. Both measurement and writing passes start from the same detector state. Stems receive the mix-derived envelope; they are not compressed independently. The metronome has its own oscillator/envelope path outside the musical export renderer.
+
+Source-key estimation uses an independently written radix-2 FFT, Hann windows, peak-weighted chroma and correlation with published Krumhansl-Schmuckler numeric key profiles. Background: [Napoles Lopez et al., 2019](https://napulen.github.io/media/justkeydding/napoles19key.pdf). Work yields between analysis windows. Results include correlation, runner-up margin and a confidence decision; sparse/flat evidence is rejected. This is approximate analysis, not source separation. Key sync transposes roots or relative key families; octave motion preserves the estimated pitch-class family. Manual source-key overrides and bypass are stored separately from estimates.
+
+Compatible collage Keeps are prepared under a temporary prospective state between clock callbacks, while the current native voices continue. Their archived-source registry remains shared, but the playing state is restored after each preparation step. At the next ready bar, the prepared musical state replaces the current state without sending Stop or restarting playback preparation. Changed core-kit paths fall back to the existing recall path. MIDI rendered-note pitches are pinned independently of the visible instrument reservations; conflicting Keep layouts are rejected rather than silently changing exported clips.

@@ -1081,7 +1081,7 @@
             195,
             40
           ],
-          "text": "route choose save open folder voice stop status bounce stopvoice",
+          "text": "route choose save open folder voice stop status bounce stopvoice metro",
           "numinlets": 1,
           "numoutlets": 9
         }
@@ -1449,7 +1449,7 @@
             195,
             40
           ],
-          "text": "target $1, $2 $3 $4 $5 $6 $7",
+          "text": "target $1, $2 $3 $4 $5 $6 $7 $8",
           "numinlets": 1,
           "numoutlets": 1
         }
@@ -1658,6 +1658,250 @@
             530,
             75,
             55,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "voicePad",
+          "maxclass": "newobj",
+          "text": "append 0.",
+          "patching_rect": [
+            300,
+            700,
+            180,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "outputDynamics",
+          "maxclass": "newobj",
+          "text": "gen~",
+          "varname": "recastOutputDynamics",
+          "numinlets": 2,
+          "numoutlets": 2,
+          "outlettype": [
+            "signal",
+            "signal"
+          ],
+          "patching_rect": [
+            450,
+            800,
+            90,
+            22
+          ],
+          "patcher": {
+            "fileversion": 1,
+            "classnamespace": "dsp.gen",
+            "rect": [
+              80,
+              80,
+              720,
+              600
+            ],
+            "boxes": [
+              {
+                "box": {
+                  "id": "in1",
+                  "maxclass": "newobj",
+                  "text": "in 1",
+                  "patching_rect": [
+                    20,
+                    20,
+                    180,
+                    22
+                  ]
+                }
+              },
+              {
+                "box": {
+                  "id": "in2",
+                  "maxclass": "newobj",
+                  "text": "in 2",
+                  "patching_rect": [
+                    220,
+                    20,
+                    180,
+                    22
+                  ]
+                }
+              },
+              {
+                "box": {
+                  "id": "compress",
+                  "maxclass": "codebox",
+                  "code": "Param enabled(0);\nParam thresholdDb(-12);\nParam ratio(3);\nParam attackMs(10);\nParam releaseMs(120);\nParam makeupDb(0);\nHistory detector(0);\np = max(abs(in1), abs(in2));\na = exp(-1 / (max(0.1, attackMs) * 0.001 * samplerate));\nr = exp(-1 / (max(1, releaseMs) * 0.001 * samplerate));\nk = p > detector ? a : r;\nnextDetector = p + (detector - p) * k;\ndetector = nextDetector;\nlevelDb = 20 * log(max(0.000000001, nextDetector)) / log(10);\nreductionDb = max(0, levelDb - thresholdDb) * (1 - 1 / max(1, ratio));\ngain = enabled > 0.5 ? pow(10, (makeupDb - reductionDb) / 20) : 1;\nout1 = in1 * gain;\nout2 = in2 * gain;",
+                  "numinlets": 2,
+                  "numoutlets": 2,
+                  "outlettype": [
+                    "signal",
+                    "signal"
+                  ],
+                  "patching_rect": [
+                    20,
+                    70,
+                    640,
+                    400
+                  ]
+                }
+              },
+              {
+                "box": {
+                  "id": "out1",
+                  "maxclass": "newobj",
+                  "text": "out 1",
+                  "patching_rect": [
+                    20,
+                    500,
+                    180,
+                    22
+                  ]
+                }
+              },
+              {
+                "box": {
+                  "id": "out2",
+                  "maxclass": "newobj",
+                  "text": "out 2",
+                  "patching_rect": [
+                    220,
+                    500,
+                    180,
+                    22
+                  ]
+                }
+              }
+            ],
+            "lines": [
+              {
+                "patchline": {
+                  "source": [
+                    "in1",
+                    0
+                  ],
+                  "destination": [
+                    "compress",
+                    0
+                  ]
+                }
+              },
+              {
+                "patchline": {
+                  "source": [
+                    "in2",
+                    0
+                  ],
+                  "destination": [
+                    "compress",
+                    1
+                  ]
+                }
+              },
+              {
+                "patchline": {
+                  "source": [
+                    "compress",
+                    0
+                  ],
+                  "destination": [
+                    "out1",
+                    0
+                  ]
+                }
+              },
+              {
+                "patchline": {
+                  "source": [
+                    "compress",
+                    1
+                  ],
+                  "destination": [
+                    "out2",
+                    0
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "box": {
+          "id": "metroUnpack",
+          "maxclass": "newobj",
+          "text": "unpack f f",
+          "patching_rect": [
+            800,
+            700,
+            190,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "metroEnvelope",
+          "maxclass": "message",
+          "text": "0, $1 1 0 28",
+          "patching_rect": [
+            800,
+            740,
+            190,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "metroLine",
+          "maxclass": "newobj",
+          "text": "line~",
+          "patching_rect": [
+            800,
+            780,
+            190,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "metroOscillator",
+          "maxclass": "newobj",
+          "text": "cycle~ 1000",
+          "patching_rect": [
+            1020,
+            740,
+            190,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "metroMultiply",
+          "maxclass": "newobj",
+          "text": "*~",
+          "patching_rect": [
+            1020,
+            800,
+            190,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "metroZero",
+          "maxclass": "message",
+          "text": "0",
+          "patching_rect": [
+            800,
+            820,
+            190,
             22
           ]
         }
@@ -2015,18 +2259,6 @@
       {
         "patchline": {
           "source": [
-            "route",
-            4
-          ],
-          "destination": [
-            "dispatch",
-            0
-          ]
-        }
-      },
-      {
-        "patchline": {
-          "source": [
             "dispatch",
             0
           ],
@@ -2057,30 +2289,6 @@
           "destination": [
             "voice",
             0
-          ]
-        }
-      },
-      {
-        "patchline": {
-          "source": [
-            "voice",
-            0
-          ],
-          "destination": [
-            "out",
-            0
-          ]
-        }
-      },
-      {
-        "patchline": {
-          "source": [
-            "voice",
-            1
-          ],
-          "destination": [
-            "out",
-            1
           ]
         }
       },
@@ -2284,6 +2492,198 @@
           ],
           "destination": [
             "openmsg",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "route",
+            4
+          ],
+          "destination": [
+            "voicePad",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "voicePad",
+            0
+          ],
+          "destination": [
+            "dispatch",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "voice",
+            0
+          ],
+          "destination": [
+            "outputDynamics",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "voice",
+            1
+          ],
+          "destination": [
+            "outputDynamics",
+            1
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "outputDynamics",
+            0
+          ],
+          "destination": [
+            "out",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "outputDynamics",
+            1
+          ],
+          "destination": [
+            "out",
+            1
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "route",
+            9
+          ],
+          "destination": [
+            "metroUnpack",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "metroUnpack",
+            0
+          ],
+          "destination": [
+            "metroEnvelope",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "metroUnpack",
+            1
+          ],
+          "destination": [
+            "metroOscillator",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "metroEnvelope",
+            0
+          ],
+          "destination": [
+            "metroLine",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "metroLine",
+            0
+          ],
+          "destination": [
+            "metroMultiply",
+            1
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "metroOscillator",
+            0
+          ],
+          "destination": [
+            "metroMultiply",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "metroMultiply",
+            0
+          ],
+          "destination": [
+            "out",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "metroMultiply",
+            0
+          ],
+          "destination": [
+            "out",
+            1
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "route",
+            5
+          ],
+          "destination": [
+            "metroZero",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "metroZero",
+            0
+          ],
+          "destination": [
+            "metroLine",
             0
           ]
         }

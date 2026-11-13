@@ -11,14 +11,14 @@ function collageRenderBlock(job,start,count) {
         var range=audioRange(b,Math.min(a,z)*1000/d.native,Math.max(a,z)*1000/d.native,d.native),dest=layers[d.role];
         for(var k=from;k<to;k++){
             var p=k-d.offset,pos=(s.a+(s.z-s.a)*p/d.length)*d.native/1000,ix=Math.floor(pos),frac=pos-ix,env=Math.min(1,p/88,(d.length-1-p)/88)*s.gain;
-            for(var ch=1;ch<=2;ch++){var value=(rangeSample(range,ch,ix)*(1-frac)+rangeSample(range,ch,ix+1)*frac)*env;dest[ch-1][k-start]+=value;mix[ch-1][k-start]+=value;}
+            for(var ch=1;ch<=2;ch++){var value=(rangeSample(range,ch,ix)*(1-frac)+rangeSample(range,ch,ix+1)*frac)*env;value*=collagePanGains(s.pan||0)[ch-1];dest[ch-1][k-start]+=value;mix[ch-1][k-start]+=value;}
         }
     }
     return {layers:layers,mix:mix};
 }
 function collageExportManifest(job,complete,error) {
     if(!job.manifestPath)return;
-    var data={complete:complete,error:error||null,sampleRate:44100,bitDepth:16,channels:2,tempo:job.tempo,bars:job.bars,frames:complete?job.frames:job.written,sharedGain:job.gain,mix:job.mixName,layers:job.layerFiles.map(function(row){return {layer:row.role+1,file:row.name};}),processing:'Recast processing included. Downstream Live effects are not included.',tails:'Exact loop length; tails beyond the end are truncated.'};
+    var data={complete:complete,error:error||null,sampleRate:44100,bitDepth:16,channels:2,tempo:job.tempo,bars:job.bars,frames:complete?job.frames:job.written,sharedGain:job.gain,outputDynamics:job.outputDynamics||null,mix:job.mixName,layers:job.layerFiles.map(function(row){return {layer:row.role+1,file:row.name};}),processing:'Recast processing included. Downstream Live effects are not included.',tails:'Exact loop length; tails beyond the end are truncated.'};
     var file=new File(job.manifestPath,'write');if(file.isopen){file.eof=0;file.writestring(JSON.stringify(data));file.close();}
 }
 function collageExportClose(job,cancelled,error){

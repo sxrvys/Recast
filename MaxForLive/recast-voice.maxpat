@@ -52,7 +52,7 @@
             150,
             22
           ],
-          "text": "unpack s f f f f i"
+          "text": "unpack s f f f f i f"
         }
       },
       {
@@ -272,6 +272,58 @@
             450,
             450,
             160,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "panleft",
+          "maxclass": "newobj",
+          "text": "expr cos(max(0., min(1., $f1)) * 1.57079632679)",
+          "patching_rect": [
+            300,
+            400,
+            340,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "panright",
+          "maxclass": "newobj",
+          "text": "expr cos(max(0., min(1., -$f1)) * 1.57079632679)",
+          "patching_rect": [
+            300,
+            430,
+            340,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "panleftsig",
+          "maxclass": "newobj",
+          "text": "*~ 1.",
+          "patching_rect": [
+            300,
+            470,
+            180,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "panrightsig",
+          "maxclass": "newobj",
+          "text": "*~ 1.",
+          "patching_rect": [
+            500,
+            470,
+            180,
             22
           ]
         }
@@ -617,7 +669,79 @@
       {
         "patchline": {
           "source": [
+            "unpack",
+            6
+          ],
+          "destination": [
+            "panleft",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "unpack",
+            6
+          ],
+          "destination": [
+            "panright",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "panleft",
+            0
+          ],
+          "destination": [
+            "panleftsig",
+            1
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "panright",
+            0
+          ],
+          "destination": [
+            "panrightsig",
+            1
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
             "fadeleft",
+            0
+          ],
+          "destination": [
+            "panleftsig",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "faderight",
+            0
+          ],
+          "destination": [
+            "panrightsig",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "panleftsig",
             0
           ],
           "destination": [
@@ -629,7 +753,7 @@
       {
         "patchline": {
           "source": [
-            "faderight",
+            "panrightsig",
             0
           ],
           "destination": [

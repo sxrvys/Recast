@@ -21,15 +21,18 @@ The opening workshop now puts **Play, New phrase, source layers and four main co
 - Choose a phrase style, from short rhythmic hits to sparse fragments, microglitch and longer drifting material. Type a BPM or tap it, and choose a phrase length up to 32 bars.
 - **New rhythm** changes placements, **New cuts** changes source regions, and **Shuffle fragments** changes which region plays at each event. Those decisions use independent random streams.
 - Shape density, fragment size, movement and damage. Focused Audio, Cut, Envelope, Rhythm, Structure, FX and Pitch pages expose recording-length filters, cut-duration ranges, playback-gate ranges, fades, repeating periods, probability, gain and choking. Collage processing includes flutter, low/high-pass filters, bit reduction, drive, flanging, echo and reverb, with separate probability and strength controls. Mute, solo or lock layers.
-- Keep four source-aware phrases. Recall while playing queues the change for the next bar. **Commit take** fixes the current probability and voice-limit realization before export.
+- Keep four source-aware phrases. Compatible source-aware Keeps prepare in the background while the current phrase plays, then switch at the next ready bar without stopping the engine. Changed kits and cold sources may still need preparation. **Commit take** fixes the current probability and voice-limit realization before export.
 - **Loop WAV** produces the full stereo loop. **Layer stems** exports aligned stereo WAVs plus the same full mix and an export manifest. Every file has the same start and length; one shared gain preserves the balance when you recombine the stems. Rendering runs in cancellable chunks. Partial WAVs remain at the destination if you cancel.
 - Rendered-sound MIDI handoff creates a clip with distinct processed fragments mapped to notes in this Recast instance. Ordinary kit MIDI remains a separate role-based export and cannot encode every fragment decision.
 - **Source pools** have an explicit recording list with audition, removal and weights. Weighted random chooses a recording before choosing one of its cuts, so a longer cut list does not automatically give that file more influence. Cycle visits enabled cuts in order; Shuffle uses every enabled cut before starting another shuffled bag.
-- Optional pitch estimation can guide simple tonal fragments toward a chosen root and scale. It is an autocorrelation estimate, not reliable polyphonic key recognition. No automatic mixed-recording key matching is promised.
+- **Recording key sync** analyses spectral chroma across several windows of each recording. Confident estimates can transpose whole recordings into a shared major/minor key family, preserving chord intervals. Auto chooses a target from confident audible sources; Manual uses your root and scale. Uncertain sources stay unchanged. Per-recording key overrides and an untuned bypass let you correct the estimate.
+- Independent straight and triplet timing grids, phrase rotation, attack preference/sensitivity, and a pitch-only reroll.
+- Per-layer stereo balance and fragment stereo spread. Pan is retained in playback, rendered-sound MIDI and audio exports.
+- A stereo-linked output compressor with threshold, ratio, attack, release and makeup gain. Stems receive the full mix's compression envelope, so they remain additive. The internal metronome is excluded from exports.
 
 WAV, AIFF, MP3 and FLAC source loading has been checked inside Live. Other formats offered by the browser depend on Max's decoder support. Whole recordings are decoded into memory: start with a modest collection of reasonably short files. Audio settings can release unused decoded buffers; saved Keep sources reload when recalled. Library indexing is capped at 50,000 files. Audio remains linked to its original paths; saving a phrase does not copy your recordings into the project.
 
-The collage voice budget reserves space for tails across repeated loop boundaries. Reservations are conservative: a probability skip does not immediately reallocate that voice to another event. The instrument still has a physical 32-voice pool shared with MIDI interventions. Offline WAV rendering includes Recast's processing, not effects placed after it in Live. This is an experimental independently written collage engine, with its own behavior and limitations.
+The collage voice budget reserves space for tails across repeated loop boundaries. Reservations are conservative: a probability skip does not immediately reallocate that voice to another event. The instrument still has a physical 32-voice pool shared with MIDI interventions. Offline WAV rendering includes Recast's processing, not effects placed after it in Live. This is an experimental independently written collage engine, with its own behavior and limitations. Key estimates can be wrong on sparse, noisy, ambiguous or changing-key material; they are not source separation or harmonic resynthesis. See the [parity status](docs/PARITY.md) for remaining differences.
 
 Use **Step editor** to return to the detailed smart-sequencer workflow below.
 
@@ -147,7 +150,7 @@ Audio is linked to files; it is not embedded in the JSON. Use collection/relinki
 ## Current limits
 
 - Thirteen starting foundations; up to 12 instruments and 1,024 hits per pattern.
-- Rendered-sound MIDI has a finite note bank: up to 122 distinct sounds, reduced by additional instrument lanes. Older mappings are retained; bank exhaustion is reported.
+- Rendered-sound MIDI has a finite note bank: up to 122 distinct sounds, reduced by additional instrument lanes. Older mappings retain their MIDI note numbers as instrument reservations change; conflicting Keep layouts are refused instead of reassigning an exported note. Bank exhaustion is reported.
 - Recovery history is temporary and clears on a new playback or session load. Recorded malfunction controls use quarter-beat segments, up to 64 segments.
 - Level matching estimates RMS/peak energy; it is not perceptual loudness matching.
 - New or dense processing combinations can require preparation. There is no hard real-time timing guarantee.
