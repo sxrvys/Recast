@@ -113,10 +113,10 @@ paint=function() {
         text('Energy-onset cuts detect changes in level. Dense recordings can still need random or equal cuts.',30,802,12,[.58,.68,.7,1]);
         text('Long fades, sustain and FX use pre-rendered audio. Preparation happens before playback starts.',30,824,12,[.58,.68,.7,1]);
     } else {
-        button('collagePlay',playing||preparing||collageJob||collageLibraryPending?'■ Stop':'▶ Play',20,65,100,true);
+        button('collagePlay',playing||preparing||collageJob||collageLibraryPending||collageExportJob?'■ Stop':'▶ Play',20,65,100,true);
         button('collagePhrase','New phrase',135,65,190,true);var style=state.collage.style||'keep';
         button('collageStyle',collageStyles.filter(function(a){return a[0]===style;})[0][1]+' ▾',340,65,220);
-        button('undo','Undo',575,65,75);button('collageCommit','Commit take',665,65,160);button('collageExport','Render WAV',840,65,220);
+        button('undo','Undo',575,65,75);button('collageCommit','Commit take',665,65,160);button('collageExport','Loop WAV',840,65,103);button('collageStems','Layer stems',953,65,107);
         text('BPM',20,132,12);button('instrumentTap','Tap',160,112,60);text('Bars',250,132,12);
         var lengths=[1,2,4,8,16,32];for(var i=0;i<lengths.length;i++)button('collageBars:'+lengths[i],String(lengths[i]),290+i*47,112,41,state.bars===lengths[i]);
         button('collageLibraryDraw','New sounds from library',605,112,250);button('collageLibraryRoot','Library folder…',870,112,190);
@@ -236,8 +236,8 @@ function collageDrawLibrary() {
         status='Drawing local sounds '+at+' / '+targets.length;mgraphics.redraw();collageJob.schedule(5);
     },this);collageJob.schedule(1);
 }
-var collageLoadBefore=loadbang,collageFaceTask=null;
-loadbang=function(){collageLoadBefore();collageFaceTask=new Task(function(){view=26;collageAdoptKit();redraw();},this);collageFaceTask.schedule(1200);};
+var collageLoadBefore=loadbang,collageFaceTask=null,collageFaceStarted=false;
+loadbang=function(){collageLoadBefore();if(collageFaceStarted)return;collageFaceStarted=true;collageFaceTask=new Task(function(){view=26;collageAdoptKit();redraw();},this);collageFaceTask.schedule(1200);};
 var collageDeleteBefore=notifydeleted;notifydeleted=function(){if(collageJob)collageJob.cancel();if(collageFaceTask)collageFaceTask.cancel();collageDeleteBefore();};
 // Tooltips describe the action rather than requiring a visit to a manual.
 visualHints.collagePhrase='Generate a new arrangement of your source recordings. The style chooses parameter ranges; locked layers and protected notes remain.';

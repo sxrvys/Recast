@@ -3,7 +3,7 @@
 `MaxForLive/Recast.maxpat` is the editable device patcher. `recast-native.js` is the JavaScript entry point; it includes the other modules in order. These scripts share Max’s JSUI global scope, so include order and wrappers around existing functions matter.
 
 | Area | Modules |
-| Sample collage generation, circular workshop, local-library draw and optional tonal estimates | `recast-collage.js`, `recast-collage-ui.js`, `recast-collage-library.js`, `recast-collage-pitch.js` |
+| Sample collage generation, circular workshop, local-library draw and optional tonal estimates | `recast-collage.js`, `recast-collage-ui.js`, `recast-collage-library.js`, `recast-collage-pitch.js`, `recast-collage-refine.js`, `recast-collage-shape.js`, `recast-collage-render.js` |
 | --- | --- |
 | State, transport, voice dispatch and file I/O | `recast-native.js`, `recast-workbench.js` |
 | Pattern vocabulary and kit MIDI | `recast-generator.js`, `recast-instrument.js` |
@@ -52,4 +52,8 @@ Beta 7: `recast-space.js` owns an explicit role/cell generation mask and viewed/
 
 `state.collage` stores independent random streams for cuts, rhythm, ordering, motion and damage, plus per-layer source paths, cut pools and four non-recursive Keep snapshots. Events retain explicit archived-buffer regions. Cut preparation is scheduled by layer; source decoding is cached. Local-library indexing yields between batches and never calls an online sample service. Whole source files still consume decoded memory.
 
-Generation reuses a saved base for treatment rerolls, respects protected events and selected regions, and caps output through the shared event bound. Playback resolves per-loop layer probability and within-phrase voice admissions; Commit take records that realization. Long tails crossing a loop boundary remain subject to the physical 32-voice pool. The optional pitch module estimates monophonic periodicity and does not implement polyphonic key recognition.
+Generation reuses a saved base for treatment rerolls, respects protected events and selected regions, and caps output through the shared event bound. Playback resolves per-loop layer probability and within-phrase voice admissions; Commit take records that realization. Periodic occupancy reservations account for long tails across loop boundaries before probability thinning, and native dispatch searches for a free voice rather than blindly wrapping its voice index. Ordinary MIDI still shares the physical voice pool. The optional pitch module estimates monophonic periodicity and does not implement polyphonic key recognition.
+
+The collage renderer takes one fixed event list, resolves processing against the whole list, and renders in 4096-frame blocks. A measurement pass finds a common headroom gain for the mix and stems; a writing pass applies it to all files. Output is stereo 16-bit / 44.1 kHz at exact loop length. Cancellation finalizes partial-file headers, closes handles and marks the stem manifest incomplete. No per-stem normalization changes the relative balance.
+
+Collage archive restoration imports referenced paths and defers inactive Keep sources. Snapshot restoration reloads archives, preventing a reused buffer slot from returning the wrong recording. An explicit memory-release action removes unreferenced decoded buffers, without deleting source files or Keep metadata.

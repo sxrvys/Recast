@@ -183,3 +183,9 @@ include("recast-collage-ui.js");
 include("recast-collage-library.js");
 
 include("recast-collage-pitch.js");
+
+include("recast-collage-refine.js");
+
+include("recast-collage-shape.js");
+
+include("recast-collage-render.js");

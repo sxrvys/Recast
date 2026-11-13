@@ -113,7 +113,7 @@ function collageFragmentGain(index, start, end) {
 function collageCutSource(role, path, sourceNumber) {
     var c=state.collage,lane=collageLane(role),index=archivePath(path),a=collageAnalyse(index,path);
     var rnd=collageRandom(collageSeed(c.seeds.cuts,role,sourceNumber)),out=[];
-    var min=35+Math.pow(c.size,2)*600, max=Math.min(a.duration,100+Math.pow(c.size,1.6)*5000);
+    var min=c.useLengthRange?(c.minFragmentMs||35):35+Math.pow(c.size,2)*600, max=Math.min(a.duration,c.useLengthRange?(c.maxFragmentMs||5000):100+Math.pow(c.size,1.6)*5000);
     max=Math.max(Math.min(min,a.duration),max);
     function add(start,end) {
         start=clamp(start,0,Math.max(0,a.duration-1));end=clamp(end,start+1,a.duration);
@@ -223,9 +223,10 @@ function collageDecorate(base) {
         if(!lane.cuts.length)continue;
         var ordinal=counts[e.role]||0;counts[e.role]=ordinal+1;
         var order=collageRandom(collageSeed(c.seeds.order,e.role,ordinal)),motion=collageRandom(collageSeed(c.seeds.motion,e.role,ordinal)),damage=collageRandom(collageSeed(c.seeds.damage,e.role,ordinal));
-        var pick=Math.floor(order()*lane.cuts.length),fragment=lane.cuts[pick];
+        var pick=collageChooseCut(e.role,ordinal),fragment=lane.cuts[pick];
+        if(pick<0)continue;
         // Avoid the same fragment three times in a row without hiding all short repetitions.
-        if(ordinal>1&&lane.cuts.length>1&&out.length>1&&out[out.length-1].collagePick===pick&&out[out.length-2].collagePick===pick)pick=(pick+1)%lane.cuts.length;
+        if(!lane.orderMode&&!lane.sourceWeights&&ordinal>1&&lane.cuts.length>1&&out.length>1&&out[out.length-1].collagePick===pick&&out[out.length-2].collagePick===pick)pick=(pick+1)%lane.cuts.length;
         fragment=lane.cuts[pick];e.collagePick=pick;
         if(!e.hitSamplePath) {
             e.source={index:fragment.index,a:fragment.a,z:fragment.z,dur:fragment.dur,gain:fragment.gain*volume*lane.gain};
@@ -243,11 +244,12 @@ function collageDecorate(base) {
         var gapStart=gap()*3,gapLength=.25+gap()*1.25;
         if(gap()<c.breaks&&e.beat%4>=gapStart&&e.beat%4<gapStart+gapLength&&!e.foundation)continue;
         var rough=damage()<c.damage,rate=Math.pow(2,e.pitch/12),natural=e.source?e.source.dur/rate*state.tempo/60000:.25;
-        if(!e.durationBeats)e.durationBeats=Math.max(.025,Math.min(16,natural));
+        if(c.useGateRange){var lo=c.minGateMs||35,hi=Math.max(lo,c.maxGateMs||2000);e.durationBeats=Math.max(.001,Math.min(natural,(lo+motion()*(hi-lo))*state.tempo/60000));}
+        else if(!e.durationBeats)e.durationBeats=Math.max(.025,Math.min(16,natural));
         if(rough&&!e.foundation) {
             e.reverse=damage()<.35?!e.reverse:e.reverse;
             if(damage()<.65)e.durationBeats=Math.min(e.durationBeats,.035+damage()*.22);
-            if(damage()<.2){e.collageFX=damage()<.5?'crush':'echo';}
+            if(c.fxMode!=='off'&&damage()<(c.fxChance===undefined?.2:c.fxChance)){var kinds=['flutter','lowpass','highpass','bitcrush','drive','flanger','echo','reverb'];e.collageFX=c.fxMode&&c.fxMode!=='mixed'?c.fxMode:kinds[Math.floor(damage()*kinds.length)];e.collageFxDepth=c.fxDepth===undefined?.4:c.fxDepth;}
         }
         e.collageFadeIn=c.fadeIn;e.collageFadeOut=c.fadeOut;
         out.push(e);
@@ -294,30 +296,24 @@ function collageGenerate(mode, autoPlay) {
 // Current-cycle probability is resolved once, shared by preparation, view and export.
 var collagePlanCache=null,collageAuditionBefore=auditionEvents;
 function collagePlan(cycleNumber,events) {
-    var c=state.collage,key=JSON.stringify([cycleNumber,events,c.voices,c.lanes.map(function(l){return [l.mute,l.solo,l.chance];})]);
-    if(collagePlanCache&&collagePlanCache.key===key)return collagePlanCache.events;
-    var solo=c.lanes.some(function(l){return l.solo;}),out=[];
-    for(var i=0;i<events.length;i++) {
-        var e=events[i],l=collageLane(e.role);
+    var c=state.collage,key=JSON.stringify([cycleNumber,c.voices,state.tempo,beats(),c.seeds.rhythm,c.lanes.map(function(l){return [l.mute,l.solo,l.chance];})]);
+    if(collagePlanCache&&collagePlanCache.input===events&&collagePlanCache.key===key)return collagePlanCache.events;
+    var reserved=collageReserveVoices(events),solo=c.lanes.some(function(l){return l.solo;}),out=[];
+    for(var i=0;i<reserved.length;i++) {
+        var e=reserved[i],l=collageLane(e.role);
         if(e.collage&&(l.mute||solo&&!l.solo))continue;
         if(e.collage&&!e.collageCommitted) {
             var rnd=collageRandom(collageSeed(c.seeds.rhythm,e.id%100000,cycleNumber));
-            if(rnd()>l.chance)continue;
+            if(rnd()>=l.chance)continue;
         }
         out.push(e);
     }
-    // Voice limiting is explicit, based on gates and pitch-adjusted duration.
-    var active=[],limited=[];
-    out.sort(function(a,b){return a.beat-b.beat;});
-    for(var i=0;i<out.length;i++) {
-        var e=out[i];active=active.filter(function(a){return a.end>e.beat&&!(e.chokeGroup>0&&a.group===e.chokeGroup);});
-        if(active.length>=c.voices)continue;
-        limited.push(e);active.push({end:e.beat+(e.durationBeats||.25),group:e.chokeGroup||0});
-    }
-    collagePlanCache={key:key,events:limited};return limited;
+    collagePlanCache={key:key,input:events,events:out};return out;
 }
 auditionEvents=function(){
-    var events=collageAuditionBefore();
+    // Fixed collage events do not need the legacy performance planner's deep copy on every clock tick.
+    var events=performanceAudition();
+    if(events.some(function(e){return !e.performanceFixed;}))events=collageAuditionBefore();
     return state.collage.enabled?collagePlan(performanceCycleNow(),events):events;
 };
 function collageCommit() {
@@ -333,8 +329,8 @@ sound=function(e) {
     var n=copy(e),lane=collageLane(e.role);
     if(e.collageFX) {
         n.art=n.art||articulation();
-        if(e.collageFX==='crush'){n.art.flutter=16;n.art.duty=.4;}
-        else {delete n.art;n.performanceRegions=(n.performanceRegions||[]).concat([{start:e.beat,end:e.beat+(e.durationBeats||.5),role:e.role,type:6,depth:.4,attack:0,release:.02,curve:1}]);}
+        if(e.collageFX==='crush'||e.collageFX==='flutter'){n.art.flutter=16;n.art.duty=1-(e.collageFxDepth===undefined?.6:e.collageFxDepth)*.9;}
+        else {var type={lowpass:1,highpass:2,bitcrush:3,drive:4,flanger:5,echo:6,reverb:7}[e.collageFX];if(type!==undefined)n.performanceRegions=(n.performanceRegions||[]).concat([{start:e.beat,end:e.beat+(e.durationBeats||.5),role:e.role,type:type,depth:e.collageFxDepth===undefined?.4:e.collageFxDepth,attack:0,release:.02,curve:1}]);}
     }
     // Envelopes longer than the native 2ms fade use the existing shared renderer.
     if(e.collageFadeIn>2||e.collageFadeOut>2) {

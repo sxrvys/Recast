@@ -42,17 +42,18 @@ collageDrawLibrary=function(){
     if(collageLibraryKey!==JSON.stringify(roots)){collageLibraryIndex(collageDrawLibrary);return;}
     if(!collageLibraryFiles.length){say('No supported audio files found in these library folders.');return;}
     var resume=playing,c=state.collage;stop();saveundo();collageNextSeed('order');
+    var count=c.libraryDrawCount||roles.length;if(count>roles.length)collageEnsureRole(Math.min(23,count-1));
     var bag=collageShuffle(collageLibraryFiles,collageRandom(c.seeds.order)),at=0,draw=0,targets=[];
-    for(var r=0;r<roles.length;r++)if(!collageLane(r).locked&&!state.roleLocks[r])targets.push(r);
+    for(var r=0;r<roles.length;r++)if(!collageLane(r).locked&&!state.roleLocks[r]&&targets.length<count)targets.push(r);
     if(!targets.length){say('Unlock a layer before drawing new sounds.');return;}
     collageJob=new Task(function(){
         if(at>=targets.length){collageJob=null;var savedUndo=saveundo;saveundo=function(){};try{collageGenerate('phrase',resume);}finally{saveundo=savedUndo;}return;}
         var role=targets[at++],lane=collageLane(role),loaded=false;
         for(var attempt=0;attempt<Math.min(8,bag.length);attempt++){
             var path=bag[(draw++)%bag.length];
-            try{var index=collageSourceBuffer(path);if(buffer(index).framecount()>0){lane.sources=[path];lane.cuts=[];lane.dirty=true;lane.ignoreKit=true;loaded=true;break;}}catch(err){}
+            try{var index=collageSourceBuffer(path);if(buffer(index).framecount()>0){var seconds=buffer(index).length()/1000;if(c.libraryDurationFilter&&(seconds<(c.libraryMinSeconds===undefined?.3:c.libraryMinSeconds)||seconds>(c.libraryMaxSeconds===undefined?30:c.libraryMaxSeconds)))continue;lane.sources=[path];lane.cuts=[];lane.dirty=true;lane.ignoreKit=true;loaded=true;break;}}catch(err){}
         }
-        status=(loaded?'Loaded':'Skipped unreadable files for')+' layer '+(role+1)+' / '+targets.length;mgraphics.redraw();collageJob.schedule(4);
+        status=(loaded?'Loaded':'Skipped unreadable / out-of-range files for')+' layer '+(role+1)+' / '+targets.length;mgraphics.redraw();collageJob.schedule(4);
     },this);collageJob.schedule(1);
 };
 var collageLibraryExportFolder=exportfolder;
