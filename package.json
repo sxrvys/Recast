@@ -1,6 +1,6 @@
 {
   "name": "recast-m4l",
-  "version": "0.2.0-beta.4",
+  "version": "0.2.0-beta.5",
   "private": true,
   "description": "A generative step sequencer and sample instrument for Max for Live",
   "license": "MIT",

@@ -16,7 +16,7 @@ Reference: [PHRZ's public feature comparison](https://nokbeats.com/tools/phrz), 
 | Metronome | Separate internal synthesized click, excluded from musical exports. |
 | WAV and stems | Full loop and aligned layer WAVs with shared gain/compression and an export manifest. |
 | Local project recall | JSON and Live-device state. Source recordings remain linked to their paths. |
-| Random source retrieval | User-selected local folders, per-layer roots, filename-hint recipes, preserved discoveries, active-file exclusion and saved recent-history preference. WAV/AIFF duration preflight. Online CC0 retrieval is intentionally omitted for this workflow. |
+| Random source retrieval | User-selected local folders, per-layer roots, filename-hint recipes, measured sound-character filters, byte-identical-copy avoidance, preserved discoveries, active-file exclusion and saved recent-history preference. WAV/AIFF duration preflight. Online CC0 retrieval is intentionally omitted for this workflow. |
 | Image/video collage and MP4 | Explicitly excluded from this audio-only project scope. |
 | VST3/AU portability | Recast remains a Max for Live instrument. |
 
@@ -28,4 +28,4 @@ The existing smart drum sequencer, MIDI handoff, manual grid editing, Foley pool
 
 ## Local draw limits
 
-Type hints use filenames and folder names; they do not identify a voice or machine from sound. No-match layers retain their current sound. Recent history stores up to 256 paths in device/session state. Exact path repeats are avoided within the active collage; renamed or copied duplicates are not yet detected by content. Duration preflight covers RIFF WAV and AIFF/AIFC common chunks, with decoder fallback for unknown containers. Header parsing is bounded to 128 chunks. Rescan clears cached metadata. Drawing stops playback while preparing replacements; it is not a seamless live file-streaming engine.
+Type hints use filenames and folder names; they do not identify a voice or machine from sound. Independent sound-character filters use bounded decoded-audio measurements (low-frequency energy, sample-difference brightness, crest and window occupancy). They may miss brief events and are not trained semantic models. No-match layers retain their current sound. Recent history stores up to 256 paths in device/session state. Exact path repeats are avoided within the active collage; renamed byte-identical copies are compared against active recordings in cancellable file-read chunks. Different formats, retagged recordings and near-duplicates are not recognized by this check. No files are deleted. Duration preflight covers RIFF WAV and AIFF/AIFC common chunks, with decoder fallback for unknown containers. Header parsing is bounded to 128 chunks. Rescan clears metadata, descriptor and copy-comparison caches. Cached files changed in place need a rescan. Drawing stops playback while preparing replacements; it is not a seamless live file-streaming engine.

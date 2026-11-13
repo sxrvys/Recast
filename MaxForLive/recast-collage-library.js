@@ -46,22 +46,42 @@ collageDrawLibrary=function(){
     var at=0,targets=[],used={},recent=(c.libraryRecent||[]).slice(),pending=null;
     for(var r=0;r<roles.length;r++)if(!collageLane(r).locked&&!state.roleLocks[r]&&targets.length<count)targets.push(r);
     if(!targets.length){say('Unlock a layer before drawing new sounds.');return;}
-    // Keep the current recordings out of the next draw, including locked discoveries.
     for(var i=0;i<roles.length;i++)for(var j=0;j<collageLane(i).sources.length;j++)used[collageLane(i).sources[j]]=true;
-    var failures=[],relaxed=0;
+    var failures=[],relaxed=0,copies=0;
     collageJob=new Task(function(){
-        if(at>=targets.length){collageJob=null;c.libraryRecent=recent.slice(-256);var savedUndo=saveundo;saveundo=function(){};try{collageGenerate('phrase',resume);}finally{saveundo=savedUndo;}if(failures.length)say('Kept existing sounds on layers '+failures.join(', ')+': no unused matching readable files.');else if(relaxed)say('New sounds drawn. Small pools required '+relaxed+' recent reuse(s).');return;}
-        if(!pending){var nextRole=targets[at];pending={role:nextRole,bag:collageLibraryCandidates(nextRole,used,recent),cursor:0};}
-        var role=pending.role,lane=collageLane(role),loaded=false;
-        // One candidate per task tick keeps large rejected collections cancellable.
-        if(pending.cursor<pending.bag.length){var path=pending.bag[pending.cursor++],meta=collageLibraryMetadata(path);
-            if(!c.libraryDurationFilter||meta.seconds===undefined||collageLibraryDurationOK(meta.seconds)){
-                var priorIndex=state.archivePaths.indexOf(path),wasDecoded=priorIndex>=0&&buffer(priorIndex+7).framecount()>0,index=-1;try{index=collageSourceBuffer(path);if(buffer(index).framecount()>0&&collageLibraryDurationOK(buffer(index).length()/1000)){if(recent.indexOf(path)>=0)relaxed++;lane.sources=[path];lane.cuts=[];lane.dirty=true;lane.ignoreKit=true;loaded=true;used[path]=true;recent=recent.filter(function(p){return p!==path;});recent.push(path);}}catch(err){}
-                if(!loaded&&!wasDecoded&&index>=7&&archivedObjects[index-7]){this.patcher.parentpatcher.remove(archivedObjects[index-7]);archivedObjects[index-7]=null;}
+        try{
+            if(at>=targets.length){
+                collageCopyClose();collageJob=null;c.libraryRecent=recent.slice(-256);
+                var savedUndo=saveundo;saveundo=function(){};try{collageGenerate('phrase',resume);}finally{saveundo=savedUndo;}
+                if(failures.length)say('Kept layers '+failures.join(', ')+': no unused matching sounds. Skipped '+copies+' copied file(s).');
+                else if(relaxed||copies)say('New sounds drawn · '+copies+' copied file(s) skipped · '+relaxed+' recent reuse(s).');return;
             }
-        }
-        if(loaded||pending.cursor>=pending.bag.length){if(!loaded)failures.push(role+1);at++;pending=null;}
-        status='Drawing layer '+(role+1)+' · '+at+' / '+targets.length;mgraphics.redraw();collageJob.schedule(4);
+            if(!pending){var nextRole=targets[at];pending={role:nextRole,bag:collageLibraryCandidates(nextRole,used,recent),cursor:0,candidate:null};}
+            var role=pending.role,lane=collageLane(role),loaded=false;
+            if(!pending.candidate&&pending.cursor<pending.bag.length){
+                var path=pending.bag[pending.cursor++],meta=collageLibraryMetadata(path);
+                if(!c.libraryDurationFilter||meta.seconds===undefined||collageLibraryDurationOK(meta.seconds))pending.candidate={path:path,copy:collageCopyBegin(path,used)};
+            }
+            var candidate=pending.candidate;
+            if(candidate&&collageCopyStep(candidate.copy)){
+                var path=candidate.path;
+                if(candidate.copy.duplicate)copies++;
+                else{
+                    var priorIndex=state.archivePaths.indexOf(path),wasDecoded=priorIndex>=0&&buffer(priorIndex+7).framecount()>0,index=-1;
+                    try{
+                        index=collageSourceBuffer(path);
+                        if(buffer(index).framecount()>0&&collageLibraryDurationOK(buffer(index).length()/1000)&&collageCharacterMatches(path,index,lane.libraryCharacter)){
+                            if(recent.indexOf(path)>=0)relaxed++;lane.sources=[path];lane.cuts=[];lane.dirty=true;lane.ignoreKit=true;loaded=true;used[path]=true;
+                            recent=recent.filter(function(p){return p!==path;});recent.push(path);
+                        }
+                    }catch(err){}
+                    if(!loaded&&!wasDecoded&&index>=7&&archivedObjects[index-7]){this.patcher.parentpatcher.remove(archivedObjects[index-7]);archivedObjects[index-7]=null;}
+                }
+                collageCopyClose();pending.candidate=null;
+            }
+            if(loaded||!pending.candidate&&pending.cursor>=pending.bag.length){if(!loaded)failures.push(role+1);at++;pending=null;}
+            status='Drawing layer '+(role+1)+' · '+at+' / '+targets.length+' · '+copies+' copies skipped';mgraphics.redraw();collageJob.schedule(4);
+        }catch(err){collageCopyClose();collageJob=null;say('Library draw: '+err.message);}
     },this);collageJob.schedule(1);
 };
 var collageLibraryExportFolder=exportfolder;
