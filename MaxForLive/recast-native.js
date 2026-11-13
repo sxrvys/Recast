@@ -157,3 +157,8 @@ include("recast-grid-expression.js");
 include("recast-browser.js");
 
 include("recast-pocket.js");
+
+include("recast-damage.js");
+
+include("recast-browser-nav.js");
+include("recast-feel-ui.js");

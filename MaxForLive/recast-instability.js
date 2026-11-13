@@ -10,7 +10,7 @@ function movable(e){return !protectedHit(e)&&!anchorHit(e)&&inScope(e.beat);}
 function allowedDestination(t){return t>=0&&t<beats()&&inScope(t)&&!locked(t);}
 function feelSignature(){return JSON.stringify([state.events,state.ranges,state.roleLocks]);}
 function generateFeel(push,spaceOnly){
- if(!state.events.length){say('Load and slice a loop first.');return;}
+ if(!state.events.length){say('Generate or program a groove first.');return;}
  if(state.scope===2&&!selection){say('Select a stretch in Groove first, or choose Whole loop.');return;}
  stop();saveundo();
  if(state.feelLast!==feelSignature()||!state.feelBase.length)state.feelBase=copy(state.events);

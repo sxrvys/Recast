@@ -23,13 +23,15 @@ Recast is an experimental Max for Live instrument. It has automated regression t
 
 ### Keep the groove; change its behavior
 
-**Pocket** adjusts timing and accents. **Damage** introduces interruptions, ratchets, omissions, reversals, short gates and choking. You can target an instrument or passage, protect your foundation, and preserve empty space as deliberately as the hits.
+**Pocket** adjusts timing and accents. **Drunkenness** controls shared timing drags and recoveries; **Glitch** controls structural disruption. **Apply damage** creates episodes of stumbles, missing footsteps, uneven bursts, choked interruptions, displaced fragments and breakdowns, with occasional reversals. You can target an instrument or passage, protect your foundation, and preserve empty space as deliberately as the hits.
 
 **Apply pocket** and **Apply damage** reroll their preceding input while you explore consecutive takes. They do not repeatedly process their own output. Editing the notes or switching the target/passage establishes a new input. Undo compares takes; generated damage repeats cannot spawn further rolls. **Develop phrase** retains the opening bar and creates fresh later variations, answers and fills.
 
-The deeper tools include stagger, trip, sputter, drag, clustering, recovery, shaped bursts and phrase displacement. A phrase-wide tension curve lets disruption build and release across the pattern. Hold **Malfunction** during playback to push the details further, then recover at the next beat or bar; its control movement can be recorded for later passes.
+The **Glitch settings** panel starts with four sliders: Drunkenness, Glitch, detail-lane bias and anchor protection. Expand the behavior mix to favor or disable specific disruptions and tighten their gates. The **Feel / instability** panel uses direct sliders for timing sway, late lean, uneven repeats and tail cutting; additional controls expand when needed. Hover a setting for a plain-language explanation in the footer. Changes take effect when you generate a new take. A phrase-wide tension curve lets disruption build and release across the pattern. Hold **Malfunction** during playback to push the details further, then recover at the next beat or bar; its control movement can be recorded for later passes.
 
 ### Use your own sounds
+
+Browse a familiar folder tree beside a scrolling sample list and a separate waveform preview. Back, Forward, Up, breadcrumbs, Favorites and library search keep navigation direct. Single-click to preview; double-click or press Assign to commit. In-groove audition is temporary until you assign the sound.
 
 Assign WAV or AIFF samples to the six core roles, or add up to six more foley lanes. Each instrument has its own MIDI note.
 

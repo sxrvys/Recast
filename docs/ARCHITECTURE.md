@@ -33,3 +33,7 @@ The final `recast-browser.js` layer handles folder navigation, incremental filen
 `Tests/workflow.cjs`, `redesign.cjs`, `workbench.cjs` and `performance.cjs` run the scripts in mocked Max contexts. They cover editing transactions, protections, pattern transformations, MIDI mapping, DSP operations, file routing, pool choices and recovery behavior. Some tests generate diagnostic JSON in `Tests/`; those files are ignored.
 
 These are useful regression checks, not substitutes for Live. Validate actual audio, MIDI insertion, save/reopen, dialogs and physical gestures in the host before declaring a change verified there.
+
+## Episode damage and browsing UI
+
+`recast-damage.js` builds seeded disruption episodes over an immutable reroll input. Explicit locks, scope, destination protection, detail bias and anchor protection constrain the generated notes. Results are fixed events; playback does not reroll them. Generated repeats cannot parent additional rolls. `recast-browser-nav.js` adds bounded folder history, a cached folder tree, file-list scrolling and separate audition/assignment to the existing browser engine. `recast-feel-ui.js` replaces cycling settings with direct sliders and extends the shared footer help to settings and navigation. Native JSUI remains the host; no browser UI is used.

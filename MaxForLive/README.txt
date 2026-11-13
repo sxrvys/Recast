@@ -94,3 +94,12 @@ Browse now opens the integrated sample browser. Choose your library folder once;
 Generate creates a new foundation; Another take develops the existing base. Pocket and Damage reroll a treatment instead of accumulating more subdivisions. Lane pockets sets independent offset, swing, timing spread and accents. Lock the kick there to regenerate around it. New malfunction changes a selected passage or a 4/8/16-step window and leaves the surrounding groove alone.
 
 Select one or several steps and open Gate. One step is a sixteenth note; choices include 1, 3 and 16 steps. Full sample removes the gate. Gates limit playback; short samples need sustain to play longer. Choke rules can shorten a tail. Fixed-role MIDI retriggers one voice per lane; use rendered audio or rendered-sound MIDI for overlapping tails.
+
+BETA 4: BROWSING AND INSTABILITY
+The sample browser has folders on the left, a scrolling file list in the middle, and preview/assignment on the right. Back/Forward remember folder visits; Up and the path buttons navigate parents. Single-click previews, double-click assigns; neither changing folders nor previewing changes your kit. Favorites are limited to your chosen library. Search scans WAV/AIFF filenames within that library; very large libraries can take time to index. Scrollbars and mouse/trackpad scrolling move through the lists.
+
+Main Drunkenness controls timing; Glitch controls structural disruption. Apply damage generates variable-length episodes of stumble/recovery, missing hits and late answers, shaped bursts, interruptions, shifted fragments and breakdowns. Settings opens four common sliders; expand Behavior mix for relative behavior likelihoods (zero disables a family) and gate tightness. Detail bias favors hats/perc/textures; anchor protection preserves generated kick/snare anchors. Explicit locks and protected silence always win. Consecutive Apply clicks reroll from the same input instead of recursively multiplying repeats.
+
+Feel / instability now uses direct sliders: Timing sway, Late lean, Uneven repeats and Tail cutting. More feel controls expands the detailed settings. Select which lanes should stay steady, adjust controls, then Generate a new take. Use current as input deliberately establishes a new base; Make space generates a sparser result. These are settings for generating fixed editable notes, not live automation knobs.
+
+Hover buttons or slider labels/tracks for explanations in the bottom-left footer. Leaving a control restores the ordinary status message.
