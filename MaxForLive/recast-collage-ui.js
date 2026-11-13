@@ -119,7 +119,7 @@ paint=function() {
         button('undo','Undo',575,65,75);button('collageCommit','Commit take',665,65,160);button('collageExport','Loop WAV',840,65,103);button('collageStems','Layer stems',953,65,107);
         text('BPM',20,132,12);button('instrumentTap','Tap',160,112,60);text('Bars',250,132,12);
         var lengths=[1,2,4,8,16,32];for(var i=0;i<lengths.length;i++)button('collageBars:'+lengths[i],String(lengths[i]),290+i*47,112,41,state.bars===lengths[i]);
-        button('collageLibraryDraw','New sounds from library',605,112,250);button('collageLibraryRoot','Library folder…',870,112,190);
+        button('collageLibraryDraw','New sounds from library',605,112,250);button('collageLibrarySetup','Library draw setup…',870,112,190);
         collageDrawWheel();collageDrawSliders();
         button('collageRhythm','New rhythm',635,472,185);button('collageCuts','New cuts',835,472,190);
         button('collageOrder','Shuffle fragments',635,510,185);button('collageDamage','New damage',835,510,190);

@@ -17,7 +17,7 @@ browserRead=function(path){
 function collageLibraryCancel(){if(collageLibraryScan)collageLibraryScan.cancel();if(collageLibraryFolder)collageLibraryFolder.close();collageLibraryFolder=null;collageLibraryScan=null;collageLibraryPending=false;}
 function collageLibraryRoots(){var c=state.collage;if(!c.libraryRoots)c.libraryRoots=[];if(!c.libraryRoots.length&&state.sampleBrowser.root)c.libraryRoots=[state.sampleBrowser.root];return c.libraryRoots;}
 function collageLibraryIndex(done){
-    collageLibraryCancel();var roots=collageLibraryRoots();collageLibraryKey='';collageLibraryFiles=[];collageLibraryVisited={};collageLibraryQueue=roots.map(function(p){return {path:p,depth:0};});
+    collageLibraryCancel();var roots=collageLibraryScanRoots();collageLibraryKey='';collageLibraryFiles=[];collageLibraryVisited={};collageLibraryQueue=roots.map(function(p){return {path:p,depth:0};});
     collageLibraryPending=true;collageLibraryScan=new Task(function(){
         try{
             var steps=0;while(steps++<100&&collageLibraryFiles.length<50000){
@@ -37,23 +37,31 @@ function collageLibraryIndex(done){
     },this);collageLibraryScan.schedule(1);
 }
 collageDrawLibrary=function(){
-    var roots=collageLibraryRoots();if(!roots.length){say('Choose a local sample or music folder first.');action('collageLibraryRoot');return;}
+    var roots=collageLibraryScanRoots();if(!roots.length){say('Choose a local sample or music folder first.');action('collageLibraryRoot');return;}
     if(collageLibraryPending){say('Indexing your library. Stop cancels; drawing starts when ready.');return;}
     if(collageLibraryKey!==JSON.stringify(roots)){collageLibraryIndex(collageDrawLibrary);return;}
     if(!collageLibraryFiles.length){say('No supported audio files found in these library folders.');return;}
     var resume=playing,c=state.collage;stop();saveundo();collageNextSeed('order');
     var count=c.libraryDrawCount||roles.length;if(count>roles.length)collageEnsureRole(Math.min(23,count-1));
-    var bag=collageShuffle(collageLibraryFiles,collageRandom(c.seeds.order)),at=0,draw=0,targets=[];
+    var at=0,targets=[],used={},recent=(c.libraryRecent||[]).slice(),pending=null;
     for(var r=0;r<roles.length;r++)if(!collageLane(r).locked&&!state.roleLocks[r]&&targets.length<count)targets.push(r);
     if(!targets.length){say('Unlock a layer before drawing new sounds.');return;}
+    // Keep the current recordings out of the next draw, including locked discoveries.
+    for(var i=0;i<roles.length;i++)for(var j=0;j<collageLane(i).sources.length;j++)used[collageLane(i).sources[j]]=true;
+    var failures=[],relaxed=0;
     collageJob=new Task(function(){
-        if(at>=targets.length){collageJob=null;var savedUndo=saveundo;saveundo=function(){};try{collageGenerate('phrase',resume);}finally{saveundo=savedUndo;}return;}
-        var role=targets[at++],lane=collageLane(role),loaded=false;
-        for(var attempt=0;attempt<Math.min(8,bag.length);attempt++){
-            var path=bag[(draw++)%bag.length];
-            try{var index=collageSourceBuffer(path);if(buffer(index).framecount()>0){var seconds=buffer(index).length()/1000;if(c.libraryDurationFilter&&(seconds<(c.libraryMinSeconds===undefined?.3:c.libraryMinSeconds)||seconds>(c.libraryMaxSeconds===undefined?30:c.libraryMaxSeconds)))continue;lane.sources=[path];lane.cuts=[];lane.dirty=true;lane.ignoreKit=true;loaded=true;break;}}catch(err){}
+        if(at>=targets.length){collageJob=null;c.libraryRecent=recent.slice(-256);var savedUndo=saveundo;saveundo=function(){};try{collageGenerate('phrase',resume);}finally{saveundo=savedUndo;}if(failures.length)say('Kept existing sounds on layers '+failures.join(', ')+': no unused matching readable files.');else if(relaxed)say('New sounds drawn. Small pools required '+relaxed+' recent reuse(s).');return;}
+        if(!pending){var nextRole=targets[at];pending={role:nextRole,bag:collageLibraryCandidates(nextRole,used,recent),cursor:0};}
+        var role=pending.role,lane=collageLane(role),loaded=false;
+        // One candidate per task tick keeps large rejected collections cancellable.
+        if(pending.cursor<pending.bag.length){var path=pending.bag[pending.cursor++],meta=collageLibraryMetadata(path);
+            if(!c.libraryDurationFilter||meta.seconds===undefined||collageLibraryDurationOK(meta.seconds)){
+                var priorIndex=state.archivePaths.indexOf(path),wasDecoded=priorIndex>=0&&buffer(priorIndex+7).framecount()>0,index=-1;try{index=collageSourceBuffer(path);if(buffer(index).framecount()>0&&collageLibraryDurationOK(buffer(index).length()/1000)){if(recent.indexOf(path)>=0)relaxed++;lane.sources=[path];lane.cuts=[];lane.dirty=true;lane.ignoreKit=true;loaded=true;used[path]=true;recent=recent.filter(function(p){return p!==path;});recent.push(path);}}catch(err){}
+                if(!loaded&&!wasDecoded&&index>=7&&archivedObjects[index-7]){this.patcher.parentpatcher.remove(archivedObjects[index-7]);archivedObjects[index-7]=null;}
+            }
         }
-        status=(loaded?'Loaded':'Skipped unreadable / out-of-range files for')+' layer '+(role+1)+' / '+targets.length;mgraphics.redraw();collageJob.schedule(4);
+        if(loaded||pending.cursor>=pending.bag.length){if(!loaded)failures.push(role+1);at++;pending=null;}
+        status='Drawing layer '+(role+1)+' · '+at+' / '+targets.length;mgraphics.redraw();collageJob.schedule(4);
     },this);collageJob.schedule(1);
 };
 var collageLibraryExportFolder=exportfolder;
@@ -66,3 +74,40 @@ var collageLibraryAction=action;action=function(id){
 };
 var collageLibraryStop=stop;stop=function(){collageLibraryCancel();collageLibraryStop();};
 var collageLibraryDelete=notifydeleted;notifydeleted=function(){collageLibraryCancel();collageLibraryDelete();};
+
+// Header inspection is bounded and never decodes the recording. Unknown formats fall back to the decoder.
+var collageLibraryMetaCache={};
+function collageLibraryMetadata(path){
+    if(collageLibraryMetaCache[path])return collageLibraryMetaCache[path];
+    var f=null,out={};
+    function uint(a,i,big){return big?((a[i]*16777216+a[i+1]*65536+a[i+2]*256+a[i+3])>>>0):((a[i+3]*16777216+a[i+2]*65536+a[i+1]*256+a[i])>>>0);}
+    function str(a,i){return String.fromCharCode(a[i],a[i+1],a[i+2],a[i+3]);}
+    try{f=new File(path,'read');if(!f.isopen||typeof f.readbytes!=='function')return out;out.bytes=f.eof;
+        var h=f.readbytes(12),wav=str(h,0)==='RIFF'&&str(h,8)==='WAVE',aiff=str(h,0)==='FORM'&&(str(h,8)==='AIFF'||str(h,8)==='AIFC');
+        if(wav||aiff){var pos=12,rate=0,data=0;
+            for(var n=0;n<128&&pos+8<=f.eof;n++){f.position=pos;var chunk=f.readbytes(8),len=uint(chunk,4,aiff),id=str(chunk,0);if(len>f.eof-pos-8)break;
+                if(wav&&id==='fmt '&&len>=16){var fmt=f.readbytes(16);rate=uint(fmt,8,false);out.channels=fmt[2]+fmt[3]*256;out.sampleRate=uint(fmt,4,false);}
+                if(wav&&id==='data')data=len;
+                if(aiff&&id==='COMM'&&len>=18){var comm=f.readbytes(18),ex=((comm[8]&127)*256+comm[9])-16383,man=uint(comm,10,true)+uint(comm,14,true)/4294967296;var sr=man*Math.pow(2,ex-31);if(sr>0&&isFinite(sr)){out.sampleRate=sr;out.channels=comm[0]*256+comm[1];out.seconds=uint(comm,2,true)/sr;}}
+                if(rate&&data){out.seconds=data/rate;break;}pos+=8+len+(len%2);
+            }
+        }
+    }catch(err){}finally{if(f)f.close();}
+    if(Object.keys(collageLibraryMetaCache).length>=4096)collageLibraryMetaCache={};collageLibraryMetaCache[path]=out;return out;
+}
+function collageLibraryDurationOK(seconds){var c=state.collage;return !c.libraryDurationFilter||(seconds>=(c.libraryMinSeconds===undefined?.3:c.libraryMinSeconds)&&seconds<=(c.libraryMaxSeconds===undefined?30:c.libraryMaxSeconds));}
+function collageLibraryScanRoots(){var roots=collageLibraryRoots().slice();for(var i=0;i<roles.length;i++){var p=collageLane(i).libraryRoot;if(p&&roots.indexOf(p)<0)roots.push(p);}return roots;}
+var collageLibraryTypes=['any','impact','mechanical','voice','texture','bass','drums'];
+function collageLibraryMatches(path,type){
+    if(!type||type==='any')return true;
+    var patterns={impact:/impact|boom|slam|hit|crash|thud|door|explosion|kick/i,mechanical:/mechan|machine|robot|gear|relay|motor|metal|industrial|engine|clank/i,voice:/vocal|voice|speech|whisper|breath|moan|talk|chant|scream/i,texture:/texture|drone|ambient|noise|wind|rain|atmos|sustain|pad/i,bass:/bass|sub|808|low|boom|kick/i,drums:/drum|kick|snare|hat|clap|cymbal|tom|perc|break/i};
+    var name=path.split('/').pop();if(!patterns[type])return true;if(patterns[type].test(name))return true;for(var key in patterns)if(patterns[key].test(name))return false;return patterns[type].test(path);
+}
+function collageLibraryCandidates(role,used,recent){
+    var lane=collageLane(role),root=lane.libraryRoot,type=lane.libraryType||'any';
+    var pool=collageLibraryFiles.filter(function(p){return (!root||p.indexOf(root.replace(/\/$/,'')+'/')===0)&&collageLibraryMatches(p,type);});
+    pool=collageShuffle(pool,collageRandom(state.collage.seeds.order+role*7919));var fresh=[],old=[],current=[];
+    for(var i=0;i<pool.length;i++){var p=pool[i];if(used[p])current.push(p);else if(recent.indexOf(p)>=0)old.push(p);else fresh.push(p);}
+    // Never reuse an active recording across layers. Recent history relaxes only after unused choices.
+    return fresh.concat(old);
+}
