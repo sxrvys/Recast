@@ -38,24 +38,24 @@ var baseChoicePaint=paint;paint=function(){baseChoicePaint();if(view!==0)return;
 var baseChoiceAction=action;action=function(id){if(id==='useCurrentBase'){stop();saveundo();state.original=copy(state.events);state.feelBase=copy(state.events);say('Current rhythm is the base for future variations. Undo restores the previous base.');return;}baseChoiceAction(id);};
 // Correlated feel: repeatable offsets by musical position, with short phrase-ending disruption.
 function grooveTreatment(kind){
- if(!state.events.length){say('Generate a beat first.');return;}stop();saveundo();var source=copy(state.original.length?state.original:state.events),out=state.events.filter(protectedHit).map(copy),amount=state.amount;
+ if(!state.events.length){say('Generate a beat first.');return;}stop();saveundo();var source=copy(state.original.length?state.original:state.events),out=state.events.filter(protectedHit).map(copy),amount=state.amount,lag=.025+nextRandom()*.07,swing=.08+nextRandom()*.13,stumble=.10+nextRandom()*.12,burstCurve=.5+nextRandom()*.9;
  function place(e){if(e.beat<0||e.beat>=beats()||locked(e.beat)||state.roleLocks[e.role])return;for(var j=0;j<out.length;j++)if(out[j].role===e.role&&Math.abs(out[j].beat-e.beat)<.035)return;out.push(e);}
  for(var i=0;i<source.length;i++){var e=copy(source[i]);if(protectedHit(e))continue;var original=e.beat,local=original%4,bar=Math.floor(original/4),ending=(bar+1)%4===0||bar===state.bars-1;
  if(kind==='pocket'){
   // Kick anchors remain fixed; snare lays back, offbeat hats swing consistently.
-  if(e.role===1)e.beat+=.065*amount;
-  if(e.role>=2){var off=Math.round(local*2)%2;e.beat+=(off?.18:-.015)*amount;e.velocity=Math.round(clamp(e.velocity*(off?1:1-.2*amount),20,127));}
+  if(e.role===1)e.beat+=lag*amount;
+  if(e.role>=2){var off=Math.round(local*2)%2;e.beat+=(off?swing:-.015)*amount;e.velocity=Math.round(clamp(e.velocity*(off?1:1-.2*amount),20,127));}
  }else if(kind==='stumble'&&amount>0&&ending&&local>=2.5&&e.role>=2){
   // Drag the first detail, then catch up before the next downbeat.
-  e.beat+=(local<3?.16:local<3.5?.09:.025)*amount;
-  e.durationBeats=.08+(1-amount)*.12;
+  e.beat+=(local<3?stumble:local<3.5?stumble*.55:.015+nextRandom()*.025)*amount;
+  e.durationBeats=.05+nextRandom()*.05+(1-amount)*.12;
  }else if(kind==='glitch'&&amount>0&&ending&&local>=3&&e.role>=2){
-  e.durationBeats=.04+(1-amount)*.08;e.chokeGroup=e.role+1;
+  e.durationBeats=.025+nextRandom()*.04+(1-amount)*.08;e.chokeGroup=e.role+1;
  }
  if(locked(e.beat))e.beat=original;place(e);
  if(amount>0&&ending&&e.role>=2&&local>=3.5&&(kind==='glitch'||kind==='stumble')){
-  var count=kind==='glitch'?2+Math.floor(amount*3):2;
-  for(var n=1;n<count;n++){var hit=copy(e);hit.id=++uid;hit.beat=e.beat+(kind==='glitch'?.25*Math.pow(n/count,.7):n*.125);hit.velocity=Math.round(clamp(e.velocity*(1-.65*n/count),20,127));hit.durationBeats=kind==='glitch'?.035:.07;hit.chokeGroup=e.role+1;hit.pitch=kind==='glitch'?-n*2:0;place(hit);}
+  var count=kind==='glitch'?2+Math.floor(nextRandom()*(1+amount*3)):2;
+  for(var n=1;n<count;n++){var hit=copy(e);hit.id=++uid;hit.beat=e.beat+(kind==='glitch'?.25*Math.pow(n/count,burstCurve):n*.125);hit.velocity=Math.round(clamp(e.velocity*(1-.65*n/count),20,127));hit.durationBeats=kind==='glitch'?.035:.07;hit.chokeGroup=e.role+1;hit.pitch=kind==='glitch'?-n*2:0;place(hit);}
  }
  }
  state.events=bounded(out);selected=-1;say(kind==='pocket'?'Pocket: laid-back snare, swung hats and repeating accents. Kick anchors stay fixed.':kind==='stumble'?'Stumble: phrase-ending details drag and catch up; kick/snare anchors remain.':'Glitch fill: short pitched bursts and choked tails at phrase endings; foundation retained.');

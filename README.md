@@ -16,13 +16,16 @@ Recast is an experimental Max for Live instrument. It has automated regression t
 
 - Coordinated kick, snare and hat patterns, with three starting families: **Broken funk, Half-time weight and Driving syncopation**.
 - Quick pattern lengths of **1, 2, 4, 8, 12 or 16 bars**.
-- Regenerate one instrument while keeping the others.
+- Each Generate click constructs a kick motif, complementary answer, hat subdivision and supporting ghost-note placement within the selected style. The generator combines musical constraints with aggregate position tendencies from reference examples; it does not select named patterns from a bundled book library. See [the rhythm design notes](docs/RHYTHM.md).
+- Regenerate an individual instrument from the Edit menu while keeping the others.
 - Build replies, fills, related variations and developing phrases.
 - Enter a BPM directly or use tap tempo.
 
 ### Keep the groove; change its behavior
 
 **Pocket** adjusts timing and accents. **Damage** introduces interruptions, ratchets, omissions, reversals, short gates and choking. You can target an instrument or passage, protect your foundation, and preserve empty space as deliberately as the hits.
+
+**Apply pocket** and **Apply damage** reroll their preceding input while you explore consecutive takes. They do not repeatedly process their own output. Editing the notes or switching the target/passage establishes a new input. Undo compares takes; generated damage repeats cannot spawn further rolls. **Develop phrase** retains the opening bar and creates fresh later variations, answers and fills.
 
 The deeper tools include stagger, trip, sputter, drag, clustering, recovery, shaped bursts and phrase displacement. A phrase-wide tension curve lets disruption build and release across the pattern. Hold **Malfunction** during playback to push the details further, then recover at the next beat or bar; its control movement can be recorded for later passes.
 
@@ -89,8 +92,9 @@ The `Rendered` folder must be writable: Recast stores generated processing audio
 3. Click **Play**. This auditions Recast’s pattern using its internal tempo.
 4. Try **Apply pocket** for timing and accents, then **Apply damage** for disruption. Use a target or selected passage to keep the changes focused.
 5. Protect something you like, edit individual steps, or try **Compare**.
-6. Use **Freeze performance** for the current realization or **Recover** for completed bars you actually heard.
-7. Open **Send / Export** to take it into Live or render audio.
+6. The Tools screen groups deeper controls into **Rhythm**, **Selected hit**, **Sounds**, and **Keep / export**.
+7. Use **Freeze performance** for the current realization or **Recover** for completed bars you actually heard.
+8. Open **Send / Export** to take it into Live or render audio.
 
 Recast’s preview transport is separate from Live’s clip transport. For host-controlled playback and arrangement, send a MIDI clip to Live and set Live to the intended BPM. Recast does not change the Set’s tempo automatically.
 

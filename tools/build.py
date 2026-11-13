@@ -4,7 +4,7 @@ import argparse,hashlib,json,struct,zipfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent.parent
 SRC=ROOT/'MaxForLive'
-VERSION='0.1.0-beta.1'
+VERSION='0.1.0-beta.2'
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--zip',action='store_true',help='Also produce dist/Recast-<version>.zip')
 p.add_argument('--output',type=Path,default=ROOT/'dist/Recast')
