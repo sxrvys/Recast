@@ -85,10 +85,11 @@ function collageAnalyse(index, path) {
     if (collageAnalysisCache[key]) return collageAnalysisCache[key];
     var count = Math.min(6000, Math.max(1, Math.ceil(ms/8))), bins = [], largest = 0;
     for (var i=0; i<count; i++) {
-        var at = Math.floor(i*frames/count), n = Math.max(1,Math.min(96,frames-at)), data=b.peek(1,at,n);
+        var at = Math.floor(i*frames/count), n = Math.max(1,Math.min(128,frames-at)), data=b.peek(1,at,n);
         if (typeof data === 'number') data=[data];
         var sum=0; for (var j=0;j<data.length;j++) sum+=data[j]*data[j];
-        var rms=Math.sqrt(sum/Math.max(1,data.length)); bins.push(rms); largest=Math.max(largest,rms);
+        var channels=Math.min(2,b.channelcount());if(channels>1){var right=b.peek(2,at,n);if(typeof right==='number')right=[right];for(var j=0;j<right.length;j++)sum+=right[j]*right[j];}
+        var rms=Math.sqrt(sum/Math.max(1,data.length*channels)); bins.push(rms); largest=Math.max(largest,rms);
     }
     var attacks=[0], average=0;
     for (var i=1;i<bins.length-1;i++) {
@@ -100,16 +101,15 @@ function collageAnalyse(index, path) {
     var result={duration:ms, attacks:attacks, envelope:bins, peakRms:largest};
     collageAnalysisCache[key]=result; return result;
 }
+var collageFragmentGainCache={};
 function collageFragmentGain(index, start, end) {
-    var b=buffer(index), frames=b.framecount(), ms=b.length(), from=Math.floor(start*frames/ms);
-    var to=Math.min(frames,Math.ceil(end*frames/ms)), total=0, peak=0, n=Math.min(128,to-from);
-    for(var i=0;i<n;i++) {
-        var value=b.peek(1,from+Math.floor(i*(to-from)/n));
-        if (!isFinite(value)) value=0;
-        total+=value*value; peak=Math.max(peak,Math.abs(value));
+    var b=buffer(index),frames=b.framecount(),ms=b.length(),identity=index>=7?state.archivePaths[index-7]:state.paths[index],cacheKey=JSON.stringify([identity,index,frames,ms,start,end]);if(collageFragmentGainCache[cacheKey])return collageFragmentGainCache[cacheKey];var from=Math.max(0,Math.floor(start*frames/ms)),to=Math.min(frames,Math.ceil(end*frames/ms));
+    var total=0,peak=0,count=0,channels=Math.min(2,b.channelcount()),length=Math.max(0,to-from),size=Math.min(128,length),windows=Math.min(32,Math.max(1,Math.ceil(length/Math.max(1,size))));
+    for(var w=0;w<windows;w++)for(var ch=1;ch<=channels;ch++){
+        var at=from+Math.floor(w*Math.max(0,length-size)/Math.max(1,windows-1)),data=b.peek(ch,at,size);if(typeof data==='number')data=[data];
+        for(var i=0;i<data.length;i++){var v=isFinite(data[i])?data[i]:0;total+=v*v;peak=Math.max(peak,Math.abs(v));count++;}
     }
-    var rms=Math.sqrt(total/Math.max(1,n));
-    return {rms:rms,gain:rms>.00001?Math.min(2,.18/rms,.8/Math.max(.001,peak)):1};
+    var rms=Math.sqrt(total/Math.max(1,count)),result={rms:rms,peak:peak,gain:rms>.00001?Math.min(2,.18/rms,.75/Math.max(.001,peak)):1};if(Object.keys(collageFragmentGainCache).length>=2048)collageFragmentGainCache={};collageFragmentGainCache[cacheKey]=result;return result;
 }
 function collageCutSource(role, path, sourceNumber) {
     var c=state.collage,lane=collageLane(role),index=archivePath(path),a=collageAnalyse(index,path);
@@ -118,8 +118,9 @@ function collageCutSource(role, path, sourceNumber) {
     max=Math.max(Math.min(min,a.duration),max);
     function add(start,end) {
         start=clamp(start,0,Math.max(0,a.duration-1));end=clamp(end,start+1,a.duration);
+        if(lane.mode==='random'&&out.some(function(f){return Math.abs(f.a-start)<Math.min(100,(end-start)/3);}))return;
         var g=collageFragmentGain(index,start,end);
-        if(g.rms<.0002&&out.length) return;
+        if(g.rms<.0002) return;
         out.push({path:path,index:index,a:start,z:end,dur:end-start,gain:g.gain,rms:g.rms});
     }
     if(lane.mode==='oneshot') add(0,a.duration);
@@ -138,7 +139,8 @@ function collageCutSource(role, path, sourceNumber) {
             add(start,start+len);
         }
     }
-    if(!out.length) add(0,Math.min(a.duration,max));
+    if(!out.length){var strongest=0;for(var i=1;i<a.envelope.length;i++)if(a.envelope[i]>a.envelope[strongest])strongest=i;var start=clamp(strongest*a.duration/Math.max(1,a.envelope.length)-3,0,Math.max(0,a.duration-max));add(start,Math.min(a.duration,start+max));}
+    if(!out.length)out.push({path:path,index:index,a:0,z:Math.min(a.duration,max),dur:Math.min(a.duration,max),gain:1,rms:0});
     return out;
 }
 function collageBuildLane(role) {
@@ -231,7 +233,7 @@ function collageDecorate(base) {
         fragment=lane.cuts[pick];e.collagePick=pick;
         if(!e.hitSamplePath) {
             e.source={index:fragment.index,a:fragment.a,z:fragment.z,dur:fragment.dur,gain:fragment.gain*volume*lane.gain};
-            e.collagePath=fragment.path;
+            e.collagePath=fragment.path;e.collageLevelGain=volume*lane.gain;
         }
         e.collage=true;e.performanceFixed=true;e.collageChance=lane.chance;
         e.chokeGroup=lane.choke?e.role+1:0;
@@ -274,7 +276,7 @@ function collageGenerate(mode, autoPlay) {
     stop();saveundo();if(mode==='phrase'&&typeof collageApplyStyle==='function')collageApplyStyle();state.collage.enabled=true;
     var c=state.collage;
     if(mode==='phrase'||mode==='cuts') {
-        collageNextSeed('cuts');for(var r=0;r<roles.length;r++)if(!collageLane(r).locked)collageLane(r).dirty=true;
+        collageNextSeed('cuts');for(var r=0;r<roles.length;r++)if(!collageLane(r).locked&&(typeof refineTargetsRole!=='function'||refineTargetsRole(r)))collageLane(r).dirty=true;
     }
     if(mode==='phrase'||mode==='rhythm')collageNextSeed('rhythm');
     if(mode==='phrase'||mode==='order')collageNextSeed('order');
@@ -288,6 +290,7 @@ function collageGenerate(mode, autoPlay) {
             else base=copy(c.lastResult===JSON.stringify(state.events)?c.base:state.events);
             var fixed=before.filter(function(e){return !collageEligible(e);}),ids=fixed.map(function(e){return e.id;});
             base=fixed.concat(base.filter(function(e){return collageEligible(e)&&ids.indexOf(e.id)<0;}));
+            if(typeof refineMode!=='undefined'&&refineMode==='damage')base=base.filter(function(e){return !e.damageRepeat||e.manualFragment||!collageEligible(e);});
             c.base=copy(base);state.events=collageDecorate(base);state.original=copy(base);state.feelBase=copy(base);
             c.lastResult=JSON.stringify(state.events);state.mode=0;invalidateOptions();workflowSelection=[];selected=-1;
             say('New '+mode+' · '+state.events.length+' events. Other decisions and protected material retained.');

@@ -205,3 +205,9 @@ include("recast-bank-stability.js");
 include("recast-collage-discovery.js");
 
 include("recast-collage-draw-ui.js");
+
+include("recast-collage-refinement.js");
+
+include("recast-collage-fragments.js");
+
+include("recast-collage-refinement-ui.js");

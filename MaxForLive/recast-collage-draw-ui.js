@@ -6,11 +6,12 @@ var collageLibrarySmartPaint=paint;paint=function(){
     text('LOCAL SOUND DRAW',25,45,25);button('collageOpen','Back to collage',820,18,230);
     text('Choose where each layer finds its material. Lock a layer to keep a discovery.',25,90,14);
     button('collageLibraryRecipe','Draw recipe ▾',25,115,310);button('collageLibraryDraw',(collageJob||collageLibraryPending)?'Stop drawing / preparation':'Draw new sounds',350,115,330,true);button('collageLibraryHistory','Forget recent draws',695,115,355);
-    button('collageLibraryCopies','Avoid copied files: '+(state.collage.avoidCopies===false?'Off':'On'),25,157,310,state.collage.avoidCopies!==false);text('Name hint above; analysed sound character below. Both filters apply.',350,177,13);
+    button('collageLibraryCopies','Avoid copied files: '+(state.collage.avoidCopies===false?'Off':'On'),25,157,310,state.collage.avoidCopies!==false);button('collageLibraryPreserve','Keep rhythm: '+(state.collage.drawPreserveRhythm===false?'Off · new phrase':'On'),350,157,330,state.collage.drawPreserveRhythm!==false);text('Both name and sound filters apply.',695,177,12);
     var start=collageLanePage*6;
     for(var i=start;i<Math.min(roles.length,start+6);i++){var l=collageLane(i),isKept=l.locked||state.roleLocks[i],y=200+(i-start)*80;button('collageLibraryFocus:'+i,'Layer '+(i+1)+(isKept?' · kept':''),25,y,150);button('collageLibraryLayerRoot:'+i,l.libraryRoot?shortName(l.libraryRoot,30):'All library folders…',190,y,340);button('collageLibraryLayerClear:'+i,'All folders',540,y,135);button('collageLibraryType:'+i,(l.libraryType||'any')+' ▾',685,y,175);button('collageLibraryKeep:'+i,isKept?'Unlock':'Keep sound',870,y,180,isKept);button('collageLibraryCharacter:'+i,'Sound: '+(l.libraryCharacter||'any')+' ▾',540,y+34,320);text(l.sources.length?shortName(l.sources[0],42):'No sound assigned',190,y+53,11);button('collageLibraryHear:'+i,'Hear source',870,y+34,180);}
     button('collageLibraryRoot','Choose library folder…',25,675,335);button('collageLibraryAdd','Add library folder…',375,675,330);text(collageLibraryRoots().length+' global folders',725,695,13);
     button('collageLibraryPrev','Previous layers',25,715,245);button('collageLibraryNext','Next layers',285,715,245);button('collageLibraryRefresh','Rescan / refresh metadata',545,715,505);
+    var drawReport=state.collage.lastDrawReport;if(drawReport)text('Last draw: '+drawReport.matched+' / '+drawReport.total+' layers refilled'+(drawReport.failed.length?' · kept layers '+drawReport.failed.join(', ')+' (no unused readable match)':''),25,765,12);
     text('Sound characters are approximate audio measurements. Voice/machine hints still use names.',25,795,13);
     text('Fresh files come first. Copied files are skipped during draws, never deleted. No match keeps your sound.',25,825,13);
     text(status.slice(0,140),25,860,12,[.65,.79,.74,1]);
@@ -25,6 +26,7 @@ var collageLibrarySmartAction=action;action=function(id){
     if(id==='collageLibrarySetup'){collageMenu='';view=29;collageRecipeMenu=collageTypeMenu=collageCharacterMenu=false;redraw();return;}
     if(id==='collageLibraryRecipe'){collageRecipeMenu=!collageRecipeMenu;collageTypeMenu=collageCharacterMenu=false;redraw();return;}
     if(id.indexOf('collageLibraryRecipe:')===0){saveundo();var recipe=id.split(':')[1],types=recipe==='industrial'?['impact','mechanical','mechanical','voice','texture','bass']:recipe==='voices and atmosphere'?['voice','voice','texture','texture','mechanical','bass']:recipe==='percussion'?['impact','drums','drums','mechanical','texture','bass']:['any'];for(var i=0;i<roles.length;i++)if(!collageLane(i).locked&&!state.roleLocks[i])collageLane(i).libraryType=types[i%types.length];collageRecipeMenu=false;redraw();return;}
+    if(id==='collageLibraryPreserve'){saveundo();state.collage.drawPreserveRhythm=state.collage.drawPreserveRhythm===false;redraw();return;}
     if(id==='collageLibraryCopies'){saveundo();state.collage.avoidCopies=state.collage.avoidCopies===false;redraw();return;}
     if(id==='collageLibraryHistory'){saveundo();state.collage.libraryRecent=[];say('Recent-draw history cleared. Current recordings still stay out of draws.');return;}
     if(id==='collageLibraryPrev'||id==='collageLibraryNext'){collageLanePage=Math.max(0,Math.min(Math.ceil(roles.length/6)-1,collageLanePage+(id==='collageLibraryPrev'?-1:1)));redraw();return;}

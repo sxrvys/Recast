@@ -47,12 +47,15 @@ collageDrawLibrary=function(){
     for(var r=0;r<roles.length;r++)if(!collageLane(r).locked&&!state.roleLocks[r]&&targets.length<count)targets.push(r);
     if(!targets.length){say('Unlock a layer before drawing new sounds.');return;}
     for(var i=0;i<roles.length;i++)for(var j=0;j<collageLane(i).sources.length;j++)used[collageLane(i).sources[j]]=true;
-    var failures=[],relaxed=0,copies=0;
+    var failures=[],loadedRoles=[],relaxed=0,copies=0;
     collageJob=new Task(function(){
         try{
             if(at>=targets.length){
-                collageCopyClose();collageJob=null;c.libraryRecent=recent.slice(-256);
-                var savedUndo=saveundo;saveundo=function(){};try{collageGenerate('phrase',resume);}finally{saveundo=savedUndo;}
+                collageCopyClose();collageJob=null;c.libraryRecent=recent.slice(-256);c.lastDrawReport={total:targets.length,matched:loadedRoles.length,failed:failures.slice(),copies:copies,reused:relaxed};
+                if(!loadedRoles.length){say('No new matching sounds. Kept the phrase. Try Any name / Any sound, or widen the duration filter.');if(resume)play();return;}
+                var drawMode=c.drawPreserveRhythm!==false&&state.events.length?'order':'phrase';
+                if(typeof refineGenerate==='function')refineGenerate(drawMode,resume,{kind:'draw',roles:loadedRoles.slice()});
+                else{var savedUndo=saveundo;saveundo=function(){};try{collageGenerate(drawMode,resume);}finally{saveundo=savedUndo;}}
                 if(failures.length)say('Kept layers '+failures.join(', ')+': no unused matching sounds. Skipped '+copies+' copied file(s).');
                 else if(relaxed||copies)say('New sounds drawn · '+copies+' copied file(s) skipped · '+relaxed+' recent reuse(s).');return;
             }
@@ -71,7 +74,7 @@ collageDrawLibrary=function(){
                     try{
                         index=collageSourceBuffer(path);
                         if(buffer(index).framecount()>0&&collageLibraryDurationOK(buffer(index).length()/1000)&&collageCharacterMatches(path,index,lane.libraryCharacter)){
-                            if(recent.indexOf(path)>=0)relaxed++;lane.sources=[path];lane.cuts=[];lane.dirty=true;lane.ignoreKit=true;loaded=true;used[path]=true;
+                            if(recent.indexOf(path)>=0)relaxed++;lane.sources=[path];lane.cuts=[];lane.dirty=true;lane.ignoreKit=true;loaded=true;loadedRoles.push(role);used[path]=true;
                             recent=recent.filter(function(p){return p!==path;});recent.push(path);
                         }
                     }catch(err){}

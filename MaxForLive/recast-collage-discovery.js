@@ -55,3 +55,13 @@ function collageCopyStep(check){
 }
 var collageDiscoveryStop=stop;stop=function(){collageCopyClose();collageDiscoveryStop();};
 var collageDiscoveryDelete=notifydeleted;notifydeleted=function(){collageCopyClose();collageDiscoveryDelete();};
+// Local machine preferences are optional and are never included in release archives.
+var collageLibraryPreferences=null;
+function collageLibraryPreferencesPath(){return defaultRenderDirectory().replace(/\/Rendered$/,'')+'/LibraryPreferences.json';}
+function collageReadLibraryPreferences(){
+    if(collageLibraryPreferences)return collageLibraryPreferences.slice();var f=null,roots=[];
+    try{f=new File(collageLibraryPreferencesPath(),'read');if(f.isopen&&typeof f.readstring==='function'&&f.eof<65536){var text='';while(f.position<f.eof)text+=f.readstring(Math.min(4096,f.eof-f.position));var data=JSON.parse(text);if(data&&data.libraryRoots instanceof Array)roots=data.libraryRoots.filter(function(p){return typeof p==='string'&&p.length>0;}).slice(0,64);}}catch(err){}finally{if(f)f.close();}collageLibraryPreferences=roots;return roots.slice();
+}
+var collagePreferenceRoots=collageLibraryRoots;collageLibraryRoots=function(){if(!state.collage.libraryRoots){var saved=collageReadLibraryPreferences();if(saved.length)state.collage.libraryRoots=saved;}return collagePreferenceRoots();};
+function collageWriteLibraryPreferences(){var roots=collageLibraryRoots().slice();collageLibraryPreferences=roots;var f=null;try{f=new File(collageLibraryPreferencesPath(),'write');if(f.isopen){f.eof=0;f.writestring(JSON.stringify({version:1,libraryRoots:roots}));}}catch(err){}finally{if(f)f.close();}}
+var collagePreferenceFolder=exportfolder;exportfolder=function(){var globalFolder=collageFolderIntent==='replace'||collageFolderIntent==='append';collagePreferenceFolder.apply(this,arguments);if(globalFolder)collageWriteLibraryPreferences();};

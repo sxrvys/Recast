@@ -5,14 +5,15 @@ Reference: [PHRZ's public feature comparison](https://nokbeats.com/tools/phrz), 
 | Area | Recast status |
 | --- | --- |
 | Layered sample collage | Implemented: up to 24 layers, multiple recordings per layer. |
-| Independent cuts / rhythm / fragment ordering | Implemented with separate seeded decisions. |
+| Independent cuts / rhythm / fragment ordering | Separate seeded decisions, explicit targets, source-only swaps preserving timing and a per-hit region editor. |
 | Cut modes and ranges | Random windows, equal divisions, energy-onset cuts, whole-source mode; attack preference and sensitivity. |
 | Envelopes and gates | Fades, playback-gate ranges, choking and detailed per-hit articulation. |
 | Phrase length / grid / offset | Up to 32 bars, straight/triplet grids and source-preserving rotation. |
 | Layer density / structure / chance | Implemented; separate mute, solo, lock, gain and stereo balance. |
+| Background proposals / comparison | UI proposals prepare over the active player, switch at the next ready bar, and support last-pair comparison. Cold decoding and heavy processing can still delay scheduling. |
 | Four phrase keeps | Compatible source-aware Keeps prefetch while playing and switch at the next ready bar without stopping the engine. Cold files and changed kits can still require preparation. |
 | Key sync | Approximate multi-window recording-key estimates, automatic/manual targets and source-key overrides. Uncertain recordings are left unchanged. |
-| Output dynamics | Linked peak-envelope compressor; matching equations in live DSP and offline export. |
+| Output dynamics | Linked compressor plus optional sample-peak safety ceiling; matching live/offline equations and additive stems. |
 | Metronome | Separate internal synthesized click, excluded from musical exports. |
 | WAV and stems | Full loop and aligned layer WAVs with shared gain/compression and an export manifest. |
 | Local project recall | JSON and Live-device state. Source recordings remain linked to their paths. |
@@ -28,4 +29,4 @@ The existing smart drum sequencer, MIDI handoff, manual grid editing, Foley pool
 
 ## Local draw limits
 
-Type hints use filenames and folder names; they do not identify a voice or machine from sound. Independent sound-character filters use bounded decoded-audio measurements (low-frequency energy, sample-difference brightness, crest and window occupancy). They may miss brief events and are not trained semantic models. No-match layers retain their current sound. Recent history stores up to 256 paths in device/session state. Exact path repeats are avoided within the active collage; renamed byte-identical copies are compared against active recordings in cancellable file-read chunks. Different formats, retagged recordings and near-duplicates are not recognized by this check. No files are deleted. Duration preflight covers RIFF WAV and AIFF/AIFC common chunks, with decoder fallback for unknown containers. Header parsing is bounded to 128 chunks. Rescan clears metadata, descriptor and copy-comparison caches. Cached files changed in place need a rescan. Drawing stops playback while preparing replacements; it is not a seamless live file-streaming engine.
+Type hints use filenames and folder names; they do not identify a voice or machine from sound. Independent sound-character filters use bounded decoded-audio measurements (low-frequency energy, sample-difference brightness, crest and window occupancy). They may miss brief events and are not trained semantic models. No-match layers retain their current sound. Recent history stores up to 256 paths in device/session state. Exact path repeats are avoided within the active collage; renamed byte-identical copies are compared against active recordings in cancellable file-read chunks. Different formats, retagged recordings and near-duplicates are not recognized by this check. No files are deleted. Duration preflight covers RIFF WAV and AIFF/AIFC common chunks, with decoder fallback for unknown containers. Header parsing is bounded to 128 chunks. Rescan clears metadata, descriptor and copy-comparison caches. Rescan refreshes file metadata and descriptors; reload the device to refresh audio that was already decoded before an in-place file edit. Drawing stops playback while preparing replacements; it is not a seamless live file-streaming engine.

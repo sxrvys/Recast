@@ -36,6 +36,19 @@ The collage voice budget reserves space for tails across repeated loop boundarie
 
 Use **Step editor** to return to the detailed smart-sequencer workflow below.
 
+### Refine without losing the useful part
+
+- **Target** chooses Whole Pattern, Selected Layer, This Bar or a passage selected in the Step editor. Protected hits and locked layers remain protected. Layer-only generation also leaves other layers' fragment pools alone.
+- **New phrase** and **Rebuild rhythm** use recurring motifs, answering bars and occasional end fills. Structure → Phrase development sets the strength; zero returns to independent layer placement. Use two or more bars to hear phrase development.
+- **Swap fragments** preserves timing, pitch, gates and treatment. **Find new fragments** rebuilds source regions while keeping the hit pattern. Library draw setup also has **Keep rhythm**: on by default, it places newly drawn recordings onto existing hits; turn it off to build a new phrase from them.
+- **New damage treatment** proposes episodes of accelerating bursts, late answers, gaps, reversals, short chokes, dragging and rushing/recovery. Drum-aware foundation hits stay protected, with more disruption available around them. Rerolls use a base rather than recursively multiplying the previous burst. Manual source-region edits survive damage rerolls.
+- While playing, proposals prepare in an isolated state and switch at the next ready bar. The current phrase stays available during preparation. Stop cancels a pending proposal; editing the working phrase invalidates a stale one. Cold decoding and individual processing jobs can still delay the shared JavaScript scheduler, so this is not a guarantee of glitch-free real-time operation on every source.
+- **Hear previous / Hear generated** compares the last proposal with the preceding phrase. Playing comparisons switch at a bar boundary and use approximate, down-only energy matching for audition. That matching is not LUFS normalization and is not baked into exports.
+- **Edit / audition fragments** exposes the chosen hit's source region, alternative cuts and immediate audition. The waveform opens zoomed around the region; Zoom In, Zoom Out and Whole Source change the view. Drag a boundary, then Apply to change only that hit. Cyan wheel markers and a change summary show which events changed.
+- Fragment gain estimates inspect both channels. Output → **Safety ceiling** defaults to a stereo-linked −1 dB sample-peak ceiling with a short release. Live output and offline stems use the same gain calculation; stems remain additive. It is not a true-peak or look-ahead mastering limiter and can be disabled.
+
+Local draw folders can be remembered in an optional `LibraryPreferences.json` beside the installed device. This machine-specific file is excluded from downloads and source packaging. Recordings remain linked to their original paths.
+
 ### Generate a foundation
 
 - Coordinated kick, snare and hat patterns, with **13 starting foundations**: Broken funk, Half-time weight, Driving syncopation, Straight backbeat, Four to the floor, Electro breaks, Two-step, Dub space, Slow crush, Motor pulse, Tresillo, Shuffle and Breakbeat.

@@ -1,14 +1,15 @@
 // Original stereo balance and linked peak-envelope compression, shared with offline exports.
 function collagePanGains(pan){pan=clamp(Number(pan)||0,-1,1);return [Math.cos(Math.max(0,pan)*Math.PI/2),Math.cos(Math.max(0,-pan)*Math.PI/2)];}
 function collageDynamicsSettings(){var c=state.collage;if(!c.outputDynamics)c.outputDynamics={enabled:false,thresholdDb:-12,ratio:3,attackMs:10,releaseMs:120,makeupDb:0};return c.outputDynamics;}
-function collageSendDynamics(){try{var object=this.patcher.parentpatcher.getnamed('recastOutputDynamics'),c=collageDynamicsSettings();if(object)for(var field in c)if(c.hasOwnProperty(field))object.message(field,field==='enabled'?(c[field]?1:0):c[field]);}catch(err){say('Output compressor: '+err.message);}}
+function collageSendDynamics(){try{var object=this.patcher.parentpatcher.getnamed('recastOutputDynamics'),c=collageDynamicsSettings();if(object)for(var field in c)if(c.hasOwnProperty(field))object.message(field,field==='enabled'||field==='safeOutput'?(c[field]?1:0):c[field]);}catch(err){say('Output compressor: '+err.message);}}
 function collageCompressBlock(block,cfg,memory,rate){
-    if(!cfg.enabled)return block;
+    if(!cfg.enabled&&!cfg.safeOutput)return block;
     var env=memory.envelope||0,a=Math.exp(-1/(Math.max(.1,cfg.attackMs)*.001*rate)),r=Math.exp(-1/(Math.max(1,cfg.releaseMs)*.001*rate)),rows=[];
     for(var role in block.layers)if(block.layers.hasOwnProperty(role))rows.push(block.layers[role]);
     for(var i=0;i<block.mix[0].length;i++){
         var peak=Math.max(Math.abs(block.mix[0][i]),Math.abs(block.mix[1][i])),k=peak>env?a:r;env=peak+(env-peak)*k;
-        var db=20*Math.log(Math.max(1e-9,env))/Math.LN10,reduction=Math.max(0,db-cfg.thresholdDb)*(1-1/Math.max(1,cfg.ratio)),gain=Math.pow(10,(cfg.makeupDb-reduction)/20);
+        var db=20*Math.log(Math.max(1e-9,env))/Math.LN10,reduction=Math.max(0,db-cfg.thresholdDb)*(1-1/Math.max(1,cfg.ratio)),gain=cfg.enabled?Math.pow(10,(cfg.makeupDb-reduction)/20):1;
+        if(cfg.safeOutput){var desired=Math.min(1,Math.pow(10,(cfg.ceilingDb===undefined?-1:cfg.ceilingDb)/20)/Math.max(1e-12,peak*gain)),prior=memory.safetyGain===undefined?1:memory.safetyGain;memory.safetyGain=desired<prior?desired:desired+(prior-desired)*Math.exp(-1/(.05*rate));gain*=memory.safetyGain;}
         block.mix[0][i]*=gain;block.mix[1][i]*=gain;
         for(var row=0;row<rows.length;row++){rows[row][0][i]*=gain;rows[row][1][i]*=gain;}
     }
@@ -18,7 +19,7 @@ var collageOutputSound=sound;sound=function(e){var s=collageOutputSound(e);if(e.
 var collageOutputDecorate=collageDecorate;collageDecorate=function(base){var out=collageOutputDecorate(base),c=state.collage;for(var i=0;i<out.length;i++){var e=out[i];if(!e.collage||!collageEligible(e))continue;var l=collageLane(e.role),rnd=collageRandom(collageSeed(c.seeds.motion,e.role,e.collageOrdinal||i));e.collagePan=clamp((l.pan||0)+(rnd()-.5)*2*(c.stereoSpread===undefined?.35:c.stereoSpread),-1,1);}return out;};
 var collageOutputRenderStart=collageRenderStart;collageRenderStart=function(path,stems){var yes=collageOutputRenderStart(path,stems);if(yes&&collageExportJob)collageExportJob.outputDynamics=copy(collageDynamicsSettings());return yes;};
 var collageOutputRenderBlock=collageRenderBlock;collageRenderBlock=function(job,start,count){var block=collageOutputRenderBlock(job,start,count);if(!start)job.dynamicMemory={envelope:0};return collageCompressBlock(block,job.outputDynamics||collageDynamicsSettings(),job.dynamicMemory||(job.dynamicMemory={envelope:0}),44100);};
-var collageOutputStop=stop;stop=function(){collageOutputStop();try{var obj=this.patcher.parentpatcher.getnamed('recastOutputDynamics');if(obj)obj.message('detector',0);}catch(err){}};
+var collageOutputStop=stop;stop=function(){collageOutputStop();try{var obj=this.patcher.parentpatcher.getnamed('recastOutputDynamics');if(obj){obj.message('detector',0);obj.message('safetyGain',1);}}catch(err){}};
 var collageOutputRestore=restoreArchives;restoreArchives=function(){collageOutputRestore();collageSendDynamics();};
 var collageOutputLoad=loadbang,collageOutputTask=null;loadbang=function(){collageOutputLoad();if(collageOutputTask)collageOutputTask.cancel();collageOutputTask=new Task(function(){collageSendDynamics();},this);collageOutputTask.schedule(1400);};
 var collageOutputDelete=notifydeleted;notifydeleted=function(){if(collageOutputTask)collageOutputTask.cancel();collageOutputDelete();};

@@ -11,7 +11,7 @@ function collageApplyStyle() {
     var fields=['density','size','movement','damage'];
     for(var i=0;i<fields.length;i++)c[fields[i]]=ranges[i*2]+rnd()*(ranges[i*2+1]-ranges[i*2]);
     c.breaks=style==='glitch'?.25:style==='groove'?.04:.1;
-    for(var r=0;r<roles.length;r++)if(!collageLane(r).locked) {
+    for(var r=0;r<roles.length;r++)if(!collageLane(r).locked&&(typeof refineTargetsRole!=='function'||refineTargetsRole(r))) {
         var lane=collageLane(r);lane.mode=style==='groove'?'transient':'random';
         lane.structure=style==='groove'?'drums':style==='glitch'?'cluster':style==='balanced'?'spread':'random';lane.dirty=true;
     }
@@ -46,13 +46,13 @@ function collageDrawWheel() {
             var end=start+Math.min(gate/beats(),.98)*Math.PI*2;
             var color=lane.mute?[.29,.31,.33,1]:role===collageSelectedLane?[.94,.65,.31,1]:[.47,.67,.71,1];
             collageArc(cx,cy,radius,start,end,role===collageSelectedLane?4:2.5,color);
-            rect(cx+Math.cos(start)*radius-1.5,cy+Math.sin(start)*radius-1.5,3,3,color);
+            var changed=state.collage.changedIds&&state.collage.changedIds[e.id];rect(cx+Math.cos(start)*radius-1.5,cy+Math.sin(start)*radius-1.5,changed?4:3,changed?4:3,changed&&!lane.mute?[.45,.9,.85,1]:color);
         }
     }
     text(rows.length+' layers',cx-39,cy-7,13,[.8,.83,.84,1]);
     text(state.collage.voices+' voices max',cx-51,cy+17,11,[.52,.62,.65,1]);
     if(playing){var a=phase*Math.PI*2-Math.PI/2;for(var r=58;r<=215;r+=5)rect(cx+Math.cos(a)*r,cy+Math.sin(a)*r,2,2,[.93,.8,.54,1]);}
-    text('Dots = starts · arcs = gates · click a ring to select its layer',40,159,10,[.52,.62,.65,1]);
+    text('Dots = starts · cyan = changed · arcs = gates · click a ring to select',40,159,10,[.52,.62,.65,1]);
 }
 function collageSliders() {
     if(view===26)return [{field:'density',label:'Density',x:635,y:204,min:0,max:.65},
