@@ -29,7 +29,7 @@ patch=json.loads((SRC/'Recast.maxpat').read_text().replace('recast-',prefix))
 body=json.dumps(patch,indent=2).encode()+b'\0'
 header=bytes.fromhex('616d706604000000696969696d657461040000000000000070746368')+struct.pack('<I',len(body))
 (out/'Recast.amxd').write_bytes(header+body);manifest.append('Recast.amxd')
-for source,target in [(ROOT/'README.md','README.md'),(ROOT/'LICENSE','LICENSE'),(SRC/'README.txt','USER-GUIDE.txt'),(ROOT/'docs/ARCHITECTURE.md','docs/ARCHITECTURE.md'),(ROOT/'docs/RHYTHM.md','docs/RHYTHM.md'),(ROOT/'docs/PARITY.md','docs/PARITY.md')]:
+for source,target in [(ROOT/'README.md','README.md'),(ROOT/'LICENSE','LICENSE'),(ROOT/'CHANGELOG.md','CHANGELOG.md'),(SRC/'README.txt','USER-GUIDE.txt'),(ROOT/'docs/ARCHITECTURE.md','docs/ARCHITECTURE.md'),(ROOT/'docs/RHYTHM.md','docs/RHYTHM.md'),(ROOT/'docs/PARITY.md','docs/PARITY.md')]:
  (out/target).parent.mkdir(parents=True,exist_ok=True);(out/target).write_bytes(source.read_bytes());manifest.append(target)
 (out/'Rendered').mkdir(exist_ok=True);(out/'Rendered/.gitkeep').touch();manifest.append('Rendered/.gitkeep')
 info={'version':VERSION,'sourceHash':digest,'device':'Recast.amxd','files':manifest}
