@@ -12,7 +12,7 @@ var refineUiPaint=paint;paint=function(){refineUiPaint();if(view===26&&!collageM
     rect(630,467,410,78,[.07,.085,.1,1]);
     button('collagePhrase',refineJob?'Preparing…':'Generate · apply all four controls',635,472,390,true);
     button('refineMore','More variations ▾',635,510,390);
-    rect(635,600,415,14,[.07,.085,.1,1]);text(state.collage.controlsPending?'Settings changed · click Generate to hear them':'All four sliders shape the next Generate · sounds stay loaded',635,609,10,state.collage.controlsPending?[.95,.73,.42,1]:[.56,.67,.69,1]);
+    rect(635,450,415,16,[.07,.085,.1,1]);text(state.collage.controlsPending?'Settings changed · click Generate to hear them':'All four sliders shape the next Generate · sounds stay loaded',635,461,10,state.collage.controlsPending?[.95,.73,.42,1]:[.56,.67,.69,1]);
     rect(635,586,390,28,[.07,.085,.1,1]);button('refineCompare',refineCompareSide?'Hear previous':'Hear generated',635,586,185);button('refineFragments','Edit / audition fragments',835,586,190);
     rawDraw=false;
 }
