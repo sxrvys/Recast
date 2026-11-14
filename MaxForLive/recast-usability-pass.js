@@ -21,11 +21,18 @@ function wbQueueSnapshot(snapshot,kind,label){
         if(at>=refs.length&&eventAt>=job.state.events.length){if(refineRevision()!==job.revision){refineCancel();say('Take switch cancelled because settings changed.');return;}refineJob=null;if(playing){refineReady=job;collageWarmReady={index:4,state:job.state};collageQueuedKeep=4;}else refineInstall(job);redraw();return;}job.task.schedule(2);
     }catch(err){refineCancel();say('Take switch: '+err.message);}},this);job.task.schedule(1);say('Preparing '+label+'; current audio stays in place.');return true;
 }
+// A fresh explicit sound request supersedes the previous audition target.
+// Retain the currently heard choice; Undo/history still contain the earlier phrase.
+function wbFinishSoundRequest(){
+    if(wbBusy()){say('Sound preparation is in progress. Wait or press Stop to cancel.');return false;}
+    if(wbAudition){wbRemember(wbAudition.original);wbRemember(state);wbAudition=null;wbReturn=null;refinePreviewGain=1;}
+    return true;
+}
 // Source-only auditions remain reversible until the user keeps the candidate.
 function wbNewSound(role){
     if(wbBusy()){say('Sound preparation is in progress. Wait or press Stop to cancel.');return;}
     if(collageLane(role).locked||collageLane(role).soundLocked||state.roleLocks[role]){say('Release Keep sound / Lock layer before trying a replacement.');return;}
-    if(wbAudition&&wbAudition.role!==role){say('Keep or cancel the current sound audition first.');view=33;redraw();return;}
+    if(wbAudition&&wbAudition.role!==role&&!wbFinishSoundRequest())return;
     if(!wbAudition)wbAudition={role:role,original:wbSnapshot(state),phase:'finding',path:'',tried:[]};else wbAudition.phase='finding';
     collageSelectedLane=role;collageLanePage=Math.floor(role/6);view=33;collageDrawLibrary(role,true);
 }
@@ -113,6 +120,7 @@ var wbActionBefore=action;action=function(id){
     if(id==='wbHistoryUse'){if(wbBusy()){say('Wait for the heard take to finish switching.');return;}wbReturn=null;refinePreviewGain=1;wbRemember(state);view=26;say('Heard take is now the working phrase.');return;}
     if(/^wbSaveTake:/.test(id)){var number=Number(id.split(':')[1]);wbSaveTakeNumber=number;refineMenu='';wbKeepMenu=true;redraw();return;}
     if(/^wbKeepSlot:/.test(id)){var take=wbTakes.filter(function(t){return t.number===wbSaveTakeNumber;})[0];if(take){saveundo();var snapshot=copy(state);for(var key in take.snapshot)snapshot[key]=copy(take.snapshot[key]);snapshot.collage.keeps=[null,null,null,null];snapshot.archivePaths=state.archivePaths.slice();state.collage.keeps[Number(id.split(':')[1])]=snapshot;say(take.label+' saved to Keep '+(Number(id.split(':')[1])+1)+'.');}wbKeepMenu=false;redraw();return;}
+    if(id==='collageLibraryDraw'){if(collageJob||collageLibraryPending){wbActionBefore(id);return;}if(!wbFinishSoundRequest())return;view=26;collageMenu='';refineMenu='';collageBrowserRole=-1;collageDrawLibrary();return;}
     if(/^collageNewSound:/.test(id)){wbNewSound(Number(id.split(':')[1]));return;}
     if(id==='wbCandidateKeep'){wbAuditionDone(true);return;}if(id==='wbCandidateCancel'){wbAuditionDone(false);return;}if(id==='wbCandidateNext'){if(wbAudition)wbNewSound(wbAudition.role);return;}
     if(id==='wbCandidateOriginal'||id==='wbCandidateHear'){if(!wbAudition)return;var original=id==='wbCandidateOriginal',snapshot=original?wbAudition.original:wbAudition.candidate;if(snapshot)wbQueueSnapshot(snapshot,original?'auditionOriginal':'auditionHear',original?'Original sound':'Candidate sound');return;}
@@ -170,3 +178,20 @@ var wbRootAction=action;action=function(id){if(id==='wbBrowserRoots'){wbRootMenu
 var wbRootClick=onclick;onclick=function(x,y){if(view===8&&wbRootMenu){if(!workflowButtons(x,y)){wbRootMenu=false;redraw();}return;}wbRootClick.apply(this,arguments);};
 
 var wbSlidersBefore=collageSliders;collageSliders=function(){var rows=wbSlidersBefore();for(var i=0;i<rows.length;i++)if(['density','movement','damage'].indexOf(rows[i].field)>=0)rows[i].curve=2;return rows;};
+
+// Configure native overlays once per layout transition, never hide/show or move
+// the same controls repeatedly inside a paint. The 5 ms audio clock is unchanged.
+function wbNativeHidden(o,value){if(o&&Number(o.hidden)!==value)o.hidden=value;}
+var wbNativeRects={};
+function wbNativeRect(o,name,values){if(!o)return;var key=values.join(',');if(wbNativeRects[name]!==key){o.message('presentation_rect',values[0],values[1],values[2],values[3]);wbNativeRects[name]=key;}}
+var wbDropLayout='';
+simpleDrops=function(){
+    var key=[view,workflowBank,collageLanePage,roles.length].join(':');if(key===wbDropLayout)return;wbDropLayout=key;wbNativeRects={};
+    var ids=['dropLoop','dropWave','dropSound','dropTone'];for(var i=0;i<ids.length;i++)wbNativeHidden(this.patcher.getnamed(ids[i]),(i<2|| (i===2?view!==1:view!==3))?1:0);
+    for(var r=0;r<6;r++){var o=this.patcher.getnamed('dropPad'+r),collage=view===26,visible=collage?collageLanePage*6+r<roles.length:view===0&&workflowBank*6+r<roles.length;wbNativeHidden(o,visible?0:1);wbNativeRect(o,'dropPad'+r,collage?[26+r*175,687,148,30]:[20+r*175,612,158,25]);if(o)o.message('ignoreclick',1);}
+};
+collageHideFields=function(){
+    var tempo=this.patcher.getnamed('instrumentTempo'),search=this.patcher.getnamed('librarySearch');wbNativeHidden(search,1);var showing=tempo&&view===26;
+    if(showing){var entered=Number(tempo.hidden)!==0;wbNativeHidden(tempo,0);wbNativeRect(tempo,'instrumentTempo',[64,112,80,28]);if(tempoEntryLast!==state.tempo){tempo.message('set',state.tempo);tempoEntryLast=state.tempo;}if(entered&&this.patcher.bringtofront)this.patcher.bringtofront(tempo);}else wbNativeHidden(tempo,1);
+};
+var wbDrawBefore=redraw,wbLastPlaybackDraw=0;redraw=function(){if(playing){var now=Date.now();if(now-wbLastPlaybackDraw<33)return;wbLastPlaybackDraw=now;}else wbLastPlaybackDraw=0;wbDrawBefore.apply(this,arguments);};

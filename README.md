@@ -228,3 +228,9 @@ Fragment editing includes a reverse switch, Keep this hit, and Apply + hear in p
 - **Spend less time waiting.** Library replacement now prepares an isolated proposal over the running phrase instead of issuing Stop. Local index/descriptor caches warm later draws, expire after a day and are bypassed by Rescan. Cached source decoding, fragment measurements and waveform views are reused. Cold audio decoding and very large files can still delay the JavaScript scheduler.
 
 Local `LibraryPreferences.json` and `LibraryCache.json` belong to the installed device folder and are excluded from release archives. Keep your linked audio available, and use Live’s Collect All and Save for exported WAVs.
+
+### Replacement and display fixes in beta 10
+
+Each layer’s **New sound** button targets that layer, even after auditioning a different layer. Starting another replacement keeps the currently heard choice and begins a fresh audition; use Cancel before switching if you want to restore the original. **New sounds from library** exits an old single-layer audition and refills the unlocked layers, respecting the configured refill count and sound locks. It does not inherit the generation target.
+
+The collage display updates native overlays only when their layout changes. Playback animation is capped near 30 frames per second while audio scheduling retains its 5 ms interval.
