@@ -26,9 +26,10 @@ var refineUiAction=action;action=function(id){
     if(/^refinePhrasing:/.test(id)){saveundo();state.collage.phraseDevelopment=Number(id.split(':')[1]);refineMenu='';say('Phrase development set. New phrase or Rebuild rhythm applies it.');return;}
     if(id==='refineBarPrev'||id==='refineBarNext'){state.page=(state.page+(id==='refineBarNext'?1:-1)+state.bars)%state.bars;redraw();return;}
     if(id==='refineSafeOutput'){saveundo();var cfg=collageDynamicsSettings();cfg.safeOutput=!cfg.safeOutput;collageSendDynamics();redraw();return;}
+    if(id==='collagePlay'&&!playing&&!preparing&&!state.events.length){refineGenerate('phrase',true);return;}
     if(id==='refineCompare'){refineCompareStart();return;}
     var modes={collagePhrase:'phrase',collageRhythm:'rhythm',collageCuts:'cuts',collageOrder:'order',collageDamage:'damage',collagePitchReroll:'pitch'};
-    if(modes[id]){refineGenerate(modes[id]);return;}
+    if(modes[id]){if(modes[id]!=='phrase'&&!state.events.length){say('Generate a phrase first, then change its rhythm, fragments or damage.');return;}refineGenerate(modes[id]);return;}
     if(id==='collageLibraryRefresh'){collageFragmentGainCache={};refineFragmentWaveCache={};}
     if(id!=='refineCompare'&&id!=='collagePlay'&&id!=='play')refinePreviewGain=1;
     if(id==='collageCommit'){refineCompare=null;refinePreviewGain=1;}
