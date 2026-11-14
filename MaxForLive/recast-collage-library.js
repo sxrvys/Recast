@@ -36,26 +36,27 @@ function collageLibraryIndex(done){
         }catch(err){collageLibraryCancel();say('Library: '+err.message);}
     },this);collageLibraryScan.schedule(1);
 }
-collageDrawLibrary=function(singleRole){
+collageDrawLibrary=function(singleRole,preview){
     var single=typeof singleRole==='number'&&singleRole>=0&&singleRole<roles.length;
     var roots=collageLibraryScanRoots();if(!roots.length){say('Choose a local sample or music folder first.');action('collageLibraryRoot');return;}
     if(collageLibraryPending){say('Indexing your library. Stop cancels; drawing starts when ready.');return;}
-    if(collageLibraryKey!==JSON.stringify(roots)){collageLibraryIndex(function(){collageDrawLibrary(single?singleRole:undefined);});return;}
+    if(collageLibraryKey!==JSON.stringify(roots)){collageLibraryIndex(function(){collageDrawLibrary(single?singleRole:undefined,preview);});return;}
     if(!collageLibraryFiles.length){say('No supported audio files found in these library folders.');return;}
-    var resume=playing,c=state.collage;stop();saveundo();collageNextSeed('order');
-    var count=single?1:c.libraryDrawCount||roles.length;if(count>roles.length)collageEnsureRole(Math.min(23,count-1));
+    var resume=playing,count=single?1:state.collage.libraryDrawCount||roles.length;if(count>roles.length)collageEnsureRole(Math.min(23,count-1));var working=state,drawState=copy(state);drawState.archivePaths=state.archivePaths;var workingEvents=state.events;var revision=typeof refineRevision==='function'?refineRevision():'',c=drawState.collage;try{state=drawState;collageNextSeed('order');}finally{state=working;}
     var at=0,targets=[],used={},recent=(c.libraryRecent||[]).slice(),pending=null;
     for(var r=0;r<roles.length;r++)if((!single||r===singleRole)&&!collageLane(r).locked&&!collageLane(r).soundLocked&&!state.roleLocks[r]&&targets.length<count)targets.push(r);
     if(!targets.length){say('Release Keep sound or unlock the layer before drawing new sounds.');return;}
     for(var i=0;i<roles.length;i++)for(var j=0;j<collageLane(i).sources.length;j++)used[collageLane(i).sources[j]]=true;
     var failures=[],loadedRoles=[],relaxed=0,copies=0;
     collageJob=new Task(function(){
-        try{
+        var live=state;try{
+            if(live!==working||live.events!==workingEvents){collageCopyClose();collageJob=null;say('Sound draw cancelled because the working phrase changed.');return;}state=drawState;
             if(at>=targets.length){
+                state=working;if(typeof refineRevision==='function'&&refineRevision()!==revision){collageCopyClose();collageJob=null;say('Sound draw cancelled because settings changed.');return;}state=drawState;
                 collageCopyClose();collageJob=null;c.libraryRecent=recent.slice(-256);c.lastDrawReport={total:targets.length,matched:loadedRoles.length,failed:failures.slice(),copies:copies,reused:relaxed};
-                if(!loadedRoles.length){say('No new matching sounds. Kept the phrase. Try Any name / Any sound, or widen the duration filter.');if(resume)play();return;}
+                if(!loadedRoles.length){state=working;state.collage.lastDrawReport=c.lastDrawReport;say('No new matching sounds. Kept the phrase. Try Anything or widen the duration filter.');return;}
                 var drawMode=(single||c.drawPreserveRhythm!==false)&&state.events.length?'order':'phrase';
-                if(typeof refineGenerate==='function')refineGenerate(drawMode,resume,{kind:'draw',roles:loadedRoles.slice()},true);
+                if(typeof refineGenerate==='function'){state=working;saveundo();refineGenerate(drawMode,resume,{kind:'draw',roles:loadedRoles.slice(),wbKind:preview?'audition':'draw'},true,drawState);}
                 else{var savedUndo=saveundo;saveundo=function(){};try{collageGenerate(drawMode,resume);}finally{saveundo=savedUndo;}}
                 if(failures.length)say('Kept layers '+failures.join(', ')+': no unused matching sounds. Skipped '+copies+' copied file(s).');
                 else if(relaxed||copies)say('New sounds drawn · '+copies+' copied file(s) skipped · '+relaxed+' recent reuse(s).');return;
@@ -85,7 +86,7 @@ collageDrawLibrary=function(singleRole){
             }
             if(loaded||!pending.candidate&&pending.cursor>=pending.bag.length){if(!loaded)failures.push(role+1);at++;pending=null;}
             status='Drawing layer '+(role+1)+' · '+at+' / '+targets.length+' · '+copies+' copies skipped';mgraphics.redraw();collageJob.schedule(4);
-        }catch(err){collageCopyClose();collageJob=null;say('Library draw: '+err.message);}
+        }catch(err){state=live;collageCopyClose();collageJob=null;say('Library draw: '+err.message);}finally{state=live;}
     },this);say(single?'Finding a new sound for layer '+(singleRole+1)+'…':'Finding new library sounds…');collageJob.schedule(1);
 };
 var collageLibraryExportFolder=exportfolder;

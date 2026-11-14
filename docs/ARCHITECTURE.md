@@ -3,7 +3,7 @@
 `MaxForLive/Recast.maxpat` is the editable device patcher. `recast-native.js` is the JavaScript entry point; it includes the other modules in order. These scripts share Max’s JSUI global scope, so include order and wrappers around existing functions matter.
 
 | Area | Modules |
-| Sample collage generation, circular workshop, local-library draw and optional tonal estimates | `recast-collage.js`, `recast-collage-ui.js`, `recast-collage-library.js`, `recast-collage-discovery.js`, `recast-collage-draw-ui.js`, `recast-collage-pitch.js`, `recast-collage-refine.js`, `recast-collage-shape.js`, `recast-collage-render.js`, `recast-collage-output.js`, `recast-collage-keys.js`, `recast-collage-placement.js`, `recast-collage-clock.js`, `recast-collage-keeps.js`, `recast-bank-stability.js`, `recast-collage-refinement.js`, `recast-collage-fragments.js`, `recast-collage-refinement-ui.js` |
+| Sample collage generation, circular workshop, local-library draw and optional tonal estimates | `recast-collage.js`, `recast-collage-ui.js`, `recast-collage-library.js`, `recast-collage-discovery.js`, `recast-collage-draw-ui.js`, `recast-collage-pitch.js`, `recast-collage-refine.js`, `recast-collage-shape.js`, `recast-collage-render.js`, `recast-collage-output.js`, `recast-collage-keys.js`, `recast-collage-placement.js`, `recast-collage-clock.js`, `recast-collage-keeps.js`, `recast-bank-stability.js`, `recast-collage-refinement.js`, `recast-collage-fragments.js`, `recast-collage-refinement-ui.js`, `recast-usability-pass.js` |
 | --- | --- |
 | State, transport, voice dispatch and file I/O | `recast-native.js`, `recast-workbench.js` |
 | Pattern vocabulary and kit MIDI | `recast-generator.js`, `recast-instrument.js` |
@@ -83,3 +83,11 @@ Generation has explicit target descriptors, including role-specific selected emp
 The fragment editor caches bounded local waveform windows and marks source ranges in milliseconds. Applying a region updates one event, preserving other events and playback timing. Gain analysis uses both channels and bounded contiguous windows, with a bounded region cache. Rescan clears that cache. Optional local library preferences are read/written alongside the installed device and are not package inputs.
 
 The output DSP and offline renderer share an instantaneous stereo-linked sample-peak gain reduction with a 50 ms release, enabled by default at -1 dB. Every layer receives the full mix's gain envelope, preserving stem additivity. This is not intersample/true-peak protection or a look-ahead limiter.
+
+## Usability pass and proposal ownership
+
+`recast-usability-pass.js` supplies the focused grid (view 31), transient recent takes (32), reversible sound audition (33), normalized readouts and local cache lifecycle. It wraps the existing generator, selection editing and source-aware handoff; it does not introduce a second audio engine. Eight bounded history snapshots exclude Keep nesting and source-analysis caches. Archive reference collection includes the history/working/audition snapshots so memory cleanup cannot invalidate an active comparison.
+
+Library draws clone working state and share only the append-only archive path registry. Candidate decoding and filtering occur in small Task steps. A final revision check rejects stale draws; accepted candidates enter the existing refined proposal queue. Sound auditions retain an independent original snapshot. Original/Candidate listening does not mutate that stored candidate. Cancel can discard pending work without issuing transport Stop. UI state distinguishes the audible take from the queued one.
+
+LibraryCache.json contains a root-keyed, bounded index plus bounded metadata/character descriptors. It is written in small Task chunks, expires after 24 hours, and Rescan bypasses it. It is an optional local file, never a release input. Cold decoder calls and initial cache parsing still run in Max’s JavaScript context and cannot guarantee uninterrupted scheduling.

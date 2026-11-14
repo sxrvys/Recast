@@ -38,7 +38,7 @@ function collageDrawWheel() {
     var events=state.events,phase=playing?currentBeat()/beats():0;
     for(var row=0;row<rows.length;row++) {
         var role=rows[row],radius=outer-row*gap,lane=collageLane(role);
-        collageArc(cx,cy,radius,0,Math.PI*2,1,[.24,.28,.3,1]);
+        collageArc(cx,cy,radius,0,Math.PI*2,1,[.24,.28,.3,1]);text(String(role+1),cx+radius-4,cy-5,10,role===collageSelectedLane?[1,.78,.43,1]:[.7,.78,.8,1]);
         for(var i=0;i<events.length;i++) {
             var e=events[i];if(e.role!==role)continue;
             var start=e.beat/beats()*Math.PI*2-Math.PI/2,gate=e.durationBeats||.25;
@@ -52,7 +52,7 @@ function collageDrawWheel() {
     text(rows.length+' layers',cx-39,cy-7,13,[.8,.83,.84,1]);
     text(state.collage.voices+' voices max',cx-51,cy+17,11,[.52,.62,.65,1]);
     if(playing){var a=phase*Math.PI*2-Math.PI/2;for(var r=58;r<=215;r+=5)rect(cx+Math.cos(a)*r,cy+Math.sin(a)*r,2,2,[.93,.8,.54,1]);}
-    text('Dots = starts · cyan = changed · arcs = gates · click a ring to select',40,159,10,[.52,.62,.65,1]);
+    text('Layers: outside → inside · dots = hits · arcs = gates · cyan = changed',40,159,10,[.52,.62,.65,1]);
 }
 function collageSliders() {
     if(view===26)return [{field:'density',label:'Density',x:635,y:204,min:0,max:.65,curve:2},
