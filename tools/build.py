@@ -5,7 +5,7 @@ from make_starter_kit import generate
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent.parent
 SRC=ROOT/'MaxForLive'
-VERSION='0.2.0-beta.10'
+VERSION='0.2.0-beta.11'
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--zip',action='store_true',help='Also produce dist/Recast-<version>.zip')
 p.add_argument('--output',type=Path,default=ROOT/'dist/Recast')
@@ -14,7 +14,7 @@ a=p.parse_args();out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
 names=['recast-native.js']
 import re
 names+=re.findall(r'include\("([^\"]+)"\)',(SRC/names[0]).read_text())
-assert len(names)==len(set(names))==57
+assert len(names)==len(set(names))==58
 starter=generate(out/'Starter Kit')
 inputs=names+['recast-voice.maxpat','Recast.maxpat']
 digest=hashlib.sha256(b''.join((SRC/n).read_bytes() for n in sorted(inputs))+b''.join((out/'Starter Kit'/n).read_bytes() for n in starter)).hexdigest()[:12]

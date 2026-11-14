@@ -213,3 +213,5 @@ include("recast-collage-fragments.js");
 include("recast-collage-refinement-ui.js");
 
 include("recast-usability-pass.js");
+
+include("recast-keeper-workflow.js");
