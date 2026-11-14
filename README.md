@@ -38,6 +38,8 @@ Use **Step editor** to return to the detailed smart-sequencer workflow below.
 
 ### Refine without losing the useful part
 
+**Groove / develop…** opens the Foundation controls. Assign each layer a job—Pulse (1 + 3), Backbeat (2 + 4), Ticks (eighth notes), or Free—independently of its recording. **Coherence** gradually favors recurring rhythmic placements; at zero, the existing collage placement stays unchanged. **Wildness** controls the existing episode-based damage engine separately, with the same gentle response as the main slider. At full Coherence, foundation anchors stay steady while detail layers can stutter, choke, reverse and drift. Changes apply on **Generate with these settings**, respect the current target and locks, and stay in saved sessions. Sounds remain loaded.
+
 - **Target** chooses Whole Pattern, Selected Layer, This Bar or a passage selected in the Step editor. Protected hits and locked layers remain protected. Layer-only generation also leaves other layers' fragment pools alone.
 - **Generate** and the optional rhythm-only variation use recurring motifs, answering bars and occasional end fills. Structure → Phrase development sets the strength; zero returns to independent layer placement. Use two or more bars to hear phrase development.
 - **More variations → Shuffle fragments only** preserves timing, pitch, gates and treatment. **More variations → Change fragments only** rebuilds source regions while keeping the hit pattern. Library draw setup also has **Keep rhythm**: on by default, it places newly drawn recordings onto existing hits; turn it off to build a new phrase from them.

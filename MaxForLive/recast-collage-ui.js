@@ -58,7 +58,7 @@ function collageSliders() {
     if(view===26)return [{field:'density',label:'Density',x:635,y:204,min:0,max:.65,curve:2},
         {field:'size',label:'Fragment size',x:635,y:274,min:0,max:1},
         {field:'movement',label:'Movement',x:635,y:344,min:0,max:1,curve:2},
-        {field:'damage',label:'Damage',x:635,y:414,min:0,max:1,curve:2}];
+        {field:'damage',label:'Wildness',x:635,y:414,min:0,max:1,curve:2}];
     if(view===27)return [{field:'breaks',label:'Breaks / empty regions',x:30,y:160,min:0,max:1},
         {field:'pulse',label:'Pull toward strong beats',x:30,y:230,min:0,max:1},
         {field:'fadeIn',label:'Fade in (ms)',x:30,y:300,min:2,max:500},

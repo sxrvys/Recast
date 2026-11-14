@@ -209,7 +209,7 @@ function collageNewRhythm() {
             var beat=(off+positions[i]/resolution+(c.phraseOffset||0))%beats();
             if(beat>=beats()) continue;
             out.push({id:++uid,role:role,beat:beat,slice:0,velocity:Math.round(62+rnd()*45),pitch:0,reverse:false,
-                collage:true,collageOrdinal:out.length,foundation:lane.structure==='drums'&&role<2&&positions[i]%resolution===0});
+                collage:true,collageOrdinal:out.length,foundation:c.groove&&c.groove.coherence>0?grAnchor(role,beat):lane.structure==='drums'&&role<2&&positions[i]%resolution===0});
         }
     }
     return out.sort(function(a,b){return a.beat-b.beat;});
@@ -237,7 +237,8 @@ function collageDecorate(base) {
         }
         e.collage=true;e.performanceFixed=true;e.collageChance=lane.chance;
         e.chokeGroup=lane.choke?e.role+1:0;
-        var shift=(motion()-.5)*(c.timingJitter===undefined?c.movement:c.timingJitter)*.22,dest=e.beat+shift;
+        var steadiness=c.groove&&e.foundation?1-clamp(c.groove.coherence,0,1):1;
+        var shift=(motion()-.5)*(c.timingJitter===undefined?c.movement:c.timingJitter)*.22*steadiness,dest=e.beat+shift;
         if(dest>=0&&dest<beats()&&!locked(dest)&&inScope(dest)&&spaceContains(e.role,dest))e.beat=dest;
         var degree=Math.round((pitchRandom()-.5)*(c.pitchMotion===undefined?c.movement:c.pitchMotion)*14);
         e.pitch=(e.pitch||0)+(scale?(degree<0?-1:1)*scale[Math.abs(degree)%7]+Math.floor(Math.abs(degree)/7)*12*(degree<0?-1:1):degree);
