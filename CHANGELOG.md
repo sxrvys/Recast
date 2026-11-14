@@ -2,6 +2,12 @@
 
 Release notes describe Recast's capabilities and user-facing changes. Download packaged builds from [Releases](https://github.com/sxrvys/Recast/releases).
 
+## 0.2.0-beta.15 — 2026-11-14
+
+- Moved the custom editor from Max's legacy JSUI engine to V8UI. This addresses the reported Live crash when Solo on a layer was followed by New sound; both crash reports entered the legacy JavaScript engine from the UI mouse handler.
+- The isolated V8UI build survived 16 Solo/replacement cycles during playback, and the user confirmed the exact mouse sequence changed the sound without crashing. Native checks also passed session recall, typed gate editing, 49-note MIDI insertion and stereo WAV rendering.
+- Requires Max 9 or later. Tested in Live 12.4.16 with bundled Max 9.1.5 on macOS. Existing JSON sessions, controls, source paths and audio processing retain their format and behavior.
+
 ## 0.2.0-beta.14 — 2026-11-14
 
 - Manual hits retain fixed timing during live variation; loading sessions recognizes existing hand-placed collage hits without changing their chosen source regions.

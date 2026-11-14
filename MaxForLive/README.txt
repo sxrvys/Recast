@@ -1,5 +1,8 @@
 RECAST — SAMPLE COLLAGE / SMART SEQUENCER
 
+REQUIREMENTS
+Ableton Live with authorized Max for Live and Max 9 or later. The interface uses Max’s V8UI engine. Native testing uses Live 12.4.16 with bundled Max 9.1.5 on macOS.
+
 START
 Load Recast on one MIDI track in Live. Its compact 200px device strip opens the instrument with Open Recast. The editor does not open automatically.
 The workshop opens on the collage page. New instances load a starter kit automatically. Press Play, or Generate and then Play. Drop recordings onto the layer names, or use Browse. Generate builds an arrangement from source fragments rather than playing the original recording straight through.

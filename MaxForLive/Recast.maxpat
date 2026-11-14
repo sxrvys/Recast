@@ -116,7 +116,7 @@
               {
                 "box": {
                   "id": "ui",
-                  "maxclass": "jsui",
+                  "maxclass": "v8ui",
                   "patching_rect": [
                     0,
                     0,

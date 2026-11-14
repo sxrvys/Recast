@@ -1,6 +1,6 @@
 # Architecture
 
-`MaxForLive/Recast.maxpat` is the editable device patcher. `recast-native.js` is the JavaScript entry point; it includes the other modules in order. These scripts share Max’s JSUI global scope, so include order and wrappers around existing functions matter.
+`MaxForLive/Recast.maxpat` is the editable device patcher. `recast-native.js` is the JavaScript entry point; it includes the other modules in order. These scripts share Max’s V8UI global scope, so include order and wrappers around existing functions matter.
 
 | Area | Modules |
 | Sample collage generation, circular workshop, local-library draw and optional tonal estimates | `recast-collage.js`, `recast-collage-ui.js`, `recast-collage-library.js`, `recast-collage-discovery.js`, `recast-collage-draw-ui.js`, `recast-collage-pitch.js`, `recast-collage-refine.js`, `recast-collage-shape.js`, `recast-collage-render.js`, `recast-collage-output.js`, `recast-collage-keys.js`, `recast-collage-placement.js`, `recast-collage-clock.js`, `recast-collage-keeps.js`, `recast-bank-stability.js`, `recast-collage-refinement.js`, `recast-collage-fragments.js`, `recast-collage-refinement-ui.js`, `recast-usability-pass.js` |
@@ -37,7 +37,7 @@ These are useful regression checks, not substitutes for Live. Validate actual au
 
 ## Episode damage and browsing UI
 
-`recast-damage.js` builds seeded disruption episodes over an immutable reroll input. Explicit locks, scope, destination protection, detail bias and anchor protection constrain the generated notes. Results are fixed events; playback does not reroll them. Generated repeats cannot parent additional rolls. `recast-browser-nav.js` adds bounded folder history, a cached folder tree, file-list scrolling and separate audition/assignment to the existing browser engine. `recast-feel-ui.js` replaces cycling settings with direct sliders and extends the shared footer help to settings and navigation. Native JSUI remains the host; no browser UI is used.
+`recast-damage.js` builds seeded disruption episodes over an immutable reroll input. Explicit locks, scope, destination protection, detail bias and anchor protection constrain the generated notes. Results are fixed events; playback does not reroll them. Generated repeats cannot parent additional rolls. `recast-browser-nav.js` adds bounded folder history, a cached folder tree, file-list scrolling and separate audition/assignment to the existing browser engine. `recast-feel-ui.js` replaces cycling settings with direct sliders and extends the shared footer help to settings and navigation. Native V8UI remains the host; no browser UI is used.
 
 `recast-vocabulary.js` adds ten authored rhythmic grammars while preserving the original three style indices. Each new grammar defines a kick core/candidate set, backbeat, hat behavior, ghost-note density and fill tendency. It constructs a recurring motif plus answer, retains explicit protections, and feeds ordinary events into the unchanged damage, sampler and MIDI engines. The shared style dropdown displays descriptions and keeps selection separate from regeneration.
 

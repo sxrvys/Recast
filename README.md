@@ -115,7 +115,7 @@ Recent takes is temporary. Save a session or Keep a phrase you want to revisit. 
 
 ## Install
 
-Recast requires **Ableton Live with Max for Live available and authorized**. Development and native testing use macOS and Live 12 Suite; Windows and other Live versions are unverified.
+Recast requires **Ableton Live with Max for Live available and authorized**, using **Max 9 or later**. Development and native testing use macOS and Live 12 Suite; Windows and other Live versions are unverified.
 
 1. Download and extract the ZIP from [Releases](https://github.com/sxrvys/Recast/releases).
 2. Copy the **entire Recast folder** into your Ableton User Library, for example `Presets/Instruments/Max Instrument/`.
@@ -139,7 +139,7 @@ Recast is an experimental instrument. Automated checks and native Live testing c
 
 ## Build and contribute
 
-The instrument uses Max JavaScript/JSUI, LiveAPI and a polyphonic voice patcher. With Python 3 and Node.js 18 or later:
+The instrument uses Max JavaScript/V8UI, LiveAPI and a polyphonic voice patcher. With Python 3 and Node.js 18 or later:
 
 ```sh
 npm test
