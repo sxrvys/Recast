@@ -36,16 +36,17 @@ function collageLibraryIndex(done){
         }catch(err){collageLibraryCancel();say('Library: '+err.message);}
     },this);collageLibraryScan.schedule(1);
 }
-collageDrawLibrary=function(){
+collageDrawLibrary=function(singleRole){
+    var single=typeof singleRole==='number'&&singleRole>=0&&singleRole<roles.length;
     var roots=collageLibraryScanRoots();if(!roots.length){say('Choose a local sample or music folder first.');action('collageLibraryRoot');return;}
     if(collageLibraryPending){say('Indexing your library. Stop cancels; drawing starts when ready.');return;}
-    if(collageLibraryKey!==JSON.stringify(roots)){collageLibraryIndex(collageDrawLibrary);return;}
+    if(collageLibraryKey!==JSON.stringify(roots)){collageLibraryIndex(function(){collageDrawLibrary(single?singleRole:undefined);});return;}
     if(!collageLibraryFiles.length){say('No supported audio files found in these library folders.');return;}
     var resume=playing,c=state.collage;stop();saveundo();collageNextSeed('order');
-    var count=c.libraryDrawCount||roles.length;if(count>roles.length)collageEnsureRole(Math.min(23,count-1));
+    var count=single?1:c.libraryDrawCount||roles.length;if(count>roles.length)collageEnsureRole(Math.min(23,count-1));
     var at=0,targets=[],used={},recent=(c.libraryRecent||[]).slice(),pending=null;
-    for(var r=0;r<roles.length;r++)if(!collageLane(r).locked&&!state.roleLocks[r]&&targets.length<count)targets.push(r);
-    if(!targets.length){say('Unlock a layer before drawing new sounds.');return;}
+    for(var r=0;r<roles.length;r++)if((!single||r===singleRole)&&!collageLane(r).locked&&!collageLane(r).soundLocked&&!state.roleLocks[r]&&targets.length<count)targets.push(r);
+    if(!targets.length){say('Release Keep sound or unlock the layer before drawing new sounds.');return;}
     for(var i=0;i<roles.length;i++)for(var j=0;j<collageLane(i).sources.length;j++)used[collageLane(i).sources[j]]=true;
     var failures=[],loadedRoles=[],relaxed=0,copies=0;
     collageJob=new Task(function(){
@@ -53,8 +54,8 @@ collageDrawLibrary=function(){
             if(at>=targets.length){
                 collageCopyClose();collageJob=null;c.libraryRecent=recent.slice(-256);c.lastDrawReport={total:targets.length,matched:loadedRoles.length,failed:failures.slice(),copies:copies,reused:relaxed};
                 if(!loadedRoles.length){say('No new matching sounds. Kept the phrase. Try Any name / Any sound, or widen the duration filter.');if(resume)play();return;}
-                var drawMode=c.drawPreserveRhythm!==false&&state.events.length?'order':'phrase';
-                if(typeof refineGenerate==='function')refineGenerate(drawMode,resume,{kind:'draw',roles:loadedRoles.slice()});
+                var drawMode=(single||c.drawPreserveRhythm!==false)&&state.events.length?'order':'phrase';
+                if(typeof refineGenerate==='function')refineGenerate(drawMode,resume,{kind:'draw',roles:loadedRoles.slice()},true);
                 else{var savedUndo=saveundo;saveundo=function(){};try{collageGenerate(drawMode,resume);}finally{saveundo=savedUndo;}}
                 if(failures.length)say('Kept layers '+failures.join(', ')+': no unused matching sounds. Skipped '+copies+' copied file(s).');
                 else if(relaxed||copies)say('New sounds drawn · '+copies+' copied file(s) skipped · '+relaxed+' recent reuse(s).');return;
@@ -63,7 +64,7 @@ collageDrawLibrary=function(){
             var role=pending.role,lane=collageLane(role),loaded=false;
             if(!pending.candidate&&pending.cursor<pending.bag.length){
                 var path=pending.bag[pending.cursor++],meta=collageLibraryMetadata(path);
-                if(!c.libraryDurationFilter||meta.seconds===undefined||collageLibraryDurationOK(meta.seconds))pending.candidate={path:path,copy:collageCopyBegin(path,used)};
+                if(meta.seconds===undefined||collageLibraryDurationOK(meta.seconds,nextRole))pending.candidate={path:path,copy:collageCopyBegin(path,used)};
             }
             var candidate=pending.candidate;
             if(candidate&&collageCopyStep(candidate.copy)){
@@ -73,7 +74,7 @@ collageDrawLibrary=function(){
                     var priorIndex=state.archivePaths.indexOf(path),wasDecoded=priorIndex>=0&&buffer(priorIndex+7).framecount()>0,index=-1;
                     try{
                         index=collageSourceBuffer(path);
-                        if(buffer(index).framecount()>0&&collageLibraryDurationOK(buffer(index).length()/1000)&&collageCharacterMatches(path,index,lane.libraryCharacter)){
+                        if(buffer(index).framecount()>0&&collageLibraryDurationOK(buffer(index).length()/1000,role)&&collageCharacterMatches(path,index,lane.libraryCharacter)){
                             if(recent.indexOf(path)>=0)relaxed++;lane.sources=[path];lane.cuts=[];lane.dirty=true;lane.ignoreKit=true;loaded=true;loadedRoles.push(role);used[path]=true;
                             recent=recent.filter(function(p){return p!==path;});recent.push(path);
                         }
@@ -85,7 +86,7 @@ collageDrawLibrary=function(){
             if(loaded||!pending.candidate&&pending.cursor>=pending.bag.length){if(!loaded)failures.push(role+1);at++;pending=null;}
             status='Drawing layer '+(role+1)+' · '+at+' / '+targets.length+' · '+copies+' copies skipped';mgraphics.redraw();collageJob.schedule(4);
         }catch(err){collageCopyClose();collageJob=null;say('Library draw: '+err.message);}
-    },this);collageJob.schedule(1);
+    },this);say(single?'Finding a new sound for layer '+(singleRole+1)+'…':'Finding new library sounds…');collageJob.schedule(1);
 };
 var collageLibraryExportFolder=exportfolder;
 exportfolder=function(){if(!collageFolderIntent){collageLibraryExportFolder.apply(this,arguments);return;}var intent=collageFolderIntent;collageFolderIntent='';var path=browserPath(arrayfromargs(arguments).join(' '));if(!path)return;saveundo();var c=state.collage,roots=collageLibraryRoots();c.libraryRoots=intent==='append'?roots.filter(function(p){return p!==path;}).concat([path]):[path];browserSetRoot(path);collageLibraryKey='';view=26;say(c.libraryRoots.length+' local library folder'+(c.libraryRoots.length===1?'':'s')+' selected. New sounds draws from these folders.');};
@@ -118,7 +119,7 @@ function collageLibraryMetadata(path){
     }catch(err){}finally{if(f)f.close();}
     if(Object.keys(collageLibraryMetaCache).length>=4096)collageLibraryMetaCache={};collageLibraryMetaCache[path]=out;return out;
 }
-function collageLibraryDurationOK(seconds){var c=state.collage;return !c.libraryDurationFilter||(seconds>=(c.libraryMinSeconds===undefined?.3:c.libraryMinSeconds)&&seconds<=(c.libraryMaxSeconds===undefined?30:c.libraryMaxSeconds));}
+function collageLibraryDurationOK(seconds,role){var c=state.collage,l=typeof role==='number'?collageLane(role):{},lo=l.libraryMinSeconds,hi=l.libraryMaxSeconds;if(lo!==undefined&&seconds<lo||hi!==undefined&&seconds>hi)return false;return !c.libraryDurationFilter||(seconds>=(c.libraryMinSeconds===undefined?.3:c.libraryMinSeconds)&&seconds<=(c.libraryMaxSeconds===undefined?30:c.libraryMaxSeconds));}
 function collageLibraryScanRoots(){var roots=collageLibraryRoots().slice();for(var i=0;i<roles.length;i++){var p=collageLane(i).libraryRoot;if(p&&roots.indexOf(p)<0)roots.push(p);}return roots;}
 var collageLibraryTypes=['any','impact','mechanical','voice','texture','bass','drums'];
 function collageLibraryMatches(path,type){

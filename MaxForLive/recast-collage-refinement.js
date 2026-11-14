@@ -89,25 +89,25 @@ function refineEnergy(snapshot){var sum=0;for(var i=0;i<snapshot.events.length;i
 function refineInstall(job){
     var before=state,prepared=job.state;if(!job.skipUndo)saveundo();prepared.archivePaths=before.archivePaths;prepared.renderedNotes=before.renderedNotes;prepared.renderedBankPitches=before.renderedBankPitches;prepared.collage.keeps=before.collage.keeps;state=prepared;syncInstruments();performanceCache=null;performanceLastPlan=null;collageReservations=null;collagePlanCache=null;selected=-1;workflowSelection=[];state.collage.changedIds=refineChanges(job.before,state.events);state.collage.changeSummary=refineSummary(job.before,state.events);if(job.comparing){refineCompareSide=job.side;refinePreviewGain=job.previewGain||1;}else{refineCompare={before:job.original,after:copy(state)};refineCompareSide=1;refinePreviewGain=1;}say(state.collage.changeSummary);if(job.autoPlay)play();if(job.comparing)refinePreviewGain=job.previewGain||1;
 }
-function refineGenerate(mode,autoPlay,scopeOverride){
+function refineGenerate(mode,autoPlay,scopeOverride,keepControls){
     if(refineJob||refineReady){say('A proposal is preparing or queued. Stop cancels it.');return;}
     if(collageJob||collageLibraryPending||collageExportJob||preparing){say('Finish or stop the current preparation first.');return;}
     var scope=scopeOverride||refineScope();if(scope.kind==='selection'&&!scope.range){say('Select a passage in Step editor first, including empty cells if needed.');return;}
     collageAdoptKit();if(!collageActiveRoles().length){say('Load a source recording first.');return;}
     var prepared=copy(state);prepared.archivePaths=state.archivePaths;prepared.collage.phraseDevelopment=prepared.collage.phraseDevelopment===undefined?.65:prepared.collage.phraseDevelopment;
-    var job={mode:mode,state:prepared,before:copy(state.events),original:copy(state),scope:scope,revision:refineRevision(),currentEvents:state.events,autoPlay:!!autoPlay,skipUndo:!!scopeOverride,phase:'start',at:0,eventAt:0};refineJob=job;
+    var job={mode:mode,keepControls:!!keepControls,state:prepared,before:copy(state.events),original:copy(state),scope:scope,revision:refineRevision(),currentEvents:state.events,autoPlay:!!autoPlay,skipUndo:!!scopeOverride,phase:'start',at:0,eventAt:0};refineJob=job;
     job.task=new Task(function(){
         try{
             if(state.events!==job.currentEvents||(job.phase==='ready'||job.phase==='finish')&&refineRevision()!==job.revision){refineCancel();say('Proposal cancelled because the working phrase changed.');return;}
             refineWithState(job,function(){
-                if(job.phase==='start'){collageGenerate(mode,false);job.roles=collageActiveRoles().filter(function(r){return refineTargetsRole(r)&&(collageLane(r).dirty||!collageLane(r).cuts.length);});job.keys=[];job.keyAt=0;for(var r=0;r<roles.length;r++)for(var k=0;k<collageLane(r).sources.length;k++)if(job.keys.indexOf(collageLane(r).sources[k])<0)job.keys.push(collageLane(r).sources[k]);job.phase='keys';}
+                if(job.phase==='start'){var savedStyle=collageApplyStyle;try{if(job.keepControls)collageApplyStyle=function(){};collageGenerate(mode,false);}finally{collageApplyStyle=savedStyle;}job.roles=collageActiveRoles().filter(function(r){return refineTargetsRole(r)&&(collageLane(r).dirty||!collageLane(r).cuts.length);});job.keys=[];job.keyAt=0;for(var r=0;r<roles.length;r++)for(var k=0;k<collageLane(r).sources.length;k++)if(job.keys.indexOf(collageLane(r).sources[k])<0)job.keys.push(collageLane(r).sources[k]);job.phase='keys';}
                 else if(job.phase==='keys'){if(refineKeyStep(job))job.phase='cuts';}
                 else if(job.phase==='cuts'){if(job.at<job.roles.length)collageBuildLane(job.roles[job.at++]);else{job.phase='finish';}}
                 else if(job.phase==='finish'){if(!job.finish)throw Error('No generation callback was prepared.');job.finish();job.phase='audio';}
                 else if(job.phase==='audio'){if(job.eventAt<state.events.length)sound(state.events[job.eventAt++]);else{collageReserveVoices(state.events);job.phase='ready';}}
             });
             if(job.phase==='ready'){
-                if(refineRevision()!==job.revision){refineCancel();say('Proposal cancelled because the working phrase changed.');return;}refineJob=null;job.state.collage.changedIds=refineChanges(job.before,job.state.events);job.state.collage.changeSummary=refineSummary(job.before,job.state.events);
+                if(refineRevision()!==job.revision){refineCancel();say('Proposal cancelled because the working phrase changed.');return;}refineJob=null;if(mode==='phrase')job.state.collage.controlsPending=false;job.state.collage.changedIds=refineChanges(job.before,job.state.events);job.state.collage.changeSummary=refineSummary(job.before,job.state.events);
                 if(playing){refineReady=job;collageWarmReady={index:4,state:job.state};collageQueuedKeep=4;say('Proposal ready · switches at the next bar · '+job.state.collage.changeSummary);}
                 else refineInstall(job);return;
             }

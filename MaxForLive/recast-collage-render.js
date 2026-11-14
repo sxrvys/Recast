@@ -72,3 +72,39 @@ var collageRenderAction=action;action=function(id){
     collageExportIntent='';collageRenderAction(id);
 };
 var collageRenderDelete=notifydeleted;notifydeleted=function(){if(collageExportJob)collageExportClose(collageExportJob,true,'Device closed');collageRenderDelete();};
+
+// Render first, then append new audio tracks. Existing tracks and clips are never overwritten.
+var collageLiveRequest=null,collageLiveJob=null,collageLiveLast=null;
+function collageSendAudioToLive(stems){
+    if(collageExportJob||collageLiveJob){say('Finish the current audio transfer first.');return false;}
+    if(!state.events.length){say('Generate a phrase first.');return false;}
+    try{
+        var song=new LiveAPI(null,'live_set'),track=new LiveAPI(null,'this_device canonical_parent');
+        if(String(track.info).indexOf('create_audio_clip')<0)throw Error('This Live version does not expose audio-clip insertion. Use Loop WAV / Layer stems and drag the files into Live.');
+        var at=Math.max(0,Math.floor(Number(song.get('current_song_time'))/4)*4),tempo=Number(song.get('tempo'));
+        collageCommit();var root=defaultRenderDirectory(),path=stems?root:root+'/Recast-Live-'+Date.now()+'.wav';
+        if(!collageRenderStart(path,stems))return false;
+        collageLiveRequest={position:at,hostTempo:tempo,sourceTempo:state.tempo,stems:!!stems};
+        say('Rendering '+(stems?'layer stems':'full loop')+' for new audio tracks in Live…');return true;
+    }catch(err){say('Send audio to Live: '+err.message);return false;}
+}
+function collageLivePath(path){var match=String(path).match(/^([^/:]{2,}):\/(.*)$/);return match?'/Volumes/'+match[1]+'/'+match[2]:path;}
+function collageInsertAudio(job,request){
+    var rows=request.stems?job.layerFiles:[{role:-1,path:job.mixPath}],at=0,pending=null;
+    var report={ok:false,position:request.position,sourceTempo:request.sourceTempo,hostTempo:request.hostTempo,tracks:[],files:rows.map(function(r){return r.path;})};collageLiveLast=report;
+    collageLiveJob=new Task(function(){
+        try{
+            var song=new LiveAPI(null,'live_set'),row=rows[at],index=song.get('tracks').length/2,name=row.role<0?'Recast loop':'Recast layer '+(row.role+1);
+            if(!pending){song.call('create_audio_track',-1);var track=new LiveAPI(null,'live_set tracks '+index);report.tracks.push({id:Number(track.id),path:track.unquotedpath,file:row.path});track.set('name',name);track.call('create_audio_clip',collageLivePath(row.path),request.position);pending={path:track.unquotedpath,tries:0};collageLiveJob.schedule(20);return;}
+            var clip=new LiveAPI(null,pending.path+' arrangement_clips 0');if(!Number(clip.id)){if(++pending.tries<20){collageLiveJob.schedule(20);return;}throw Error('Live did not create the expected audio clip.');}
+            clip.set('warping',0);clip.set('looping',0);clip.set('name',name);
+            if(Math.abs(Number(clip.get('start_time'))-request.position)>.001)throw Error('Live placed a stem at an unexpected time.');
+            pending=null;at++;if(at<rows.length){say('Adding audio tracks · '+at+' / '+rows.length);collageLiveJob.schedule(20);return;}
+            collageLiveJob=null;report.ok=true;try{new LiveAPI(null,'live_app view').call('show_view','Arranger');}catch(ignore){}
+            say('Added '+rows.length+' audio track'+(rows.length===1?'':'s')+' at bar '+(request.position/4+1)+' · WAV timing retained'+(Math.abs(request.hostTempo-request.sourceTempo)>.01?' · Live / Recast BPM differ':''));
+        }catch(err){collageLiveJob=null;report.error=err.message;say('Audio transfer: '+err.message+' Rendered WAVs remain in '+job.path);}
+    },this);collageLiveJob.schedule(1);
+}
+var collageLiveClose=collageExportClose;collageExportClose=function(job,cancelled,error){var request=collageLiveRequest;collageLiveRequest=null;collageLiveClose(job,cancelled,error);if(request&&!cancelled&&!error)collageInsertAudio(job,request);};
+var collageLiveStop=stop;stop=function(){if(collageLiveJob){collageLiveJob.cancel();collageLiveJob=null;if(collageLiveLast)collageLiveLast.error='Transfer stopped; already-created tracks and WAVs retained.';}collageLiveStop();};
+var collageLiveDelete=notifydeleted;notifydeleted=function(){if(collageLiveJob)collageLiveJob.cancel();collageLiveJob=null;collageLiveDelete();};

@@ -44,7 +44,7 @@ function collageDrawWheel() {
             var start=e.beat/beats()*Math.PI*2-Math.PI/2,gate=e.durationBeats||.25;
             if(lane.choke)for(var k=i+1;k<events.length;k++)if(events[k].role===role){gate=Math.min(gate,events[k].beat-e.beat);break;}
             var end=start+Math.min(gate/beats(),.98)*Math.PI*2;
-            var color=lane.mute?[.29,.31,.33,1]:role===collageSelectedLane?[.94,.65,.31,1]:[.47,.67,.71,1];
+            var color=protectedHit(e)||lane.locked?[.53,.85,.61,1]:lane.mute?[.29,.31,.33,1]:role===collageSelectedLane?[.94,.65,.31,1]:[.47,.67,.71,1];
             collageArc(cx,cy,radius,start,end,role===collageSelectedLane?4:2.5,color);
             var changed=state.collage.changedIds&&state.collage.changedIds[e.id];rect(cx+Math.cos(start)*radius-1.5,cy+Math.sin(start)*radius-1.5,changed?4:3,changed?4:3,changed&&!lane.mute?[.45,.9,.85,1]:color);
         }
@@ -55,10 +55,10 @@ function collageDrawWheel() {
     text('Dots = starts · cyan = changed · arcs = gates · click a ring to select',40,159,10,[.52,.62,.65,1]);
 }
 function collageSliders() {
-    if(view===26)return [{field:'density',label:'Density',x:635,y:204,min:0,max:.65},
+    if(view===26)return [{field:'density',label:'Density',x:635,y:204,min:0,max:.65,curve:2},
         {field:'size',label:'Fragment size',x:635,y:274,min:0,max:1},
-        {field:'movement',label:'Movement',x:635,y:344,min:0,max:1},
-        {field:'damage',label:'Damage',x:635,y:414,min:0,max:1}];
+        {field:'movement',label:'Movement',x:635,y:344,min:0,max:1,curve:2},
+        {field:'damage',label:'Damage',x:635,y:414,min:0,max:1,curve:2}];
     if(view===27)return [{field:'breaks',label:'Breaks / empty regions',x:30,y:160,min:0,max:1},
         {field:'pulse',label:'Pull toward strong beats',x:30,y:230,min:0,max:1},
         {field:'fadeIn',label:'Fade in (ms)',x:30,y:300,min:2,max:500},
@@ -74,13 +74,13 @@ function collageControlValue(s) {
     return s.field==='laneDensity'?l.density:s.field==='laneChance'?l.chance:s.field==='laneGain'?l.gain:state.collage[s.field];
 }
 function collageSetControl(s,x) {
-    var v=s.min+clamp((x-s.x)/390,0,1)*(s.max-s.min),l=collageLane(collageSelectedLane);
+    var v=s.min+Math.pow(clamp((x-s.x)/390,0,1),s.curve||1)*(s.max-s.min),l=collageLane(collageSelectedLane);
     if(s.field==='laneDensity')l.density=v;else if(s.field==='laneChance')l.chance=v;else if(s.field==='laneGain')l.gain=v;
     else state.collage[s.field]=v;
     if(s.field==='size')for(var r=0;r<state.collage.lanes.length;r++)if(!collageLane(r).locked)collageLane(r).dirty=true;
     collagePlanCache=null;redraw();
 }
-function collageDrawSliders(){var sliders=collageSliders();for(var i=0;i<sliders.length;i++){var s=sliders[i],v=collageControlValue(s),portion=(v-s.min)/(s.max-s.min);text(s.label,s.x,s.y,13);text(collageFormatControl(s,v),s.x+328,s.y,11,[.71,.77,.78,1]);rect(s.x,s.y+18,390,5,[.22,.27,.29,1]);rect(s.x,s.y+18,390*portion,5,[.88,.61,.31,1]);rect(s.x+390*portion-3,s.y+13,6,15,[.94,.77,.53,1]);}}
+function collageDrawSliders(){var sliders=collageSliders();for(var i=0;i<sliders.length;i++){var s=sliders[i],v=collageControlValue(s),portion=Math.pow(clamp((v-s.min)/(s.max-s.min),0,1),1/(s.curve||1));text(s.label,s.x,s.y,13);text(collageFormatControl(s,v),s.x+328,s.y,11,[.71,.77,.78,1]);rect(s.x,s.y+18,390,5,[.22,.27,.29,1]);rect(s.x,s.y+18,390*portion,5,[.88,.61,.31,1]);rect(s.x+390*portion-3,s.y+13,6,15,[.94,.77,.53,1]);}}
 function collageHideFields() {
     var tempo=this.patcher.getnamed('instrumentTempo'),search=this.patcher.getnamed('librarySearch');
     if(search)search.hidden=1;
@@ -119,19 +119,19 @@ paint=function() {
         button('undo','Undo',575,65,75);button('collageCommit','Commit take',665,65,160);button('collageExport','Loop WAV',840,65,103);button('collageStems','Layer stems',953,65,107);
         text('BPM',20,132,12);button('instrumentTap','Tap',160,112,60);text('Bars',250,132,12);
         var lengths=[1,2,4,8,16,32];for(var i=0;i<lengths.length;i++)button('collageBars:'+lengths[i],String(lengths[i]),290+i*47,112,41,state.bars===lengths[i]);
-        button('collageLibraryDraw','New sounds from library',605,112,250);button('collageLibrarySetup','Library draw setup…',870,112,190);
+        button('collageLibraryDraw',collageLibraryPending?'Scanning library…':collageJob?'Loading new sounds…':'New sounds from library',605,112,250);button('collageLibrarySetup','Library draw setup…',870,112,190);
         collageDrawWheel();collageDrawSliders();
         button('collageRhythm','New rhythm',635,472,185);button('collageCuts','New cuts',835,472,190);
         button('collageOrder','Shuffle fragments',635,510,185);button('collageDamage','New damage',835,510,190);
         button('collageVoices','Voices: '+state.collage.voices+' ▾',635,548,185);button('collageDetails','Layer / advanced',835,548,190);
         text('Shape controls apply on the next phrase or reroll.',635,608,10,[.56,.67,.69,1]);
         var first=collageLanePage*6;for(var i=0;i<6;i++) {
-            var role=first+i;if(role>=roles.length)continue;var lane=collageLane(role),x=20+i*175,y=654;
-            visualRound(x,y,160,102,role===collageSelectedLane?[.16,.23,.25,1]:[.115,.14,.16,1],5);
-            button('collageSelect:'+role,'Layer '+(role+1),x,y,160,role===collageSelectedLane);
+            var role=first+i;if(role>=roles.length)continue;var lane=collageLane(role),x=20+i*175,y=646;
+            visualRound(x,y,160,134,role===collageSelectedLane?[.16,.23,.25,1]:[.115,.14,.16,1],5);
+            button('collageSelect:'+role,'Layer '+(role+1),x,y,99,role===collageSelectedLane);
             text(lane.sources.length?shortName(lane.sources[0],21):'Drop WAV / AIFF here',x+6,y+47,10,[.67,.76,.78,1]);
-            text(lane.sources.length+' sources · '+lane.cuts.length+' cuts',x+6,y+64,9,[.48,.61,.65,1]);
-            button('collageBrowse:'+role,'Browse',x,y+73,74);button('collageAppend:'+role,'+ source',x+80,y+73,80);
+            button('refineSoundKind:'+role,'Find: '+(lane.drawLabel||lane.libraryType||'anything')+' ▾',x,y+53,160);
+            button('collageBrowse:'+role,'Browse',x,y+84,70);button('collageNewSound:'+role,'New sound',x+76,y+84,84);button('refineKeepSound:'+role,lane.soundLocked?'Kept':'Keep',x+105,y,55,lane.soundLocked);
         }
         button('collageLanePagePrev','‹ Layers',20,615,100);button('collageLanePageNext','Layers ›',130,615,100);button('collageAddLane','+ Layer',245,615,100);
         var l=collageLane(collageSelectedLane);

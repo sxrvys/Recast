@@ -14,7 +14,7 @@ Recast is an experimental Max for Live instrument. It has automated regression t
 
 ### Build a sample collage
 
-The opening workshop now puts **Play, New phrase, source layers and four main controls** together. Its circular view shows event starts as dots and their gates as arcs; rings are layers, not individual voices.
+The opening workshop now puts **Play, Generate, source layers and four main controls** together. Its circular view shows event starts as dots and their gates as arcs; rings are layers, not individual voices.
 
 - Load recordings onto up to **24 layers**, with up to **16 source files per layer**. New instances include a small generated starter kit so you can play immediately.
 - **Library draw setup** lets each layer draw from its own local folder, with sound-type filename hints, independent measured sound-character filters and Industrial, Voices/Atmosphere or Percussion recipes. Keep a layer's discovery while replacing the others. New sounds avoids active recordings and prefers files outside its saved recent history; small pools may reuse earlier draws. No subscription, online sample service or upload is involved.
@@ -39,9 +39,9 @@ Use **Step editor** to return to the detailed smart-sequencer workflow below.
 ### Refine without losing the useful part
 
 - **Target** chooses Whole Pattern, Selected Layer, This Bar or a passage selected in the Step editor. Protected hits and locked layers remain protected. Layer-only generation also leaves other layers' fragment pools alone.
-- **New phrase** and **Rebuild rhythm** use recurring motifs, answering bars and occasional end fills. Structure → Phrase development sets the strength; zero returns to independent layer placement. Use two or more bars to hear phrase development.
-- **Swap fragments** preserves timing, pitch, gates and treatment. **Find new fragments** rebuilds source regions while keeping the hit pattern. Library draw setup also has **Keep rhythm**: on by default, it places newly drawn recordings onto existing hits; turn it off to build a new phrase from them.
-- **New damage treatment** proposes episodes of accelerating bursts, late answers, gaps, reversals, short chokes, dragging and rushing/recovery. Drum-aware foundation hits stay protected, with more disruption available around them. Rerolls use a base rather than recursively multiplying the previous burst. Manual source-region edits survive damage rerolls.
+- **Generate** and the optional rhythm-only variation use recurring motifs, answering bars and occasional end fills. Structure → Phrase development sets the strength; zero returns to independent layer placement. Use two or more bars to hear phrase development.
+- **More variations → Shuffle fragments only** preserves timing, pitch, gates and treatment. **More variations → Change fragments only** rebuilds source regions while keeping the hit pattern. Library draw setup also has **Keep rhythm**: on by default, it places newly drawn recordings onto existing hits; turn it off to build a new phrase from them.
+- **More variations → Change damage only** proposes episodes of accelerating bursts, late answers, gaps, reversals, short chokes, dragging and rushing/recovery. Drum-aware foundation hits stay protected, with more disruption available around them. Rerolls use a base rather than recursively multiplying the previous burst. Manual source-region edits survive damage rerolls.
 - While playing, proposals prepare in an isolated state and switch at the next ready bar. The current phrase stays available during preparation. Stop cancels a pending proposal; editing the working phrase invalidates a stale one. Cold decoding and individual processing jobs can still delay the shared JavaScript scheduler, so this is not a guarantee of glitch-free real-time operation on every source.
 - **Hear previous / Hear generated** compares the last proposal with the preceding phrase. Playing comparisons switch at a bar boundary and use approximate, down-only energy matching for audition. That matching is not LUFS normalization and is not baked into exports.
 - **Edit / audition fragments** exposes the chosen hit's source region, alternative cuts and immediate audition. The waveform opens zoomed around the region; Zoom In, Zoom Out and Whole Source change the view. Drag a boundary, then Apply to change only that hit. Cyan wheel markers and a change summary show which events changed.
@@ -208,3 +208,12 @@ Created by **Scott Rogers**.
 - Playing / Viewing and optional Follow distinguish the sounding bar from the bar being edited.
 
 Portable regressions and a native Live check cover scoped edits, sample replacement, note timing and nonzero audio output. This remains a beta: musical usefulness and every physical interaction still benefit from hands-on testing.
+
+### One generation workflow
+Adjust Density, Fragment size, Movement and Damage, then click **Generate**. It applies all four controls together using the loaded sounds. Style choices populate the controls once; Generate preserves your adjustments. An amber reminder marks unapplied changes. While playing, proposals switch at the next ready bar. **More variations** holds the optional rhythm-only, fragments-only, shuffle and damage-only actions. Each layer has **New sound**: draw one replacement from your library while retaining its rhythm and the other layers. **Browse** chooses manually; **Layer / advanced → Audio → Manage selected layer sources** expands the pool.
+
+Density, Movement and Damage use a gentler nonlinear slider response: half the travel gives one-quarter of the available amount. Existing saved amounts stay unchanged, and full-strength extremes remain available at the far right.
+
+Send audio to Live offers Full loop (one new audio track) or Layer stems (one new track per layer). WAVs render into Recast’s Rendered folder and are inserted together in Arrangement at the beginning of the current playhead bar. Tracks are appended without replacing existing clips. Audio remains unwarped, retaining Recast’s timing; match Live’s BPM to Recast for bar-grid alignment. Use Live’s Collect All and Save to collect the linked WAVs into the Set. Editable rendered-sound MIDI remains available from the same menu.
+
+Fragment editing includes a reverse switch, Keep this hit, and Apply + hear in pattern. Each layer’s Keep button protects its sound from library draws while allowing rhythm generation; Lock layer freezes the whole layer. Find on each layer chooses short impacts, sustained machinery, voices, low drones, textures or drums using filename hints and approximate sound measurements. New sound applies that search. More variations includes Keep selected passage (all layers, including silence) and Release passage locks; kept hits appear green on the circular view.
