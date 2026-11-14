@@ -2,6 +2,15 @@
 
 Release notes describe Recast's capabilities and user-facing changes. Download packaged builds from [Releases](https://github.com/sxrvys/Recast/releases).
 
+## 0.2.0-beta.14 — 2026-11-14
+
+- Manual hits retain fixed timing during live variation; loading sessions recognizes existing hand-placed collage hits without changing their chosen source regions.
+- New layers added in the Step editor use whole-source playback. A short recording (up to 10 seconds) on an empty layer starts as a whole sound for its first manual hit unless a source mode was explicitly chosen.
+- Layer defaults exposes a source-mode dropdown: Whole sound, Random fragments, Detected attacks and Equal divisions. Existing per-hit regions remain independent.
+- Use whole sound for manual hits explicitly restores full source bounds for that layer's unprotected manual notes, preserving timing, velocity, pitch, reverse and gates.
+- Session saves automatically add `.json`; valid extensionless sessions remain readable.
+- Validated the reported session: every snare trigger was dispatched across three loops; differing source offsets were omitting the loud attack on two hits. The original session remains unchanged, with a separate repaired copy available.
+
 ## 0.2.0-beta.13 — 2026-11-14
 
 ### Layer mixing and sound choices

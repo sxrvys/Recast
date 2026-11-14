@@ -176,3 +176,7 @@ Each layer card has volume, Mute, Solo, Lock and an activity estimate under Brow
 Keep protects a sound from automatic replacement. A deliberate click on that layer's New sound replaces it without changing its rhythm or releasing Keep.
 Max fragment size sets the upper bound for random cuts, with a fixed 35 ms short minimum. Whole-source, equal-division and explicit advanced duration ranges retain their own length rules.
 In Step editor, choose Layer defaults or Selected steps. Gate, Velocity and Pitch accept typed values; Shift-drag adjusts finely. Gate 4.0 is four sixteenth-note steps. Step overrides are marked with an asterisk; Reset selected steps to layer defaults restores inheritance. Layer changes leave explicit overrides and protected hits alone.
+
+MANUAL SOURCE REGIONS
+Hand-placed notes retain their timing during live variation. New manual layers start in Whole sound mode. A short recording (up to 10 seconds) on an empty layer also starts from the whole source for its first manual hit, unless you explicitly selected a fragment mode. Layer defaults > New hits provides Whole sound, Random fragments, Detected attacks and Equal divisions. This changes future cuts, leaving existing regions intact. Use whole sound for manual hits explicitly restores full source bounds without changing those notes' timing or treatment. Per-hit waveform edits remain available.
+New session saves add .json automatically; Open accepts existing extensionless JSON sessions.

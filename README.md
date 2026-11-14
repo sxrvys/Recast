@@ -55,7 +55,7 @@ Open **Groove / develop…** and give each layer a rhythmic job, independent of 
 
 Click **Generate with these settings** to apply the choices. The loaded sounds stay available, and generation respects the selected target and explicit locks. A door slam can carry the pulse, a voice can become the backbeat, and relay clicks can provide the nervous detail.
 
-You can also place the foundation yourself. In the **Step editor**, click **+ Layer**, choose its sound through the layer label, and add hits wherever you want them. Protect the hits or lock their layer before generating around them.
+You can also place the foundation yourself. Hand-placed hits retain their timing during live variation. New manually added layers use the whole sound by default; an empty layer receiving its first hand-placed hit also uses the whole source for recordings up to 10 seconds, unless you explicitly chose a fragment mode. In the **Step editor**, click **+ Layer**, choose its sound through the layer label, and add hits wherever you want them. Protect the hits or lock their layer before generating around them.
 
 ## Generate, keep and develop
 
@@ -78,7 +78,7 @@ Use **Layer defaults** to set Gate, Velocity and Pitch for the selected layer, o
 
 A step edit creates an explicit override for that setting, marked with an asterisk. Layer changes update inherited values while leaving explicit overrides and protected hits alone. **Reset selected steps to layer defaults** restores inheritance. Defaults and overrides are saved with the session.
 
-Per-hit and group controls also include **reverse and repeats**. Gates are expressed in sixteenth-note steps; repeats include doubles, triplets and short rolls. A waveform editor lets you trim the chosen source region and audition it in context. Follow mode distinguishes the sounding bar from the bar you are viewing.
+Per-hit and group controls also include **reverse and repeats**. Gates are expressed in sixteenth-note steps; repeats include doubles, triplets and short rolls. A waveform editor lets you trim the chosen source region and audition it in context. In Layer defaults, **New hits** offers Whole sound, Random fragments, Detected attacks or Equal divisions. Changing this choice leaves existing regions intact. **Use whole sound for manual hits** explicitly resets their source bounds while preserving rhythm and treatment. Follow mode distinguishes the sounding bar from the bar you are viewing.
 
 Recast also includes a drum-pattern workspace with **13 rhythmic foundations**: Broken funk, Half-time weight, Driving syncopation, Straight backbeat, Four to the floor, Electro breaks, Two-step, Dub space, Slow crush, Motor pulse, Tresillo, Shuffle and Breakbeat. It constructs fresh motifs, supporting subdivisions, ghost notes, replies and fills. Pocket, Drunkenness and Glitch reshape timing, accents and interruptions, with targets and protection for deliberate control. Each instrument has a separate MIDI note; sample pools support round robin, weighted chance and use-all selection.
 
@@ -108,6 +108,8 @@ Audio handoff appends tracks in Arrangement at the beginning of the current play
 ## Save your work
 
 Save the Live Set for device recall, or use Recast's **Save / Open** for a JSON session containing the phrase, source choices, settings, edits, palettes and Keep slots. Audio remains linked to its files; saving a session does not copy or embed the recordings. Collection and relinking tools help when moving material.
+
+Session saves add a `.json` extension automatically. Open also accepts valid extensionless JSON sessions.
 
 Recent takes is temporary. Save a session or Keep a phrase you want to revisit. Retain the installed support files and generated `Rendered` audio used by your projects.
 
