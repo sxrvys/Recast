@@ -170,3 +170,9 @@ Click the selected-layer waveform in the wheel for its larger sound/fragment pan
 
 FOUNDATION / COHERENCE / WILDNESS
 Open Groove / develop from the collage screen. Choose Pulse, Backbeat, Ticks or Free for each layer; these are rhythmic jobs, not sample classifications. Raise Coherence for recurring accents. Wildness independently controls episode-based damage around foundation hits. Both take effect on Generate with these settings. Zero Coherence retains the earlier collage placement. Your current target, protected passages and layer locks still apply.
+
+LAYER MIXER AND DEFAULTS
+Each layer card has volume, Mute, Solo, Lock and an activity estimate under Browse / New sound. Master sits above the cards. Volume changes affect active tails immediately; exported loops and stems use the same mixer settings.
+Keep protects a sound from automatic replacement. A deliberate click on that layer's New sound replaces it without changing its rhythm or releasing Keep.
+Max fragment size sets the upper bound for random cuts, with a fixed 35 ms short minimum. Whole-source, equal-division and explicit advanced duration ranges retain their own length rules.
+In Step editor, choose Layer defaults or Selected steps. Gate, Velocity and Pitch accept typed values; Shift-drag adjusts finely. Gate 4.0 is four sixteenth-note steps. Step overrides are marked with an asterisk; Reset selected steps to layer defaults restores inheritance. Layer changes leave explicit overrides and protected hits alone.

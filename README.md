@@ -12,7 +12,7 @@ Generate an idea, replace a sound, protect the part you like, then edit everythi
 
 1. Open Recast on a MIDI track and click **Open Recast**.
 2. Choose a phrase style, length and BPM. A bundled starter kit lets you generate and play immediately.
-3. Adjust **Density**, **Fragment size**, **Movement** and **Wildness**, then click **Generate**. These controls shape the next generation; they do not continuously rewrite the playing phrase.
+3. Adjust **Density**, **Max fragment size**, **Movement** and **Wildness**, then click **Generate**. These controls shape the next generation; they do not continuously rewrite the playing phrase.
 4. Point **Palettes / draw setup…** at your audio folders. **New sounds from library** refills eligible layers; a layer's **New sound** replaces just that layer while retaining its rhythm.
 5. Keep a useful result, edit it in the **Step editor**, or send the loop or stems directly into Live.
 
@@ -31,6 +31,14 @@ Use up to **24 collage layers**, with up to **16 recordings per layer**. Load yo
 - Avoid active recordings, prefer files outside recent draw history, and optionally reject byte-identical copied files without deleting anything.
 
 Everything runs locally. There is no account, sample subscription or upload service. Sound filters are practical hints and measurements, not speech recognition or instrument separation.
+
+## Balance the layers
+
+Every layer card has a **volume fader, Mute, Solo and Lock**, directly below Browse / New sound. A small activity indicator shows active voices; it is an activity estimate, not a calibrated peak meter. The **Master** fader sits above the cards. Volume, Mute and Solo affect playing tails as well as future hits, without Generate. Mixer levels are retained in sessions and applied to loop/stem exports.
+
+**Keep** protects a source from automatic library replacement. It does not block intentional changes: clicking that layer's **New sound** replaces its source while retaining its rhythm and Keep state. Global New sounds still leaves it alone. **Lock** protects the whole layer from generation and editing.
+
+**Max fragment size** sets the upper bound for randomly selected source cuts; the short minimum stays at 35 ms. Larger settings permit tiny fragments and long cuts together. Advanced explicit duration ranges, whole-recording playback and equal divisions retain their own length rules. A step gate can shorten playback further.
 
 ## Give the chaos a foundation
 
@@ -66,7 +74,11 @@ During playback, prepared proposals switch at the next ready bar. Cold decoding 
 
 The Step editor exposes the generated phrase as an editable grid. Add or remove hits, drag them in time, select several hits or empty cells, and protect a passage—including its silence.
 
-Per-hit and group controls include **velocity, gate, pitch, reverse and repeats**. Gates are expressed in sixteenth-note steps; repeats include doubles, triplets and short rolls. A waveform editor lets you trim the chosen source region and audition it in context. Follow mode distinguishes the sounding bar from the bar you are viewing.
+Use **Layer defaults** to set Gate, Velocity and Pitch for the selected layer, or **Selected steps** to edit individual hits or a group. Click a layer label in the Step editor to select its defaults; **Choose sound** opens its browser. Numeric fields accept exact values, and Shift-drag provides fine slider adjustment. Gate **4.0** means four sixteenth-note steps.
+
+A step edit creates an explicit override for that setting, marked with an asterisk. Layer changes update inherited values while leaving explicit overrides and protected hits alone. **Reset selected steps to layer defaults** restores inheritance. Defaults and overrides are saved with the session.
+
+Per-hit and group controls also include **reverse and repeats**. Gates are expressed in sixteenth-note steps; repeats include doubles, triplets and short rolls. A waveform editor lets you trim the chosen source region and audition it in context. Follow mode distinguishes the sounding bar from the bar you are viewing.
 
 Recast also includes a drum-pattern workspace with **13 rhythmic foundations**: Broken funk, Half-time weight, Driving syncopation, Straight backbeat, Four to the floor, Electro breaks, Two-step, Dub space, Slow crush, Motor pulse, Tresillo, Shuffle and Breakbeat. It constructs fresh motifs, supporting subdivisions, ghost notes, replies and fills. Pocket, Drunkenness and Glitch reshape timing, accents and interruptions, with targets and protection for deliberate control. Each instrument has a separate MIDI note; sample pools support round robin, weighted chance and use-all selection.
 

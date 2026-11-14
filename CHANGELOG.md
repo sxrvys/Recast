@@ -2,6 +2,29 @@
 
 Release notes describe Recast's capabilities and user-facing changes. Download packaged builds from [Releases](https://github.com/sxrvys/Recast/releases).
 
+## 0.2.0-beta.13 — 2026-11-14
+
+### Layer mixing and sound choices
+
+- Added inline volume, Mute, Solo, Lock and activity indicators beneath each layer's Browse / New sound controls, plus a Master fader above the cards.
+- Live volume changes use a short smoothing ramp and affect already-playing voices. Loop and stem exports apply the mixer settings.
+- Keep protects sounds from automatic replacement. Intentional per-layer New sound replacement retains the rhythm and Keep state; global replacement still skips kept sources.
+- Max fragment size sets only the upper bound, preserving short random cuts at high settings. Explicit advanced ranges, whole-source playback and equal divisions keep their own length rules.
+
+### Precise editing and inheritance
+
+- Gate, Velocity and Pitch have native editable numeric fields and Shift-drag fine adjustment.
+- Layer defaults and Selected steps share the existing editor. Layer changes update inherited values; explicit step overrides and protected hits remain independent.
+- Selected steps can reset to layer defaults. Gate units are sixteenth-note steps, so 4.0 is exactly four steps.
+- Layer-label selection opens its defaults inline; Choose sound opens its sample browser.
+- Mixer settings, layer defaults and per-step overrides persist in saved sessions.
+
+### Validation
+
+- Passed 194 automated test groups covering source replacement, fragment bounds, defaults, overrides, selections, live dispatch, export gain and UI layout.
+- In Ableton Live, verified kept-source replacement with unchanged rhythm, numeric-field callbacks, overrides, session recall and non-silent WAV rendering.
+- An audio probe measured a 0.25 amplitude ratio when lowering an already-playing voice to one-quarter gain, and zero output after muting it.
+
 ## 0.2.0-beta.12 — 2026-11-14
 
 ### Rhythm and foundation

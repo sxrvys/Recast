@@ -40,7 +40,7 @@ function collageRenderStart(path,stems) {
         var previous=renderEventContext;renderEventContext=job.events;
         try{
             if(job.phase==='prepare'){
-                if(job.index<job.events.length){var e=job.events[job.index++],s=copy(sound(e)),b=buffer(s.index);job.sounds.push({role:e.role,sound:s,native:b.framecount()*1000/b.length(),offset:Math.round(e.beat*60/job.tempo*44100),length:Math.max(1,Math.round(s.dur*44.1))});}
+                if(job.index<job.events.length){var e=job.events[job.index++],s=typeof mxExportSound==='function'?mxExportSound(e,sound(e)):copy(sound(e)),b=buffer(s.index);job.sounds.push({role:e.role,sound:s,native:b.framecount()*1000/b.length(),offset:Math.round(e.beat*60/job.tempo*44100),length:Math.max(1,Math.round(s.dur*44.1))});}
                 else{job.phase='measure';job.position=0;}
             }else {
                 var count=Math.min(4096,job.frames-job.position),block=collageRenderBlock(job,job.position,count);

@@ -36,15 +36,15 @@ function collageLibraryIndex(done){
         }catch(err){collageLibraryCancel();say('Library: '+err.message);}
     },this);collageLibraryScan.schedule(1);
 }
-collageDrawLibrary=function(singleRole,preview){
+collageDrawLibrary=function(singleRole,preview,manualKeepOverride){
     var single=typeof singleRole==='number'&&singleRole>=0&&singleRole<roles.length;
     var roots=collageLibraryScanRoots();if(!roots.length){say('Choose a local sample or music folder first.');action('collageLibraryRoot');return;}
     if(collageLibraryPending){say('Indexing your library. Stop cancels; drawing starts when ready.');return;}
-    if(collageLibraryKey!==JSON.stringify(roots)){collageLibraryIndex(function(){collageDrawLibrary(single?singleRole:undefined,preview);});return;}
+    if(collageLibraryKey!==JSON.stringify(roots)){collageLibraryIndex(function(){collageDrawLibrary(single?singleRole:undefined,preview,manualKeepOverride);});return;}
     if(!collageLibraryFiles.length){say('No supported audio files found in these library folders.');return;}
     var resume=playing,count=single?1:state.collage.libraryDrawCount||roles.length;if(count>roles.length)collageEnsureRole(Math.min(23,count-1));var working=state,drawState=copy(state);drawState.archivePaths=state.archivePaths;var workingEvents=state.events;var revision=typeof refineRevision==='function'?refineRevision():'',c=drawState.collage;try{state=drawState;collageNextSeed('order');}finally{state=working;}
     var at=0,targets=[],used={},recent=(c.libraryRecent||[]).slice(),pending=null;
-    for(var r=0;r<roles.length;r++)if((!single||r===singleRole)&&!collageLane(r).locked&&!collageLane(r).soundLocked&&!state.roleLocks[r]&&targets.length<count)targets.push(r);
+    for(var r=0;r<roles.length;r++)if((!single||r===singleRole)&&!collageLane(r).locked&&(!collageLane(r).soundLocked||(single&&manualKeepOverride))&&!state.roleLocks[r]&&targets.length<count)targets.push(r);
     if(!targets.length){say('Release Keep sound or unlock the layer before drawing new sounds.');return;}
     for(var i=0;i<roles.length;i++)for(var j=0;j<collageLane(i).sources.length;j++)used[collageLane(i).sources[j]]=true;
     var failures=[],loadedRoles=[],relaxed=0,copies=0;

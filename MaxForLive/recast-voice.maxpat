@@ -39,7 +39,8 @@
             150,
             22
           ],
-          "text": "route stop"
+          "text": "route stop mixgain",
+          "numoutlets": 3
         }
       },
       {
@@ -327,6 +328,58 @@
             22
           ]
         }
+      },
+      {
+        "box": {
+          "id": "mixSmooth",
+          "maxclass": "message",
+          "text": "$1 5",
+          "patching_rect": [
+            400,
+            620,
+            140,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "mixLine",
+          "maxclass": "newobj",
+          "text": "line~ 1.",
+          "patching_rect": [
+            400,
+            625,
+            140,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "mixLeft",
+          "maxclass": "newobj",
+          "text": "*~",
+          "patching_rect": [
+            400,
+            630,
+            140,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "mixRight",
+          "maxclass": "newobj",
+          "text": "*~",
+          "patching_rect": [
+            400,
+            635,
+            140,
+            22
+          ]
+        }
       }
     ],
     "lines": [
@@ -370,7 +423,7 @@
         "patchline": {
           "source": [
             "route",
-            1
+            2
           ],
           "destination": [
             "unpack",
@@ -745,7 +798,7 @@
             0
           ],
           "destination": [
-            "ol",
+            "mixLeft",
             0
           ]
         }
@@ -754,6 +807,78 @@
         "patchline": {
           "source": [
             "panrightsig",
+            0
+          ],
+          "destination": [
+            "mixRight",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "route",
+            1
+          ],
+          "destination": [
+            "mixSmooth",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "mixSmooth",
+            0
+          ],
+          "destination": [
+            "mixLine",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "mixLine",
+            0
+          ],
+          "destination": [
+            "mixLeft",
+            1
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "mixLine",
+            0
+          ],
+          "destination": [
+            "mixRight",
+            1
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "mixLeft",
+            0
+          ],
+          "destination": [
+            "ol",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "mixRight",
             0
           ],
           "destination": [

@@ -701,6 +701,120 @@
                     22
                   ]
                 }
+              },
+              {
+                "box": {
+                  "id": "mxvelocity",
+                  "varname": "mxvelocity",
+                  "maxclass": "flonum",
+                  "patching_rect": [
+                    210,
+                    585,
+                    100,
+                    28
+                  ],
+                  "presentation": 1,
+                  "presentation_rect": [
+                    210,
+                    585,
+                    100,
+                    28
+                  ],
+                  "minimum": 1,
+                  "maximum": 127,
+                  "format": 6,
+                  "parameter_enable": 0,
+                  "hidden": 1
+                }
+              },
+              {
+                "box": {
+                  "id": "mxvelocityMsg",
+                  "maxclass": "newobj",
+                  "text": "prepend mxvalue velocity",
+                  "patching_rect": [
+                    20,
+                    990,
+                    190,
+                    22
+                  ]
+                }
+              },
+              {
+                "box": {
+                  "id": "mxgate",
+                  "varname": "mxgate",
+                  "maxclass": "flonum",
+                  "patching_rect": [
+                    570,
+                    585,
+                    100,
+                    28
+                  ],
+                  "presentation": 1,
+                  "presentation_rect": [
+                    570,
+                    585,
+                    100,
+                    28
+                  ],
+                  "minimum": 0.04,
+                  "maximum": 64,
+                  "format": 6,
+                  "parameter_enable": 0,
+                  "hidden": 1
+                }
+              },
+              {
+                "box": {
+                  "id": "mxgateMsg",
+                  "maxclass": "newobj",
+                  "text": "prepend mxvalue gate",
+                  "patching_rect": [
+                    220,
+                    990,
+                    190,
+                    22
+                  ]
+                }
+              },
+              {
+                "box": {
+                  "id": "mxpitch",
+                  "varname": "mxpitch",
+                  "maxclass": "flonum",
+                  "patching_rect": [
+                    930,
+                    585,
+                    100,
+                    28
+                  ],
+                  "presentation": 1,
+                  "presentation_rect": [
+                    930,
+                    585,
+                    100,
+                    28
+                  ],
+                  "minimum": -36,
+                  "maximum": 36,
+                  "format": 6,
+                  "parameter_enable": 0,
+                  "hidden": 1
+                }
+              },
+              {
+                "box": {
+                  "id": "mxpitchMsg",
+                  "maxclass": "newobj",
+                  "text": "prepend mxvalue pitch",
+                  "patching_rect": [
+                    420,
+                    990,
+                    190,
+                    22
+                  ]
+                }
               }
             ],
             "lines": [
@@ -1027,6 +1141,78 @@
                     0
                   ]
                 }
+              },
+              {
+                "patchline": {
+                  "source": [
+                    "mxvelocity",
+                    0
+                  ],
+                  "destination": [
+                    "mxvelocityMsg",
+                    0
+                  ]
+                }
+              },
+              {
+                "patchline": {
+                  "source": [
+                    "mxvelocityMsg",
+                    0
+                  ],
+                  "destination": [
+                    "ui",
+                    0
+                  ]
+                }
+              },
+              {
+                "patchline": {
+                  "source": [
+                    "mxgate",
+                    0
+                  ],
+                  "destination": [
+                    "mxgateMsg",
+                    0
+                  ]
+                }
+              },
+              {
+                "patchline": {
+                  "source": [
+                    "mxgateMsg",
+                    0
+                  ],
+                  "destination": [
+                    "ui",
+                    0
+                  ]
+                }
+              },
+              {
+                "patchline": {
+                  "source": [
+                    "mxpitch",
+                    0
+                  ],
+                  "destination": [
+                    "mxpitchMsg",
+                    0
+                  ]
+                }
+              },
+              {
+                "patchline": {
+                  "source": [
+                    "mxpitchMsg",
+                    0
+                  ],
+                  "destination": [
+                    "ui",
+                    0
+                  ]
+                }
               }
             ],
             "openrect": [
@@ -1081,9 +1267,9 @@
             195,
             40
           ],
-          "text": "route choose save open folder voice stop status bounce stopvoice metro",
+          "text": "route choose save open folder voice stop status bounce stopvoice metro mixgain",
           "numinlets": 1,
-          "numoutlets": 9
+          "numoutlets": 12
         }
       },
       {
@@ -1905,6 +2091,19 @@
             22
           ]
         }
+      },
+      {
+        "box": {
+          "id": "mixDispatch",
+          "maxclass": "message",
+          "text": "target $1, mixgain $2",
+          "patching_rect": [
+            400,
+            980,
+            180,
+            22
+          ]
+        }
       }
     ],
     "lines": [
@@ -2684,6 +2883,30 @@
           ],
           "destination": [
             "metroLine",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "route",
+            10
+          ],
+          "destination": [
+            "mixDispatch",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "mixDispatch",
+            0
+          ],
+          "destination": [
+            "voice",
             0
           ]
         }

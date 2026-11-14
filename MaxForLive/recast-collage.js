@@ -114,7 +114,7 @@ function collageFragmentGain(index, start, end) {
 function collageCutSource(role, path, sourceNumber) {
     var c=state.collage,lane=collageLane(role),index=archivePath(path),a=collageAnalyse(index,path);
     var rnd=collageRandom(collageSeed(c.seeds.cuts,role,sourceNumber)),out=[];
-    var min=c.useLengthRange?(c.minFragmentMs||35):35+Math.pow(c.size,2)*600, max=Math.min(a.duration,c.useLengthRange?(c.maxFragmentMs||5000):100+Math.pow(c.size,1.6)*5000);
+    var min=c.useLengthRange?(c.minFragmentMs||35):35, max=Math.min(a.duration,c.useLengthRange?(c.maxFragmentMs||5000):100+Math.pow(c.size,1.6)*5000);
     max=Math.max(Math.min(min,a.duration),max);
     function add(start,end) {
         start=clamp(start,0,Math.max(0,a.duration-1));end=clamp(end,start+1,a.duration);

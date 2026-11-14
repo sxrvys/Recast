@@ -56,7 +56,7 @@ function collageDrawWheel() {
 }
 function collageSliders() {
     if(view===26)return [{field:'density',label:'Density',x:635,y:204,min:0,max:.65,curve:2},
-        {field:'size',label:'Fragment size',x:635,y:274,min:0,max:1},
+        {field:'size',label:'Max fragment size',x:635,y:274,min:0,max:1},
         {field:'movement',label:'Movement',x:635,y:344,min:0,max:1,curve:2},
         {field:'damage',label:'Wildness',x:635,y:414,min:0,max:1,curve:2}];
     if(view===27)return [{field:'breaks',label:'Breaks / empty regions',x:30,y:160,min:0,max:1},
