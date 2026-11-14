@@ -182,16 +182,18 @@ var wbSlidersBefore=collageSliders;collageSliders=function(){var rows=wbSlidersB
 // Configure native overlays once per layout transition, never hide/show or move
 // the same controls repeatedly inside a paint. The 5 ms audio clock is unchanged.
 function wbNativeHidden(o,value){if(o&&Number(o.hidden)!==value)o.hidden=value;}
-var wbNativeRects={};
+var wbNativeRects={},wbNativeFrontKeys={};
 function wbNativeRect(o,name,values){if(!o)return;var key=values.join(',');if(wbNativeRects[name]!==key){o.message('presentation_rect',values[0],values[1],values[2],values[3]);wbNativeRects[name]=key;}}
 var wbDropLayout='';
 simpleDrops=function(){
-    var key=[view,workflowBank,collageLanePage,roles.length].join(':');if(key===wbDropLayout)return;wbDropLayout=key;wbNativeRects={};
+    var key=[view,workflowBank,collageLanePage,roles.length].join(':');if(key===wbDropLayout)return;wbDropLayout=key;wbNativeRects={};wbNativeFrontKeys={};
     var ids=['dropLoop','dropWave','dropSound','dropTone'];for(var i=0;i<ids.length;i++)wbNativeHidden(this.patcher.getnamed(ids[i]),(i<2|| (i===2?view!==1:view!==3))?1:0);
     for(var r=0;r<6;r++){var o=this.patcher.getnamed('dropPad'+r),collage=view===26,visible=collage?collageLanePage*6+r<roles.length:view===0&&workflowBank*6+r<roles.length;wbNativeHidden(o,visible?0:1);wbNativeRect(o,'dropPad'+r,collage?[26+r*175,687,148,30]:[20+r*175,612,158,25]);if(o)o.message('ignoreclick',1);}
 };
 collageHideFields=function(){
     var tempo=this.patcher.getnamed('instrumentTempo'),search=this.patcher.getnamed('librarySearch');wbNativeHidden(search,1);var showing=tempo&&view===26;
-    if(showing){var entered=Number(tempo.hidden)!==0;wbNativeHidden(tempo,0);wbNativeRect(tempo,'instrumentTempo',[64,112,80,28]);if(tempoEntryLast!==state.tempo){tempo.message('set',state.tempo);tempoEntryLast=state.tempo;}if(entered&&this.patcher.bringtofront)this.patcher.bringtofront(tempo);}else wbNativeHidden(tempo,1);
+    if(showing){wbNativeHidden(tempo,0);wbNativeRect(tempo,'instrumentTempo',[64,112,80,28]);if(tempoEntryLast!==state.tempo){tempo.message('set',state.tempo);tempoEntryLast=state.tempo;}wbNativeFront(tempo,'instrumentTempo','collage');}else wbNativeHidden(tempo,1);
 };
 var wbDrawBefore=redraw,wbLastPlaybackDraw=0;redraw=function(){if(playing){var now=Date.now();if(now-wbLastPlaybackDraw<33)return;wbLastPlaybackDraw=now;}else wbLastPlaybackDraw=0;wbDrawBefore.apply(this,arguments);};
+
+function wbNativeFront(o,name,key){if(o&&wbNativeFrontKeys[name]!==key){if(this.patcher.bringtofront)this.patcher.bringtofront(o);wbNativeFrontKeys[name]=key;}}
