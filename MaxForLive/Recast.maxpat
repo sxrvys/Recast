@@ -2104,6 +2104,71 @@
             22
           ]
         }
+      },
+      {
+        "box": {
+          "id": "chooseDeferred",
+          "maxclass": "newobj",
+          "text": "deferlow",
+          "patching_rect": [
+            860,
+            61,
+            60,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "saveDeferred",
+          "maxclass": "newobj",
+          "text": "deferlow",
+          "patching_rect": [
+            230,
+            126,
+            60,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "openDeferred",
+          "maxclass": "newobj",
+          "text": "deferlow",
+          "patching_rect": [
+            650,
+            126,
+            60,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "folderDeferred",
+          "maxclass": "newobj",
+          "text": "deferlow",
+          "patching_rect": [
+            20,
+            191,
+            60,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "bounceDeferred",
+          "maxclass": "newobj",
+          "text": "deferlow",
+          "patching_rect": [
+            20,
+            776,
+            60,
+            22
+          ]
+        }
       }
     ],
     "lines": [
@@ -2150,7 +2215,7 @@
             0
           ],
           "destination": [
-            "choose",
+            "chooseDeferred",
             0
           ]
         }
@@ -2186,7 +2251,7 @@
             1
           ],
           "destination": [
-            "save",
+            "saveDeferred",
             0
           ]
         }
@@ -2222,7 +2287,7 @@
             2
           ],
           "destination": [
-            "open",
+            "openDeferred",
             0
           ]
         }
@@ -2258,7 +2323,7 @@
             3
           ],
           "destination": [
-            "folder",
+            "folderDeferred",
             0
           ]
         }
@@ -2594,7 +2659,7 @@
             7
           ],
           "destination": [
-            "bounce",
+            "bounceDeferred",
             0
           ]
         }
@@ -2907,6 +2972,66 @@
           ],
           "destination": [
             "voice",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "chooseDeferred",
+            0
+          ],
+          "destination": [
+            "choose",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "saveDeferred",
+            0
+          ],
+          "destination": [
+            "save",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "openDeferred",
+            0
+          ],
+          "destination": [
+            "open",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "folderDeferred",
+            0
+          ],
+          "destination": [
+            "folder",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "bounceDeferred",
+            0
+          ],
+          "destination": [
+            "bounce",
             0
           ]
         }

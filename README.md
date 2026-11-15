@@ -53,6 +53,9 @@ Open **Groove / develop…** and give each layer a rhythmic job, independent of 
 
 **Coherence** favors recurring accents and recognizable placement. At zero it leaves the collage placement independent; at full strength, foundation anchors stay steady while the surrounding detail can misbehave. **Wildness** independently controls episodes of stutters, chokes, gaps, reversals, late answers and rushing or dragging motion.
 
+**Swing** and **Timing looseness** are independent controls in **Groove / develop…** and the layer settings' **Rhythm** tab. Swing delays alternate straight sixteenths, from Straight to a 2:1 lilt; triplet grids and deliberate off-grid placements are left alone. Timing looseness adds ordinary random drift. Set both to zero for a straight underlying pulse while Wildness still creates abrupt stumbles, rushes, ratchets, gaps and chokes. Movement controls pitch and reverse independently. These settings apply on Generate; moving them does not rewrite the current phrase. Old sessions retain their existing notes and prior timing amount.
+
+
 Click **Generate with these settings** to apply the choices. The loaded sounds stay available, and generation respects the selected target and explicit locks. A door slam can carry the pulse, a voice can become the backbeat, and relay clicks can provide the nervous detail.
 
 You can also place the foundation yourself. Hand-placed hits retain their timing during live variation. New manually added layers use the whole sound by default; an empty layer receiving its first hand-placed hit also uses the whole source for recordings up to 10 seconds, unless you explicitly chose a fragment mode. In the **Step editor**, click **+ Layer**, choose its sound through the layer label, and add hits wherever you want them. Protect the hits or lock their layer before generating around them.

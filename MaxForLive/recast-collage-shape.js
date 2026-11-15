@@ -14,7 +14,7 @@ var collageShapeSliders=collageSliders;collageSliders=function(){if(view!==27)re
     if(collageSection==='rhythm')return [{field:'density',label:'Phrase density',x:30,y:180,min:0,max:.65},{field:'laneDensity',label:'Selected layer density',x:585,y:180,min:0,max:2},{field:'pulse',label:'Pull toward strong beats',x:30,y:310,min:0,max:1}];
     if(collageSection==='structure')return [{field:'breaks',label:'Breaks / empty regions',x:30,y:180,min:0,max:1},{field:'laneChance',label:'Selected layer probability',x:585,y:180,min:0,max:1}];
     if(collageSection==='fx')return [{field:'damage',label:'Damage / interruptions / repeats',x:30,y:180,min:0,max:1},{field:'fxChance',label:'Extra processing probability',x:585,y:180,min:0,max:1},{field:'gain',label:'Mix level',x:30,y:420,min:0,max:1},{field:'laneGain',label:'Selected layer level',x:585,y:420,min:0,max:2},{field:'fxDepth',label:'Extra processing strength',x:30,y:540,min:0,max:1}];
-    if(collageSection==='pitch')return [{field:'movement',label:'Timing + pitch movement',x:30,y:180,min:0,max:1}];return [];
+    if(collageSection==='pitch')return [{field:'movement',label:'Pitch / reverse movement',x:30,y:180,min:0,max:1}];return [];
 };
 var collageShapeControlValue=collageControlValue;collageControlValue=function(s){if(s.field==='fxChance'&&state.collage.fxChance===undefined)return .2;if(s.field==='fxDepth'&&state.collage.fxDepth===undefined)return .4;return collageShapeControlValue(s);};
 var collageShapeSetControl=collageSetControl;collageSetControl=function(s,x){if(s.field==='size')state.collage.useLengthRange=false;collageShapeSetControl(s,x);};

@@ -7,7 +7,7 @@ var collageSelectedLane = 0, collageLanePage = 0, collageQueuedKeep = -1;
 var collageAnalysisCache = {}, collageDrag = null;
 
 function collageSettings() {
-    return {version:1, enabled:false, density:.22, size:.38, movement:.25,
+    return {version:1, enabled:false, density:.22, size:.38, movement:.25, timingJitter:.25, swing:0,
         damage:.25, breaks:.08, pulse:.7, fadeIn:2, fadeOut:2, voices:24,
         intervalMode:'free', gain:.75, seedCounter:781237,
         seeds:{cuts:101, rhythm:203, order:307, motion:409, damage:503},
@@ -16,6 +16,9 @@ function collageSettings() {
 defaults = function(n) {
     n = collageDefaultsBefore(n);
     if (!n.collage || n.collage.version !== 1) n.collage = collageSettings();
+    // Freeze legacy timing at its existing amount; Movement is independent from now on.
+    if (n.collage.timingJitter === undefined) n.collage.timingJitter = n.collage.movement;
+    if (n.collage.swing === undefined) n.collage.swing = 0;
     return n;
 };
 state = defaults(state);
@@ -217,6 +220,15 @@ function collageNewRhythm() {
 function collageEligible(e) {
     return !protectedHit(e)&&!collageLane(e.role).locked&&inScope(e.beat)&&spaceContains(e.role,e.beat)&&(workflowTarget<0||workflowTarget===e.role);
 }
+// Swing changes only straight-grid off-sixteenths. It never quantizes deliberate
+// off-grid placements or triplet subdivisions. Keep the original motion RNG draw.
+function collageTimingShift(e,random,steadiness) {
+    var c=state.collage,loose=c.timingJitter===undefined?c.movement:c.timingJitter;
+    var drift=(random-.5)*loose*.22*steadiness;
+    var cell=Math.round(e.beat*4),resolution=c.resolution||4;
+    var swing=resolution!==3&&resolution!==6&&Math.abs(e.beat*4-cell)<.000001&&cell%2!==0?clamp(c.swing||0,0,1)/12:0;
+    return drift+swing;
+}
 function collageDecorate(base) {
     var c=state.collage,out=[],counts={},scale=c.intervalMode==='minor'?[0,2,3,5,7,8,10]:c.intervalMode==='major'?[0,2,4,5,7,9,11]:null;
     var total=collageActiveRoles().length,volume=.58*c.gain/Math.sqrt(Math.max(1,total/3));
@@ -238,7 +250,7 @@ function collageDecorate(base) {
         e.collage=true;e.performanceFixed=true;e.collageChance=lane.chance;
         e.chokeGroup=lane.choke?e.role+1:0;
         var steadiness=c.groove&&e.foundation?1-clamp(c.groove.coherence,0,1):1;
-        var shift=(motion()-.5)*(c.timingJitter===undefined?c.movement:c.timingJitter)*.22*steadiness,dest=e.beat+shift;
+        var shift=collageTimingShift(e,motion(),steadiness),dest=e.beat+shift;
         if(dest>=0&&dest<beats()&&!locked(dest)&&inScope(dest)&&spaceContains(e.role,dest))e.beat=dest;
         var degree=Math.round((pitchRandom()-.5)*(c.pitchMotion===undefined?c.movement:c.pitchMotion)*14);
         e.pitch=(e.pitch||0)+(scale?(degree<0?-1:1)*scale[Math.abs(degree)%7]+Math.floor(Math.abs(degree)/7)*12*(degree<0?-1:1):degree);

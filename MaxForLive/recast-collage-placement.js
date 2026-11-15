@@ -5,7 +5,7 @@ function collageRotatePhrase(delta){stop();saveundo();var c=state.collage;
 }
 var collagePlacementSliders=collageSliders;collageSliders=function(){var rows=collagePlacementSliders();if(view!==27)return rows;
     if(collageSection==='cut')return rows.concat([{field:'attackBias',label:'Prefer detected attacks',x:585,y:430,min:0,max:1},{field:'attackSensitivity',label:'Attack detection sensitivity',x:585,y:540,min:0,max:1}]);
-    if(collageSection==='rhythm')return rows.concat([{field:'timingJitter',label:'Off-grid timing movement',x:585,y:520,min:0,max:1}]);
+    if(collageSection==='rhythm')return rows.concat([{field:'timingJitter',label:'Timing looseness',x:585,y:520,min:0,max:1},{field:'swing',label:'Swing · sixteenth notes',x:585,y:615,min:0,max:1}]);
     if(collageSection==='pitch')return rows.concat([{field:'pitchMotion',label:'Pitch-motion range',x:30,y:480,min:0,max:1}]);return rows;
 };
 var collagePlacementValue=collageControlValue;collageControlValue=function(s){var c=state.collage;if((s.field==='attackBias'||s.field==='attackSensitivity')&&c[s.field]===undefined)return .65;if((s.field==='timingJitter'||s.field==='pitchMotion')&&c[s.field]===undefined)return c.movement;return collagePlacementValue(s);};

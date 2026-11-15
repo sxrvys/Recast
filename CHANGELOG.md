@@ -2,6 +2,14 @@
 
 Release notes describe Recast's capabilities and user-facing changes. Download packaged builds from [Releases](https://github.com/sxrvys/Recast/releases).
 
+## 0.2.0-beta.16 — 2026-11-15
+
+- File dialogs now defer until the initiating UI callback has returned, addressing the reported crash on cancelling an Open/Save picker in the previous build.
+- Added independent Swing and Timing looseness controls to Groove / develop and the existing Rhythm settings, with shared hover explanations and matching readouts.
+- Swing delays alternate straight sixteenths up to a 2:1 lilt. It leaves triplet grids and deliberate off-grid placements alone. Timing looseness controls ordinary drift separately from pitch/reverse Movement.
+- Wildness remains independent: zero Swing and Timing looseness still allow deliberate bursts, chokes, gaps, reversals and stumble/recovery episodes.
+- Controls shape the next generation; adjusting them does not rewrite the current phrase. Existing sessions retain their notes and prior timing amount. Protected hits, locked layers and protected destinations remain respected.
+
 ## 0.2.0-beta.15 — 2026-11-14
 
 - Moved the custom editor from Max's legacy JSUI engine to V8UI. This addresses the reported Live crash when Solo on a layer was followed by New sound; both crash reports entered the legacy JavaScript engine from the UI mouse handler.

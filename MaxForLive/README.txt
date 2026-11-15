@@ -7,6 +7,9 @@ START
 Load Recast on one MIDI track in Live. Its compact 200px device strip opens the instrument with Open Recast. The editor does not open automatically.
 The workshop opens on the collage page. New instances load a starter kit automatically. Press Play, or Generate and then Play. Drop recordings onto the layer names, or use Browse. Generate builds an arrangement from source fragments rather than playing the original recording straight through.
 
+TIMING CHARACTER
+Groove / develop and the layer settings’ Rhythm tab expose Swing and Timing looseness. Swing delays alternate straight sixteenths, from Straight to a 2:1 lilt; triplet grids and deliberate off-grid placements remain unchanged. Timing looseness controls ordinary random timing drift. Both apply on Generate and do not move the currently playing notes when adjusted. Wildness independently retains deliberate stutters, rushes, dragging episodes, gaps, chokes and reversals, even when both timing controls are zero. Movement handles pitch and reverse independently. Old sessions retain their existing notes and prior timing amount.
+
 COLLAGE
 Four main controls shape Density, Fragment size, Movement and Damage. Choose a style to fill the sliders once, then adjust them and click Generate. New rhythm changes placements; New cuts changes source regions without replacing the rhythm; Shuffle fragments swaps the regions assigned to events. New damage rerolls treatment from a retained base, without recursively multiplying repeats.
 Library folder selects a local sample/music directory. New sounds from library indexes supported files and draws sources for unlocked layers. Stop cancels scanning/preparation. Advanced allows additional library roots. Up to 50,000 files are indexed; full recordings decode into memory, so begin with modest collections of short recordings. Nothing is uploaded or downloaded.
