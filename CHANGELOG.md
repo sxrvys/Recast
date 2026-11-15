@@ -2,6 +2,13 @@
 
 Release notes describe Recast's capabilities and user-facing changes. Download packaged builds from [Releases](https://github.com/sxrvys/Recast/releases).
 
+## 0.2.0-beta.17 — 2026-11-15
+
+- Reworked palette setup into a palette list with Folders, Find folders, Preview files and Name rules tabs in the same view. The active or first palette opens selected for editing.
+- Palettes can combine up to 128 folders. Drum-folder discovery recognizes clearly named categories; a separate spoken-word finder suggests speech, sermons, dialogue and radio chatter without assuming generic vocals contain speech.
+- Folder suggestions are reviewable checkboxes. Preview matching files and audition them without replacing sounds in the phrase. Optional include/exclude words narrow paths; exclusions win.
+- Newer shared palette definitions reach older saved sessions while loaded audio events remain intact. Local relocation aliases compact scan roots and preserve original saved source paths.
+
 ## 0.2.0-beta.16 — 2026-11-15
 
 - File dialogs now defer until the initiating UI callback has returned, addressing the reported crash on cancelling an Open/Save picker in the previous build.

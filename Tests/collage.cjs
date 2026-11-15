@@ -295,3 +295,41 @@ c.view=27;c.collageSection='rhythm';c.paint();for(const field of ['swing','timin
 console.log('PASS: both timing sliders are reachable in existing rhythm views, real callbacks update independent values, tooltips explain Generate, and session recall retains settings.');
 
 }
+
+{
+setup();c.kpPaletteDefinitions=[];c.state.collage.palettes=[];c.plFolderAliases={};
+let drums=c.kpNewPalette('Scattered drums',['/samples/A/Kicks','/samples/B/Breaks']);drums.include='kick, snare, break';drums.exclude='melodic, vocals';
+c.state.collage.paletteId=drums.id;c.collageLibraryFiles=['/samples/A/Kicks/deep.wav','/samples/A/Kicks/vocals.wav','/samples/B/Breaks/break01.wav','/samples/B/Breaks/melodic break.wav','/samples/A/Kicks-old/kick.wav','/else/kick.wav'];
+assert.deepEqual(Array.from(c.collageLibraryCandidates(0,{},[])).sort(),['/samples/A/Kicks/deep.wav','/samples/B/Breaks/break01.wav']);
+assert.equal(c.plMatches(drums,'/samples/A/Kicks/deep.wav'),true);assert.equal(c.plMatches(drums,'/samples/A/Kicks-old/kick.wav'),false);
+let before=JSON.stringify(c.state.events);c.kpPaletteSelected=drums.id;c.view=35;c.plMode='rules';c.paletterule('exclude','text','vocals,','melodic,','noise');assert.equal(drums.exclude,'vocals, melodic, noise');assert.equal(JSON.stringify(c.state.events),before);
+let pref=JSON.parse(files[c.collageLibraryPreferencesPath()].text);assert.equal(pref.palettes[0].include,'kick, snare, break');assert(pref.palettes[0].updatedAt>0);
+console.log('PASS: multi-root palettes apply case-insensitive include/exclude rules with folder boundaries; rules persist without changing loaded events.');
+
+let discovery=c.plDiscoverRows(['/samples/Pack/Drums/Kicks/one.wav','/samples/Pack/Drums/Snares/two.wav','/samples/Other/Breaks/loop.wav','/samples/Other/One Shots/tone.wav','/samples/Other/Loops/piano.wav','/samples/Masks/a.wav'],['/samples']);
+assert.deepEqual(clone(discovery),[{path:'/samples/Other/Breaks',count:1},{path:'/samples/Pack/Drums',count:2}]);
+c.plRows=discovery;c.plChecks={};c.plMode='discover';c.action('plCheck:0');c.action('plAdd');assert(drums.roots.includes('/samples/Other/Breaks'));assert(!drums.roots.includes('/samples/Pack/Drums'));assert.equal(JSON.stringify(c.state.events),before);
+let many=c.kpNewPalette('Many folders',Array.from({length:100},(_,i)=>'/pool/'+i));assert.equal(many.roots.length,100);c.plRows=Array.from({length:40},(_,i)=>({path:'/extra/'+i,count:1}));c.plChecks=Object.fromEntries(c.plRows.map(r=>[r.path,true]));let previousRoots=JSON.stringify(many.roots);c.action('plAdd');assert.equal(JSON.stringify(many.roots),previousRoots);assert(/128/.test(c.status));
+console.log('PASS: drum discovery groups matching parent folders, does not assume generic loops/one-shots are drums, adds only checked folders and refuses overflow beyond 128.');
+
+// Shared definitions update old saved palette snapshots without touching source regions.
+c.kpPaletteDefinitions=[{id:drums.id,name:'Scattered drums',roots:['/new/drums'],include:'kick',exclude:'noise',updatedAt:9999999999999}];c.state.collage.palettes=[{id:drums.id,name:'Scattered drums',roots:[]}];c.kpConfig();assert.equal(c.state.collage.palettes[0].roots[0],'/new/drums');assert.equal(c.state.collage.palettes[0].include,'kick');
+c.kpPaletteSelected=drums.id;c.action('kpDeletePalette');c.kpConfig();assert(!c.state.collage.palettes.some(p=>p.id===drums.id));assert(!c.kpPaletteDefinitions.some(p=>p.id===drums.id));
+c.plFolderAliases={'/old/foley':'/ssd/Samples/Foley'};c.state.collage.libraryRoots=['/ssd/Samples','/old/foley'];c.state.collage.palettes=[{id:'legacy',name:'Foley',roots:['/old/foley']}];c.kpPaletteDefinitions=[];c.state.events=[{id:1,role:0,beat:0,source:{index:7,a:10,z:100,dur:90,gain:.5},collagePath:'/old/foley/hit.wav'}];before=JSON.stringify(c.state.events);c.kpConfig();assert.deepEqual(Array.from(c.collageLibraryScanRoots()),['/ssd/Samples']);assert.equal(c.state.collage.palettes[0].roots[0],'/ssd/Samples/Foley');assert.equal(JSON.stringify(c.state.events),before);c.collageWriteLibraryPreferences();pref=JSON.parse(files[c.collageLibraryPreferencesPath()].text);assert.equal(pref.folderAliases['/old/foley'],'/ssd/Samples/Foley');
+console.log('PASS: shared palette updates reach older sessions; deleted palettes stay deleted; relocation aliases compact scan roots while retaining saved audio-event paths and regions.');
+
+setup();c.kpPaletteDefinitions=[];c.plFolderAliases={};c.state.collage.palettes=[];let p=c.kpNewPalette('Review',['/pool']);c.collageLibraryFiles=['/pool/Kicks/a.wav','/pool/Breaks/b.wav'];c.collageLibraryKey=JSON.stringify(c.collageLibraryScanRoots());c.kpPaletteSelected=p.id;c.view=35;
+for(const mode of ['folders','discover','preview','rules']){c.plMode=mode;c.plPage=0;c.plRows=[{path:'/pool/Kicks',count:1}];c.plPreview=['/pool/Kicks/a.wav'];c.paint();for(let i=0;i<c.buttons.length;i++)for(let j=0;j<i;j++){let a=c.buttons[i],b=c.buttons[j];assert(!(a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y),`Palette ${mode} overlap ${a.id}/${b.id}`);}assert(c.buttons.every(b=>b.x>=0&&b.x+b.w<=1080&&b.y+b.h<838));}
+outs=[];before=JSON.stringify(c.state.events);c.plHear('/pool/Kicks/a.wav');assert(outs.some(o=>o[1]==='voice'&&o[2]===33));assert.equal(JSON.stringify(c.state.events),before);c.action('plStop');assert(outs.some(o=>o[1]==='stopvoice'&&o[2]===33));
+console.log('PASS: palette folders, discovery, file previews and rules share a non-overlapping view; audition uses reserved voice 33 and leaves the phrase intact.');
+}
+
+{const result=c.plDiscoverRows(['/samples/Spoken - Howard Beale/a.wav','/samples/Radio Chatter/b.wav','/samples/Vocals/sung.wav','/samples/Voices and Breath/breath.wav','/samples/Kicks/hit.wav'],['/samples'],'voices');assert.deepEqual(clone(result),[{path:'/samples/Radio Chatter',count:1},{path:'/samples/Spoken - Howard Beale',count:1}]);console.log('PASS: spoken-word discovery finds speech and radio folders without assuming generic vocal or breath folders contain spoken material.');}
+{
+setup();c.kpPaletteDefinitions=[];c.state.collage.palettes=[];let a=c.kpNewPalette('A',['/a']),b=c.kpNewPalette('B',['/b']);c.state.collage.paletteId=b.id;c.kpPaletteSelected='';let oldEvents=JSON.stringify(c.state.events);c.view=35;c.paint();assert.equal(c.kpPaletteSelected,b.id);assert.equal(c.state.collage.paletteId,b.id);assert(c.buttons.some(x=>x.id==='plMode:folders'));assert.equal(JSON.stringify(c.state.events),oldEvents);
+console.log('PASS: palette setup opens with its active collection selected for editing without changing draw assignments or phrase events.');
+const oldGet=c.patcher.getnamed;let messages=[],field={hidden:1,message(...args){messages.push(args);}};c.patcher.getnamed=()=>field;c.plShown={};delete c.wbNativeFrontKeys.testPaletteField;c.plField('testPaletteField','words',[1,2,3,4],true);c.plField('testPaletteField','words',[1,2,3,4],true);assert.equal(messages.filter(x=>x[0]==='readonly').length,1);assert.equal(messages.filter(x=>x[0]==='set').length,1);c.patcher.getnamed=oldGet;
+console.log('PASS: palette text fields do not repeatedly reset editability or text during ordinary repaint.');
+setup();c.state.collage.swing=.3;c.state.collage.timingJitter=.1;c.grConfig().coherence=.7;c.state.collage.damage=.6;const generate=c.refineGenerate,calls=[];c.refineGenerate=function(mode,play,scope,keep){calls.push({mode,keep,settings:JSON.stringify([c.state.collage.swing,c.state.collage.timingJitter,c.grConfig().coherence,c.state.collage.damage])});};c.view=37;c.action('grGenerate');c.view=26;c.action('collagePhrase');assert.equal(calls.length,2);assert.deepEqual(calls[0],calls[1]);assert(calls.every(x=>x.keep===true));c.refineGenerate=generate;
+console.log('PASS: main and Develop Generate buttons use the same shared swing, looseness, coherence and Wildness values without loading a different preset.');
+}

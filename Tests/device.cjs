@@ -23,3 +23,8 @@ for(const name of ['choose','save','open','folder','bounce']){
  assert(patch.lines.some(r=>r.patchline.source[0]==='route'&&r.patchline.destination[0]===name+'Deferred'));
 }
 console.log('PASS: all file dialogs defer out of the UI mouse callback before opening a modal picker.');
+for(const field of ['include','exclude']){
+ const box=boxes.find(b=>b.varname==='palette'+field);assert(box&&box.maxclass==='textedit'&&box.hidden===1);
+ assert(boxes.some(b=>b.text==='prepend paletterule '+field));
+}
+console.log('PASS: palette rule fields start hidden and route include/exclude text to their own callbacks.');

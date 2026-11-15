@@ -815,6 +815,80 @@
                     22
                   ]
                 }
+              },
+              {
+                "box": {
+                  "id": "paletteinclude",
+                  "varname": "paletteinclude",
+                  "maxclass": "textedit",
+                  "patching_rect": [
+                    380,
+                    350,
+                    660,
+                    35
+                  ],
+                  "presentation": 1,
+                  "presentation_rect": [
+                    380,
+                    350,
+                    660,
+                    35
+                  ],
+                  "hidden": 1,
+                  "keymode": 1,
+                  "outputmode": 1,
+                  "lines": 1
+                }
+              },
+              {
+                "box": {
+                  "id": "paletteincludeMsg",
+                  "maxclass": "newobj",
+                  "text": "prepend paletterule include",
+                  "patching_rect": [
+                    380,
+                    390,
+                    200,
+                    22
+                  ]
+                }
+              },
+              {
+                "box": {
+                  "id": "paletteexclude",
+                  "varname": "paletteexclude",
+                  "maxclass": "textedit",
+                  "patching_rect": [
+                    380,
+                    460,
+                    660,
+                    35
+                  ],
+                  "presentation": 1,
+                  "presentation_rect": [
+                    380,
+                    460,
+                    660,
+                    35
+                  ],
+                  "hidden": 1,
+                  "keymode": 1,
+                  "outputmode": 1,
+                  "lines": 1
+                }
+              },
+              {
+                "box": {
+                  "id": "paletteexcludeMsg",
+                  "maxclass": "newobj",
+                  "text": "prepend paletterule exclude",
+                  "patching_rect": [
+                    380,
+                    500,
+                    200,
+                    22
+                  ]
+                }
               }
             ],
             "lines": [
@@ -1206,6 +1280,54 @@
                 "patchline": {
                   "source": [
                     "mxpitchMsg",
+                    0
+                  ],
+                  "destination": [
+                    "ui",
+                    0
+                  ]
+                }
+              },
+              {
+                "patchline": {
+                  "source": [
+                    "paletteinclude",
+                    0
+                  ],
+                  "destination": [
+                    "paletteincludeMsg",
+                    0
+                  ]
+                }
+              },
+              {
+                "patchline": {
+                  "source": [
+                    "paletteincludeMsg",
+                    0
+                  ],
+                  "destination": [
+                    "ui",
+                    0
+                  ]
+                }
+              },
+              {
+                "patchline": {
+                  "source": [
+                    "paletteexclude",
+                    0
+                  ],
+                  "destination": [
+                    "paletteexcludeMsg",
+                    0
+                  ]
+                }
+              },
+              {
+                "patchline": {
+                  "source": [
+                    "paletteexcludeMsg",
                     0
                   ],
                   "destination": [

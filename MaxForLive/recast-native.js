@@ -221,3 +221,5 @@ include("recast-groove-foundation.js");
 include("recast-layer-mixer.js");
 
 include("recast-manual-playback.js");
+
+include("recast-palettes.js");

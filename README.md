@@ -30,6 +30,19 @@ Use up to **24 collage layers**, with up to **16 recordings per layer**. Load yo
 - Keep a layer's sound while changing its rhythm, or lock the entire layer.
 - Avoid active recordings, prefer files outside recent draw history, and optionally reject byte-identical copied files without deleting anything.
 
+### Set up palettes without reorganizing your files
+
+Open **Palettes / draw setup…**; the active palette (or the first one) is selected for editing automatically. To add another, type a name, press Enter and choose **Create palette**. Select that palette in the left column, then use the tabs on the right:
+
+- **Folders:** combine up to 128 folder locations, including their subfolders. Add one folder or all current library folders. Files stay in place.
+- **Find folders:** review suggested **Drums** or **Spoken / voices** folders, check the ones you want and choose **Add checked folders**. Drum suggestions recognize folder names such as Kicks, Snares, Hats, Cymbals, Percs and Breaks. Spoken suggestions recognize speech, sermons, dialogue, interviews and radio chatter; generic loops, vocals and breaths are not assumed to belong.
+- **Preview files:** review the indexed files matching the palette and audition up to four seconds without replacing sounds in your phrase.
+- **Name rules:** optional comma-separated include/exclude words match filenames and folder paths, ignoring case. Any included word can match; exclusions win. Press Enter to save. Blank rules include all supported audio in the chosen folders.
+
+Assign the palette globally or to an individual layer. Folder discovery uses names, not speech or instrument recognition. Preview counts show indexed name matches; duration and sound-character filters can further narrow actual draws. **Rescan library** refreshes the index.
+
+Palette definitions are shared through private local preferences while remaining part of saved sessions. A newer shared definition updates an older session's palette without replacing its loaded sounds. Configured local folder aliases can relocate library roots without rewriting saved audio-event paths.
+
 Everything runs locally. There is no account, sample subscription or upload service. Sound filters are practical hints and measurements, not speech recognition or instrument separation.
 
 ## Balance the layers
@@ -53,7 +66,7 @@ Open **Groove / develop…** and give each layer a rhythmic job, independent of 
 
 **Coherence** favors recurring accents and recognizable placement. At zero it leaves the collage placement independent; at full strength, foundation anchors stay steady while the surrounding detail can misbehave. **Wildness** independently controls episodes of stutters, chokes, gaps, reversals, late answers and rushing or dragging motion.
 
-**Swing** and **Timing looseness** are independent controls in **Groove / develop…** and the layer settings' **Rhythm** tab. Swing delays alternate straight sixteenths, from Straight to a 2:1 lilt; triplet grids and deliberate off-grid placements are left alone. Timing looseness adds ordinary random drift. Set both to zero for a straight underlying pulse while Wildness still creates abrupt stumbles, rushes, ratchets, gaps and chokes. Movement controls pitch and reverse independently. These settings apply on Generate; moving them does not rewrite the current phrase. Old sessions retain their existing notes and prior timing amount.
+**Swing** and **Timing looseness** are independent controls in **Groove / develop…** and the layer settings' **Rhythm** tab. Swing delays alternate straight sixteenths, from Straight to a 2:1 lilt; triplet grids and deliberate off-grid placements are left alone. Timing looseness adds ordinary random drift. Set both to zero for a straight underlying pulse while Wildness still creates abrupt stumbles, rushes, ratchets, gaps and chokes. Movement controls pitch and reverse independently. These shared settings apply from either Generate button; moving them does not rewrite the current phrase. Old sessions retain their existing notes and prior timing amount.
 
 
 Click **Generate with these settings** to apply the choices. The loaded sounds stay available, and generation respects the selected target and explicit locks. A door slam can carry the pulse, a voice can become the backbeat, and relay clicks can provide the nervous detail.
