@@ -2,6 +2,12 @@
 
 Release notes describe Recast's capabilities and user-facing changes. Download packaged builds from [Releases](https://github.com/sxrvys/Recast/releases).
 
+## 0.2.0-beta.18 — 2026-11-15
+
+- Added Redraw rhythm to every layer card and the layer detail view. Generate fresh ideas for one layer while retaining its recordings and existing cut pool.
+- Redraw uses shared Swing, Timing looseness and Wildness settings, respects protection and full-layer locks, and supports Undo. Keep sound does not block a deliberate rhythm redraw.
+- Preparation leaves the current phrase playing and hands off at the next bar. Unchanged layers retain their event settings and probability seeds.
+
 ## 0.2.0-beta.17 — 2026-11-15
 
 - Reworked palette setup into a palette list with Folders, Find folders, Preview files and Name rules tabs in the same view. The active or first palette opens selected for editing.

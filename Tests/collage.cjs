@@ -333,3 +333,29 @@ console.log('PASS: palette text fields do not repeatedly reset editability or te
 setup();c.state.collage.swing=.3;c.state.collage.timingJitter=.1;c.grConfig().coherence=.7;c.state.collage.damage=.6;const generate=c.refineGenerate,calls=[];c.refineGenerate=function(mode,play,scope,keep){calls.push({mode,keep,settings:JSON.stringify([c.state.collage.swing,c.state.collage.timingJitter,c.grConfig().coherence,c.state.collage.damage])});};c.view=37;c.action('grGenerate');c.view=26;c.action('collagePhrase');assert.equal(calls.length,2);assert.deepEqual(calls[0],calls[1]);assert(calls.every(x=>x.keep===true));c.refineGenerate=generate;
 console.log('PASS: main and Develop Generate buttons use the same shared swing, looseness, coherence and Wildness values without loading a different preset.');
 }
+
+{
+setup();c.collageGenerate('phrase');drain();c.undoStack=[];
+c.collageLane(0).soundLocked=true;c.collageLane(1).stepDefaults={velocity:1,pitch:12,gate:64};
+const before=clone(c.state),others=JSON.stringify(c.state.events.filter(e=>e.role!==0)),material=JSON.stringify(c.collageLane(0).cuts),sources=JSON.stringify(c.collageLane(0).sources);
+c.action('layerRhythm:0');assert(c.refineJob);assert.equal(JSON.stringify(c.state),JSON.stringify(before),'preparation cannot change running state');drain();
+assert.equal(JSON.stringify(c.state.events.filter(e=>e.role!==0)),others);
+assert.equal(JSON.stringify(c.collageLane(0).cuts),material);assert.equal(JSON.stringify(c.collageLane(0).sources),sources);
+assert.notEqual(JSON.stringify(c.state.events.filter(e=>e.role===0)),JSON.stringify(before.events.filter(e=>e.role===0)));
+assert.equal(c.state.collage.seeds.rhythm,before.collage.seeds.rhythm);assert(c.state.events.some(e=>e.role===0&&e.rhythmSeed!==undefined));assert.equal(c.undoStack.length,1);
+let last=JSON.stringify(c.state.events.filter(e=>e.role===0));c.action('layerRhythm:0');drain();assert.notEqual(JSON.stringify(c.state.events.filter(e=>e.role===0)),last);assert.equal(JSON.stringify(c.state.events.filter(e=>e.role!==0)),others);
+c.collageLane(0).locked=true;last=JSON.stringify(c.state);c.action('layerRhythm:0');assert(!c.refineJob);assert.equal(JSON.stringify(c.state),last);c.collageLane(0).locked=false;
+c.action('layerRhythm:5');assert(!c.refineJob);c.rrRedraw(-1);c.rrRedraw(.5);assert(!c.refineJob);
+console.log('PASS: explicit layer redraw generates fresh rhythm, preserves cuts/sources and all other event/default data, allows kept sounds, queues isolated work and creates Undo; locked and empty layers reject.');
+setup();c.collageGenerate('phrase');drain();let lockedHit=c.state.events.find(e=>e.role===0);lockedHit.locked=true;let protectedCopy=JSON.stringify(lockedHit);c.state.ranges=[[4,8]];let protectedRange=JSON.stringify(c.state.events.filter(e=>e.beat>=4&&e.beat<8));c.action('layerRhythm:0');drain();assert.equal(JSON.stringify(c.state.events.find(e=>e.id===lockedHit.id)),protectedCopy);assert.equal(JSON.stringify(c.state.events.filter(e=>e.beat>=4&&e.beat<8)),protectedRange);
+c.view=26;c.collageLanePage=0;c.collageMenu='';c.refineMenu='';c.kpMenu='';c.paint();assert.equal(c.buttons.filter(b=>/^layerRhythm:/.test(b.id)).length,6);
+for(let i=0;i<c.buttons.length;i++)for(let j=0;j<i;j++){let a=c.buttons[i],b=c.buttons[j];assert(!(a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y),`Redraw layout overlap ${a.id}/${b.id}`);}
+c.view=34;c.paint();assert(c.buttons.some(b=>b.id==='layerRhythm:0'));
+console.log('PASS: layer redraw preserves protected hits and silence, with reachable non-overlapping layer-card controls and a detail-view action.');
+}
+{
+setup();c.collageGenerate('phrase');drain();c.undoStack=[];let original=JSON.stringify(c.state.events);c.rrRedraw(1);drain();c.action('undo');assert.equal(JSON.stringify(c.state.events),original);
+c.playing=true;let running=c.state.events;c.rrRedraw(1);drain();assert.strictEqual(c.state.events,running);assert(c.refineReady);assert(c.playing);assert(c.collageRecall(4));assert(c.playing);assert.notEqual(JSON.stringify(c.state.events),original);c.stop();
+c.rrRedraw(1);assert(c.refineJob);c.stop();assert(!c.refineJob&&!c.refineReady);
+console.log('PASS: actual layer-redraw Undo restores the former events; playing redraw queues a bar handoff without replacing running events, and Stop cancels preparation.');
+}

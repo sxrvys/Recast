@@ -321,7 +321,7 @@ function collagePlan(cycleNumber,events) {
         var e=reserved[i],l=collageLane(e.role);
         if(e.collage&&(l.mute||solo&&!l.solo))continue;
         if(e.collage&&!e.collageCommitted) {
-            var rnd=collageRandom(collageSeed(c.seeds.rhythm,e.id%100000,cycleNumber));
+            var rnd=collageRandom(collageSeed(e.rhythmSeed===undefined?c.seeds.rhythm:e.rhythmSeed,e.id%100000,cycleNumber));
             if(rnd()>=l.chance)continue;
         }
         out.push(e);

@@ -127,16 +127,16 @@ paint=function() {
         text('Shape controls apply on the next phrase or reroll.',635,608,10,[.56,.67,.69,1]);
         var first=collageLanePage*6;for(var i=0;i<6;i++) {
             var role=first+i;if(role>=roles.length)continue;var lane=collageLane(role),x=20+i*175,y=646;
-            visualRound(x,y,160,134,role===collageSelectedLane?[.16,.23,.25,1]:[.115,.14,.16,1],5);
+            visualRound(x,y,160,150,role===collageSelectedLane?[.16,.23,.25,1]:[.115,.14,.16,1],5);
             button('collageSelect:'+role,'Layer '+(role+1),x,y,99,role===collageSelectedLane);
             text(lane.sources.length?shortName(lane.sources[0],21):'Drop WAV / AIFF here',x+6,y+47,10,[.67,.76,.78,1]);
             button('refineSoundKind:'+role,'Find: '+(lane.drawLabel||lane.libraryType||'anything')+' ▾',x,y+53,160);
-            button('collageBrowse:'+role,'Browse',x,y+84,70);button('collageNewSound:'+role,'New sound',x+76,y+84,84);button('refineKeepSound:'+role,lane.soundLocked?'Kept':'Keep',x+105,y,55,lane.soundLocked);
+            mxTiny('collageBrowse:'+role,'Browse',x,y+84,70,false);mxTiny('collageNewSound:'+role,'New sound',x+76,y+84,84,false);mxTiny('layerRhythm:'+role,'Redraw rhythm',x,y+106,160,false);button('refineKeepSound:'+role,lane.soundLocked?'Kept':'Keep',x+105,y,55,lane.soundLocked);
         }
         button('collageLanePagePrev','‹ Layers',20,615,100);button('collageLanePageNext','Layers ›',130,615,100);button('collageAddLane','+ Layer',245,615,100);
         var l=collageLane(collageSelectedLane);
         button('collageMute','Mute',365,615,65,l.mute);button('collageSolo','Solo',440,615,65,l.solo);button('collageLock','Lock layer',515,615,105,l.locked);
-        for(var k=0;k<4;k++){var x=20+k*265,keep=state.collage.keeps[k];button('collageRecall:'+k,keep?'Phrase '+(k+1)+(collageQueuedKeep===k?' · queued':''):'Empty '+(k+1),x,781,170,!!keep);button('collageKeep:'+k,'Keep',x+178,781,72);}
+        for(var k=0;k<4;k++){var x=20+k*265,keep=state.collage.keeps[k];button('collageRecall:'+k,keep?'Phrase '+(k+1)+(collageQueuedKeep===k?' · queued':''):'Empty '+(k+1),x,796,170,!!keep);button('collageKeep:'+k,'Keep',x+178,796,72);}
         text(state.events.length+' events · '+collageActiveRoles().length+' source layers · '+(playing?'bar '+(Math.floor(currentBeat()/4)+1)+' / '+state.bars:'stopped'),20,835,11,[.54,.65,.68,1]);
     }
     text(status.slice(0,140),20,860,11,[.65,.79,.74,1]);collageDrawMenu();rawDraw=false;

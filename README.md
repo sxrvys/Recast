@@ -49,6 +49,8 @@ Everything runs locally. There is no account, sample subscription or upload serv
 
 Every layer card has a **volume fader, Mute, Solo and Lock**, directly below Browse / New sound. A small activity indicator shows active voices; it is an activity estimate, not a calibrated peak meter. The **Master** fader sits above the cards. Volume, Mute and Solo affect playing tails as well as future hits, without Generate. Mixer levels are retained in sessions and applied to loop/stem exports.
 
+**Redraw rhythm** on a layer card generates fresh rhythmic ideas across that layer’s bars using its existing sounds and cut pool. Other layers and protected hits/gaps stay intact. Shared timing and Wildness settings apply; during playback the prepared result switches at the next bar. Undo restores the previous rhythm.
+
 **Keep** protects a source from automatic library replacement. It does not block intentional changes: clicking that layer's **New sound** replaces its source while retaining its rhythm and Keep state. Global New sounds still leaves it alone. **Lock** protects the whole layer from generation and editing.
 
 **Max fragment size** sets the upper bound for randomly selected source cuts; the short minimum stays at 35 ms. Larger settings permit tiny fragments and long cuts together. Advanced explicit duration ranges, whole-recording playback and equal divisions retain their own length rules. A step gate can shorten playback further.

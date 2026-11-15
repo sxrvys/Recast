@@ -68,7 +68,7 @@ var refineDecorateBefore=collageDecorate;collageDecorate=function(base){
     var byId={};for(var i=0;i<base.length;i++)byId[base[i].id]=base[i];
 
     for(var i=0;i<decorated.length;i++){var e=decorated[i],old=byId[e.id];if(old&&!refineContains(e)){e.beat=old.beat;} }
-    return refineMode==='phrase'||refineMode==='damage'?refineDamage(decorated):decorated;
+    return refineMode==='phrase'||refineMode==='damage'||refineMode==='rhythm'&&refineContext&&refineContext.wbKind==='layerRhythm'?refineDamage(decorated):decorated;
 };
 function refineRevision(){var c=state.collage,controls={},skip={lanes:1,base:1,lastResult:1,keeps:1,sourceKeys:1,detectedTarget:1,changeSummary:1,changedIds:1};for(var field in c)if(c.hasOwnProperty(field)&&!skip[field])controls[field]=c[field];var lanes=c.lanes.map(function(l){var row={};for(var key in l)if(l.hasOwnProperty(key)&&key!=='cuts'&&key!=='dirty')row[key]=l[key];return row;});return JSON.stringify([state.events,state.tempo,state.bars,state.paths,lanes,controls]);}
 function refineWithState(job,fn){
@@ -103,7 +103,7 @@ function refineGenerate(mode,autoPlay,scopeOverride,keepControls,preparedState){
                 if(job.phase==='start'){var savedStyle=collageApplyStyle;try{if(job.keepControls)collageApplyStyle=function(){};collageGenerate(mode,false);}finally{collageApplyStyle=savedStyle;}job.roles=collageActiveRoles().filter(function(r){return refineTargetsRole(r)&&(collageLane(r).dirty||!collageLane(r).cuts.length);});job.keys=[];job.keyAt=0;for(var r=0;r<roles.length;r++)for(var k=0;k<collageLane(r).sources.length;k++)if(job.keys.indexOf(collageLane(r).sources[k])<0)job.keys.push(collageLane(r).sources[k]);job.phase='keys';}
                 else if(job.phase==='keys'){if(refineKeyStep(job))job.phase='cuts';}
                 else if(job.phase==='cuts'){if(job.at<job.roles.length)collageBuildLane(job.roles[job.at++]);else{job.phase='finish';}}
-                else if(job.phase==='finish'){if(!job.finish)throw Error('No generation callback was prepared.');job.finish();job.phase='audio';}
+                else if(job.phase==='finish'){if(!job.finish)throw Error('No generation callback was prepared.');job.finish();if(job.scope.wbKind==='layerRhythm')rrFinish(job);job.phase='audio';}
                 else if(job.phase==='audio'){if(job.eventAt<state.events.length)sound(state.events[job.eventAt++]);else{collageReserveVoices(state.events);job.phase='ready';}}
             });
             if(job.phase==='ready'){
